@@ -1,0 +1,10 @@
+---
+variables:
+  ind:  Index
+  col1: Column 1
+  col2: Column 2
+...
+ind,col1,col2
+a,0,1
+b,2,3
+c,4,5

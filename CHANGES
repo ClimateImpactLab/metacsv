@@ -1,0 +1,25 @@
+=========
+Changelog
+=========
+
+Here you can find the recent changes to MetaDoc..
+
+.. changelog::
+    :version: dev
+    :released: Ongoing
+
+    .. change::
+        :tags:  docs
+
+        Updated CHANGES.
+
+.. changelog::
+    :version: 0.0.1
+    :released: 2016-05-04
+
+    .. change::
+        :tags: project
+
+        First release on PyPi.
+
+.. todo:: vim: set filetype=rst:
