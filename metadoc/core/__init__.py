@@ -1,1 +1,1 @@
-from metadoc.core.containers import DataFrame
+from metadoc.core.containers import DataFrame, Series, Panel
