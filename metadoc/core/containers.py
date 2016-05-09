@@ -215,8 +215,6 @@ class Container(object):
 
       data_vars = OrderedDict([(col, xr.DataArray.from_series(base_df[col])) for col in self.columns])
 
-
-
       return xr.Dataset(
         data_vars=data_vars, 
         coords=coords, 
@@ -232,6 +230,8 @@ class Container(object):
       return self.to_xarray()
 
     if len(self.shape) == 2:
+      self.columns.names = [c if c is not None else 'ind_{}'.format(len(self.index.names) + i) for i, c in enumerate(self.columns.names)]
+      
       return self.unstack(self.columns.names[0]).to_dataarray()
 
 
