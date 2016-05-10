@@ -9,8 +9,8 @@ dev
 - Write the project
 - Release
 - Optimize for clarity
-- Release
 - Optimize for speed
-- Release
+- Fix index display for RangeIndex, Index, DatetimeIndex
+- Overload pandas index, column handling to force coordinate re-calculation
 
 .. todo:: vim: set filetype=rst:

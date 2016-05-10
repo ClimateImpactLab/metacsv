@@ -12,6 +12,13 @@ class GraphIsCyclicError(ValueError):
 class Coordinates(object):
   '''
   Manages coordinate system for MetaDoc data containers
+
+  :param argumentName: an example argument.
+  :type argumentName: string
+  :param anOptionalArg: an optional argument.
+  :type anOptionalArg: string
+  :returns: New instance of :class:`Metadoc`
+  :rtype: Metadoc
   '''
 
   def __init__(self, coords={}):
@@ -21,14 +28,10 @@ class Coordinates(object):
     return self._coords
 
   def __set__(self, coords):
-    self._coords, self._base_coords = self._validate_coords(coords)
-
-  # this really doesn't work...
-  # def __del__(self):
-  #   raise AttributeError("Coordinates cannot be deleted. To strip MetaDoc attributes, re-initialize data as a pandas or xarray object (e.g. `df = pd.DataFrame(metadoc_df)`")
+    self._coords, self._base_coords, self._base_dependencies = self._validate_coords(coords)
 
   def copy(self):
-    return self._coords.copy()
+    return Coordinates(self._coords.copy())
 
   def get_base_coords(self):
     return self._base_coords
@@ -44,10 +47,11 @@ class Coordinates(object):
 
     if not hasattr(coords, 'iterkeys'):
       coords = OrderedDict(zip(list(coords), [None for _ in range(len(coords))]))
-      return coords, FrozenList(coords.keys())
+      return coords, FrozenList(coords.keys()), {c: set([c]) for c in coords.keys()}
 
     base_coords = []
     dependencies = OrderedDict([])
+    base_deps = {}
     visited = set()
 
     def find_coord_dependencies(coord):
@@ -62,24 +66,28 @@ class Coordinates(object):
       if deps is None:
         base_coords.append(coord)
         dependencies[coord] = None
+        base_deps[coord] = set([coord])
         visited.add(coord)
 
       elif isinstance(deps, string_types):
         visited.add(coord)
         find_coord_dependencies(deps)
         dependencies[coord] = set([deps])
+        base_deps[coord] = base_deps[deps]
 
       else:
         visited.add(coord)
         dependencies[coord] = set()
+        base_deps[coord] = set()
         for ele in deps:
           find_coord_dependencies(ele)
           dependencies[coord].add(ele)
+          base_deps[coord] |= base_deps[ele]
 
     while len(coords) > 0:
       find_coord_dependencies(next(coords.iterkeys()))
 
-    return dependencies, FrozenList(base_coords)
+    return dependencies, FrozenList(base_coords), base_deps
 
 
   def _update(self, coords):
@@ -89,18 +97,31 @@ class Coordinates(object):
       _coords = self._coords.copy()
 
     _coords.update(coords)
-    coords, base_coords = self._validate_coords(_coords)
+    coords, base_coords, base_dependencies = self._validate_coords(_coords)
 
     assert len(base_coords) > 0, "Index must have at least one base coordinate"
 
     self._coords = coords
     self._base_coords = base_coords
+    self._base_dependencies = base_dependencies
 
 
 
 class Container(object):
 
   def __init__(self, coords=None, *args, **kwargs):
+    '''
+    Initialization method for Container objects
+
+    :param argumentName: an example argument.
+    :type argumentName: string
+    :param anOptionalArg: an optional argument.
+    :type anOptionalArg: string
+    :returns: New instance of :class:`Metadoc`
+    :rtype: Metadoc
+
+    '''
+
     if coords is None:
       coords = {'index_{}'.format(i) if coord is None else coord: None for i, coord in enumerate(self.index.names)}
     self._coords = Coordinates(coords)
@@ -172,15 +193,15 @@ class Container(object):
 
     if coords is None:
       if not pd.isnull(self.index.names).any():
-        coords, base_coords = self._validate_coords(self.index.names)
+        coords, base_coords, base_dependencies = self._validate_coords(self.index.names)
       
       elif len(self.index.names) == 1 and self.index.names[0] is None:
         self.index.names = ['index']
-        coords, base_coords = self._validate_coords(self.index.names)
+        coords, base_coords, base_dependencies = self._validate_coords(self.index.names)
 
       elif pd.isnull(self.index.names).all():
         self.index.names = [coord if coord is not None else 'level_{}'.format(i) for i, coord in enumerate(self.index.names)]
-        coords, base_coords = self._validate_coords(self.index.names)
+        coords, base_coords, base_dependencies = self._validate_coords(self.index.names)
 
     self._coords._update(coords)
 
@@ -198,11 +219,16 @@ class Container(object):
           names=map(str, self.base_coords))))
 
     if len(self.shape) == 2:
+
+      ds = xr.Dataset()
+
+
+
       # coords = self._get_coords_dataarrays_from_index()
       coords = OrderedDict()
       for coord in self.coords:
         if coord in self.base_coords: continue
-        coord_data = self.reset_index([c for c in self.coords if not c in self.coords[coord]], drop=False, inplace=False)[coord].drop_duplicates()
+        coord_data = self.reset_index([c for c in self.coords if not c in self._coords._base_dependencies[coord]], drop=False, inplace=False)[coord]
         
         coords[coord] = xr.DataArray.from_series(coord_data)
 
@@ -210,8 +236,6 @@ class Container(object):
         base_df = self.copy().reset_index([c for c in self.coords.keys() if not c in self.base_coords], drop=False)
       else:
         base_df = self
-
-      print(coords)
 
       data_vars = OrderedDict([(col, xr.DataArray.from_series(base_df[col])) for col in self.columns])
 
