@@ -25,8 +25,8 @@ Features
 =========
 
 Read in CSV data with a yaml-compliant header directly into 
-a `pandas` `Series`, `DataFrame`, or `Panel` or an `xarray` 
-`DataArray` or `Dataset`.
+a ``pandas`` ``Series``, ``DataFrame``, or ``Panel`` or an ``xarray`` 
+``DataArray`` or ``Dataset``.
 
 Data specification
 ----------------------------
@@ -129,25 +129,25 @@ xarray/netCDF
     >>> ds.to_netcdf('my_data_netcdf.nc')
 
 Currently, MetaCSV only supports conversion back to CSV and to 
-netCDF through the `xarray` module. However, feel free to suggest 
+netCDF through the ``xarray`` module. However, feel free to suggest 
 additional features and to contribute your own!
 
 
 TODO
 ============
 
-* Make `coords` and `attrs` persistent across slicing operations 
-  (try `df['pop'].to_xarray()` from above example and watch it 
+* Make ``coords`` and ``ttrs`` persistent across slicing operations 
+  (try ``df['pop'].to_xarray()`` from above example and watch it 
   fail...)
-* Improve hooks between `pandas` and `metacsv`:
-  - update `coord` names on `df.index.names` assignment
-  - update `coords` on stack/unstack
-  - update `coords` on 
+* Improve hooks between ``pandas`` and ``metacsv``:
+  - update ``coord`` names on ``df.index.names`` assignment
+  - update ``coords`` on stack/unstack
+  - update ``coords`` on 
 * Handle attributes indexed by coord/variable names --> assign to 
-  coord/variable-specific `attrs`
+  coord/variable-specific ``attrs``
 * Let's start an issue tracker and get rid of this section!
 * Should we rethink "special attributes," e.g. coords? Maybe these should 
-  have some special prefix like `_coords` when included in yaml headers to 
+  have some special prefix like ``_coords`` when included in yaml headers to 
   avoid confusion with other generic attributes...
 * Write tests
 * Write documentation
