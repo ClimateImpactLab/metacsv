@@ -29,7 +29,6 @@ a `pandas` `Series`, `DataFrame`, or `Panel` or an `xarray`
     >>> import metadoc, StringIO
     >>> doc = StringIO('''
     ---
-    format: yaml
     author: A Person
     date:   2000-01-01
     variables:
@@ -48,14 +47,35 @@ a `pandas` `Series`, `DataFrame`, or `Panel` or an `xarray`
     
     >>> df = metadoc.read_csv(doc, index_cols=[0,1])
     >>> df
+    <metadoc.core.containers.DataFrame (4,2)>
                 pop   gdp
     region year 
     USA    2010 309.3 13599.3
     USA    2011 311.7 13817.0
     CAN    2010  34.0  1240.0
     CAN    2011  34.3  1276.7
-
-
+    
+    Coordinates:
+       * region (region) object USA CAN
+       * year   (year) int16 2010 2011
+    Variables:
+         pop
+         gdp
+    Attributes:
+        author: A Person
+        date: 2000-01-01
+    
+    >>> df.to_xarray()
+    <xarray.Dataset>
+    Coordinates:
+       * region (region) object USA CAN
+       * year   (year) int16 2010 2011
+    Variables:
+         pop (region, year) 309.3 311.7 34.0 34.3
+         gdp (region, year) 13599.3 13817.0 1240.0 ...
+    Attributes:
+        author: A Person
+        date: 2000-01-01
 
 * TODO
 
