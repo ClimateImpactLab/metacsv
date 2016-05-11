@@ -11,7 +11,7 @@ except ImportError:
     from distutils.core import setup, find_packages
 
 about = {}
-with open("metadoc/__about__.py") as fp:
+with open("metacsv/__about__.py") as fp:
     exec(fp.read(), about)
 
 with open('requirements.txt') as f:
@@ -41,7 +41,7 @@ setup(
     long_description=readme + '\n\n' + history,
     author=about['__author__'],
     author_email=about['__email__'],
-    url='https://github.com/delgadom/metadoc',
+    url='https://github.com/delgadom/metacsv',
     packages=find_packages(exclude=['docs']),
     include_package_data=True,
     install_requires=install_reqs,
@@ -60,5 +60,5 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
     ],
-    test_suite='metadoc.testsuite',
+    test_suite='metacsv.testsuite',
 )

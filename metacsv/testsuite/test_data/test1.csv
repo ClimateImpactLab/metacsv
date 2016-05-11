@@ -3,7 +3,16 @@ variables:
   ind:  Index
   col1: Column 1
   col2: Column 2
-...
+
+author:
+  My Name
+
+date:
+  2016-05-09
+
+version:
+  0.1.0
+---
 ind,col1,col2
 a,0,1
 b,2,3

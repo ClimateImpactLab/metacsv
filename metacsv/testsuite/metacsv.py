@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Tests for `metadoc` module."""
+"""Tests for `metacsv` module."""
 
 from __future__ import (
     absolute_import, division, print_function, with_statement,
     unicode_literals
 )
 
-from .. import metadoc
+from .. import metacsv
 
 from . import unittest
 
 
-class MetadocTestCase(unittest.TestCase):
+class MetacsvTestCase(unittest.TestCase):
 
     def setUp(self):
         pass
@@ -33,5 +33,5 @@ def suite():
     from .helpers import setup_path
     setup_path()
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(MetadocTestCase))
+    suite.addTest(unittest.makeSuite(MetacsvTestCase))
     return suite

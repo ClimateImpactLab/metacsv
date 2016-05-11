@@ -1,5 +1,5 @@
-__title__ = 'MetaDoc'
-__package_name__ = 'metadoc'
+__title__ = 'MetaCSV'
+__package_name__ = 'metacsv'
 __author__ = 'Michael Delgado'
 __description__ = 'Tools for documentation-aware data reading, writing, and analysis'
 __email__ = 'delgado.michaelt@gmail.com'

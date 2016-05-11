@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Tests for MetaDoc."""
+"""Tests for MetaCSV."""
 from __future__ import (
     absolute_import, division, print_function, with_statement,
     unicode_literals

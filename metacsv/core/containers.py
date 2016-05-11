@@ -1,108 +1,30 @@
 
 
 import pandas as pd, numpy as np, xarray as xr
-from pandas.compat import string_types
+from .._compat import string_types
 from collections import OrderedDict
 from pandas.core.base import FrozenList
 
-
-class GraphIsCyclicError(ValueError):
-  pass
-
-class Coordinates(object):
-  '''
-  Manages coordinate system for metacsv data containers
-  '''
-
-  def __init__(self, coords={}):
-    self.__set__(coords)
-
-  def __get__(self):
-    return self._coords
-
-  def __set__(self, coords):
-    self._coords, self._base_coords = self._validate_coords(coords)
-
-  # this really doesn't work...
-  # def __del__(self):
-  #   raise AttributeError("Coordinates cannot be deleted. To strip metacsv attributes, re-initialize data as a pandas or xarray object (e.g. `df = pd.DataFrame(metacsv_df)`")
-
-  def copy(self):
-    return self._coords.copy()
-
-  def get_base_coords(self):
-    return self._base_coords
-
-  @property
-  def base_coords(self):
-    return self.get_base_coords()
-
-
-  @staticmethod
-  def _validate_coords(coords):
-    ''' Validate coords to test for cyclic graph '''
-
-    if not hasattr(coords, 'iterkeys'):
-      coords = OrderedDict(zip(list(coords), [None for _ in range(len(coords))]))
-      return coords, FrozenList(coords.keys())
-
-    base_coords = []
-    dependencies = OrderedDict([])
-    visited = set()
-
-    def find_coord_dependencies(coord):
-      if coord in visited:
-        if coord not in dependencies:
-          raise GraphIsCyclicError
-        return
-
-      deps = coords.pop(coord)
-
-
-      if deps is None:
-        base_coords.append(coord)
-        dependencies[coord] = None
-        visited.add(coord)
-
-      elif isinstance(deps, string_types):
-        visited.add(coord)
-        find_coord_dependencies(deps)
-        dependencies[coord] = set([deps])
-
-      else:
-        visited.add(coord)
-        dependencies[coord] = set()
-        for ele in deps:
-          find_coord_dependencies(ele)
-          dependencies[coord].add(ele)
-
-    while len(coords) > 0:
-      find_coord_dependencies(next(coords.iterkeys()))
-
-    return dependencies, FrozenList(base_coords)
-
-
-  def _update(self, coords):
-    if not hasattr(self, '_coords'):
-      _coords = {}
-    else:
-      _coords = self._coords.copy()
-
-    _coords.update(coords)
-    coords, base_coords = self._validate_coords(_coords)
-
-    assert len(base_coords) > 0, "Index must have at least one base coordinate"
-
-    self._coords = coords
-    self._base_coords = base_coords
-
+from metacsv.core.internals import Coordinates
 
 
 class Container(object):
 
   def __init__(self, coords=None, *args, **kwargs):
+    '''
+    Initialization method for Container objects
+
+    :param argumentName: an example argument.
+    :type argumentName: string
+    :param anOptionalArg: an optional argument.
+    :type anOptionalArg: string
+    :returns: New instance of :class:`Container`
+    :rtype: Container
+
+    '''
+
     if coords is None:
-      coords = {'index_{}'.format(i) if coord is None else coord: None for i, coord in enumerate(self.index.names)}
+      coords = dict(('index_{}'.format(i) if coord is None else coord, None) for i, coord in enumerate(self.index.names))
     self._coords = Coordinates(coords)
 
   @property
@@ -112,6 +34,13 @@ class Container(object):
   @property
   def base_coords(self):
     return self._coords.base_coords
+
+  @staticmethod
+  def pull_attribute(kwargs, attrs, attr):
+    data = None
+    if attr in kwargs:
+      data = kwargs.pop(attr)
+    attrs = kwargs.get(attrs)
 
   @property
   def metacsv_str(self):
@@ -134,7 +63,11 @@ class Container(object):
       )
 
   def repr_coord(self, coord, base=False, maxlen=50):
-    coord_data = self.index.levels[self.index.names.index(coord)]
+    if isinstance(self.index, pd.MultiIndex):
+      coord_data = self.index.levels[self.index.names.index(coord)]
+    else:
+      coord_data = self.index.values
+
     coordstr = '  * ' if base else '    '
     coordstr += '{: <10}'.format(coord)
     coordstr += ' ({})'.format(coord if base else ','.join(self.coords[coord]))
@@ -172,15 +105,15 @@ class Container(object):
 
     if coords is None:
       if not pd.isnull(self.index.names).any():
-        coords, base_coords = self._validate_coords(self.index.names)
+        coords, base_coords, base_dependencies = self._validate_coords(self.index.names)
       
       elif len(self.index.names) == 1 and self.index.names[0] is None:
         self.index.names = ['index']
-        coords, base_coords = self._validate_coords(self.index.names)
+        coords, base_coords, base_dependencies = self._validate_coords(self.index.names)
 
       elif pd.isnull(self.index.names).all():
         self.index.names = [coord if coord is not None else 'level_{}'.format(i) for i, coord in enumerate(self.index.names)]
-        coords, base_coords = self._validate_coords(self.index.names)
+        coords, base_coords, base_dependencies = self._validate_coords(self.index.names)
 
     self._coords._update(coords)
 
@@ -198,11 +131,11 @@ class Container(object):
           names=map(str, self.base_coords))))
 
     if len(self.shape) == 2:
-      # coords = self._get_coords_dataarrays_from_index()
+
       coords = OrderedDict()
       for coord in self.coords:
         if coord in self.base_coords: continue
-        coord_data = self.reset_index([c for c in self.coords if not c in self.coords[coord]], drop=False, inplace=False)[coord].drop_duplicates()
+        coord_data = self.reset_index([c for c in self.coords if not c in self._coords._base_dependencies[coord]], drop=False, inplace=False)[coord]
         
         coords[coord] = xr.DataArray.from_series(coord_data)
 
@@ -210,8 +143,6 @@ class Container(object):
         base_df = self.copy().reset_index([c for c in self.coords.keys() if not c in self.base_coords], drop=False)
       else:
         base_df = self
-
-      print(coords)
 
       data_vars = OrderedDict([(col, xr.DataArray.from_series(base_df[col])) for col in self.columns])
 
@@ -264,8 +195,23 @@ class Series(Container, pd.Series):
 
   def __init__(self, *args, **kwargs):
 
-    self.attrs = kwargs.pop('attrs', {})
-    coords = kwargs.pop('coords', None)
+    attrs = kwargs.pop('attrs', {})
+
+    coords = None
+
+    c1 = attrs.pop('coords', None)
+    c2 = kwargs.pop('coords', None)
+
+    if c1 is not None:
+      coords = c1
+
+    if c2 is not None:
+      if coords is None:
+        coords = c2
+      else:
+        coords.update(c2)
+
+    self.attrs = attrs
 
     pd.Series.__init__(self, *args, **kwargs)
     Container.__init__(self, coords=coords)
@@ -310,9 +256,26 @@ class DataFrame(Container, pd.DataFrame):
 
   def __init__(self, *args, **kwargs):
 
-    self.attrs = kwargs.pop('attrs', {})
-    coords = kwargs.pop('coords', None)
-    variables = kwargs.pop('variables', None)
+    attrs = kwargs.pop('attrs', {})
+
+    coords = None
+
+    c1 = attrs.pop('coords', None)
+    c2 = kwargs.pop('coords', None)
+
+    if c1 is not None:
+      coords = c1
+
+    if c2 is not None:
+      if coords is None:
+        coords = c2
+      else:
+        coords.update(c2)
+
+    variables = attrs.pop('variables', {})
+    variables.update(kwargs.pop('variables', {}))
+
+    self.attrs = attrs
 
     pd.DataFrame.__init__(self, *args, **kwargs)
     Container.__init__(self, coords=coords)
@@ -346,9 +309,24 @@ class Panel(pd.Panel):
     return DataFrame
 
   def __init__(self, *args, **kwargs):
-    
-    self.attrs = kwargs.pop('attrs', {})
-    coords = kwargs.pop('coords', None)
+
+    attrs = kwargs.pop('attrs', {})
+
+    coords = None
+
+    c1 = attrs.pop('coords', None)
+    c2 = kwargs.pop('coords', None)
+
+    if c1 is not None:
+      coords = c1
+
+    if c2 is not None:
+      if coords is None:
+        coords = c2
+      else:
+        coords.update(c2)
+
+    self.attrs = attrs
    
     pd.Series.__init__(self, *args, **kwargs)
     Container.__init__(self, coords=coords)
