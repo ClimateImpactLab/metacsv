@@ -134,6 +134,13 @@ class Container(object):
   def base_coords(self):
     return self._coords.base_coords
 
+  @staticmethod
+  def pull_attribute(kwargs, attrs, attr):
+    data = None
+    if attr in kwargs:
+      data = kwargs.pop(attr)
+    attrs = kwargs.get(attrs)
+
   @property
   def metadoc_str(self):
     return '<{} {}>'.format(type(self).__module__ + '.' + type(self).__name__, self.shape)
@@ -155,7 +162,11 @@ class Container(object):
       )
 
   def repr_coord(self, coord, base=False, maxlen=50):
-    coord_data = self.index.levels[self.index.names.index(coord)]
+    if isinstance(self.index, pd.MultiIndex):
+      coord_data = self.index.levels[self.index.names.index(coord)]
+    else:
+      coord_data = self.index.values
+
     coordstr = '  * ' if base else '    '
     coordstr += '{: <10}'.format(coord)
     coordstr += ' ({})'.format(coord if base else ','.join(self.coords[coord]))
@@ -220,11 +231,6 @@ class Container(object):
 
     if len(self.shape) == 2:
 
-      ds = xr.Dataset()
-
-
-
-      # coords = self._get_coords_dataarrays_from_index()
       coords = OrderedDict()
       for coord in self.coords:
         if coord in self.base_coords: continue
@@ -288,8 +294,12 @@ class Series(Container, pd.Series):
 
   def __init__(self, *args, **kwargs):
 
-    self.attrs = kwargs.pop('attrs', {})
-    coords = kwargs.pop('coords', None)
+    attrs = kwargs.pop('attrs', {})
+
+    coords = attrs.pop('coords', {})
+    coords.update(kwargs.pop('coords', {}))
+
+    self.attrs = attrs
 
     pd.Series.__init__(self, *args, **kwargs)
     Container.__init__(self, coords=coords)
@@ -334,9 +344,15 @@ class DataFrame(Container, pd.DataFrame):
 
   def __init__(self, *args, **kwargs):
 
-    self.attrs = kwargs.pop('attrs', {})
-    coords = kwargs.pop('coords', None)
-    variables = kwargs.pop('variables', None)
+    attrs = kwargs.pop('attrs', {})
+
+    coords = attrs.pop('coords', {})
+    variables = attrs.pop('variables', {})
+
+    coords.update(kwargs.pop('coords', {}))
+    variables.update(kwargs.pop('variables', {}))
+
+    self.attrs = attrs
 
     pd.DataFrame.__init__(self, *args, **kwargs)
     Container.__init__(self, coords=coords)
@@ -370,9 +386,13 @@ class Panel(pd.Panel):
     return DataFrame
 
   def __init__(self, *args, **kwargs):
-    
-    self.attrs = kwargs.pop('attrs', {})
-    coords = kwargs.pop('coords', None)
+
+    attrs = kwargs.pop('attrs', {})
+
+    coords = attrs.pop('coords', None)
+    coords
+
+    self.attrs = attrs
    
     pd.Series.__init__(self, *args, **kwargs)
     Container.__init__(self, coords=coords)
