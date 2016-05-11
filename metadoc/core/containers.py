@@ -197,8 +197,19 @@ class Series(Container, pd.Series):
 
     attrs = kwargs.pop('attrs', {})
 
-    coords = attrs.pop('coords', {})
-    coords.update(kwargs.pop('coords', {}))
+    coords = None
+
+    c1 = attrs.pop('coords', None)
+    c2 = kwargs.pop('coords', None)
+
+    if c1 is not None:
+      coords = c1
+
+    if c2 is not None:
+      if coords is None:
+        coords = c2
+      else:
+        coords.update(c2)
 
     self.attrs = attrs
 
@@ -301,8 +312,19 @@ class Panel(pd.Panel):
 
     attrs = kwargs.pop('attrs', {})
 
-    coords = attrs.pop('coords', None)
-    coords
+    coords = None
+
+    c1 = attrs.pop('coords', None)
+    c2 = kwargs.pop('coords', None)
+
+    if c1 is not None:
+      coords = c1
+
+    if c2 is not None:
+      if coords is None:
+        coords = c2
+      else:
+        coords.update(c2)
 
     self.attrs = attrs
    
