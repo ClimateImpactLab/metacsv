@@ -2,6 +2,13 @@
 
 language: python
 
+addons:
+  apt:
+    packages:
+      -python-numpy
+      -python-pandas
+
+
 python:
   - "3.5"
   - "3.4"
