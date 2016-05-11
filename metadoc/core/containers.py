@@ -1,7 +1,7 @@
 
 
 import pandas as pd, numpy as np, xarray as xr
-from pandas.compat import string_types
+from .._compat import string_types
 from collections import OrderedDict
 from pandas.core.base import FrozenList
 

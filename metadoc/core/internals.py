@@ -1,6 +1,6 @@
 
 
-from pandas.compat import string_types
+from .._compat import string_types
 from collections import OrderedDict
 from pandas.core.base import FrozenList
 
