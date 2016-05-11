@@ -5,8 +5,10 @@ language: python
 addons:
   apt:
     packages:
-      -gfortran
+      -libblas-dev
+      -liblapack-dev 
       -libatlas-base-dev
+      -gfortran
       -python-numpy
       -python-pandas
 
