@@ -5,6 +5,8 @@ language: python
 addons:
   apt:
     packages:
+      -gfortran
+      -libatlas-base-dev
       -python-numpy
       -python-pandas
 
