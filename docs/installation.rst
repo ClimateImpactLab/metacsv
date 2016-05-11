@@ -4,9 +4,9 @@ Installation
 
 At the command line::
 
-    $ easy_install metadoc
+    $ easy_install metacsv
 
 Or, if you have virtualenvwrapper installed::
 
-    $ mkvirtualenv metadoc
-    $ pip install metadoc
+    $ mkvirtualenv metacsv
+    $ pip install metacsv

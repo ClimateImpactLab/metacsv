@@ -4,8 +4,8 @@
 API
 ===
 
-.. automodule:: metadoc
+.. automodule:: metacsv
     :members:
 
-    .. autoclass:: Metadoc
+    .. autoclass:: MetaCSV
         :members:

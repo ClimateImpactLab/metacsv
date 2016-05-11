@@ -2,6 +2,6 @@
 Usage
 ========
 
-To use MetaDoc in a project::
+To use MetaCSV in a project::
 
-	import metadoc
+	import metacsv

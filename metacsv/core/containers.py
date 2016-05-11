@@ -11,7 +11,7 @@ class GraphIsCyclicError(ValueError):
 
 class Coordinates(object):
   '''
-  Manages coordinate system for MetaDoc data containers
+  Manages coordinate system for metacsv data containers
   '''
 
   def __init__(self, coords={}):
@@ -25,7 +25,7 @@ class Coordinates(object):
 
   # this really doesn't work...
   # def __del__(self):
-  #   raise AttributeError("Coordinates cannot be deleted. To strip MetaDoc attributes, re-initialize data as a pandas or xarray object (e.g. `df = pd.DataFrame(metadoc_df)`")
+  #   raise AttributeError("Coordinates cannot be deleted. To strip metacsv attributes, re-initialize data as a pandas or xarray object (e.g. `df = pd.DataFrame(metacsv_df)`")
 
   def copy(self):
     return self._coords.copy()
@@ -114,7 +114,7 @@ class Container(object):
     return self._coords.base_coords
 
   @property
-  def metadoc_str(self):
+  def metacsv_str(self):
     return '<{} {}>'.format(type(self).__module__ + '.' + type(self).__name__, self.shape)
 
   @property
@@ -246,7 +246,7 @@ class Attributes(object):
 
 class Series(Container, pd.Series):
   '''
-  MetaDoc.Series, inherrited from pandas.Series
+  metacsv.Series, inherrited from pandas.Series
   '''
 
   _metadata = [
@@ -272,7 +272,7 @@ class Series(Container, pd.Series):
 
   def __repr__(self):
     series_str = pd.Series.__repr__(self)
-    return (self.metadoc_str + '\n' + series_str + '\n\n' + self.coords_str + self.attr_str)
+    return (self.metacsv_str + '\n' + series_str + '\n\n' + self.coords_str + self.attr_str)
     
 
 class Variables(object):
@@ -287,7 +287,7 @@ class Variables(object):
 
 class DataFrame(Container, pd.DataFrame):
   '''
-  MetaDoc.DataFrame, inherrited from pandas.DataFrame
+  metacsv.DataFrame, inherrited from pandas.DataFrame
   '''
 
   _metadata = [
@@ -327,7 +327,7 @@ class DataFrame(Container, pd.DataFrame):
     
   def __repr__(self):
     df_str = pd.DataFrame.__repr__(self)
-    return (self.metadoc_str + '\n' + df_str + '\n\n' + self.coords_str + '\n' + self.var_str + self.attr_str)
+    return (self.metacsv_str + '\n' + df_str + '\n\n' + self.coords_str + '\n' + self.var_str + self.attr_str)
 
 
 class Panel(pd.Panel):
@@ -355,4 +355,4 @@ class Panel(pd.Panel):
     
   def __repr__(self):
     panel_str = pd.Panel.__repr__(self)
-    return (self.metadoc_str + '\n' + panel_str + '\n\n' + self.coords_str + self.attr_str)
+    return (self.metacsv_str + '\n' + panel_str + '\n\n' + self.coords_str + self.attr_str)

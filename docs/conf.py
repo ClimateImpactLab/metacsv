@@ -30,11 +30,11 @@ sys.path.insert(0, project_root)
 
 # package data
 about = {}
-with open("../metadoc/__about__.py") as fp:
+with open("../metacsv/__about__.py") as fp:
     exec(fp.read(), about)
 
 
-import metadoc
+import metacsv
 
 # -- General configuration -----------------------------------------------------
 
@@ -281,6 +281,6 @@ changelog_inner_tag_sort = ["feature", "bug"]
 # how to render changelog links - these are plain
 # python string templates, ticket/pullreq/changeset number goes
 # in "%s"
-changelog_render_ticket = "https://github.com/delgadom/metadoc/issues/%s"
-changelog_render_pullreq = "https://github.com/delgadom/metadoc/pulls/%s"
-changelog_render_changeset = "https://github.com/delgadom/metadoc/commit/%s"
+changelog_render_ticket = "https://github.com/delgadom/metacsv/issues/%s"
+changelog_render_pullreq = "https://github.com/delgadom/metacsv/pulls/%s"
+changelog_render_changeset = "https://github.com/delgadom/metacsv/commit/%s"
