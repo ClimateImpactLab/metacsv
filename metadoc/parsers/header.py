@@ -1,11 +1,6 @@
 
 import yaml, pandas as pd, re
-from pandas.compat import string_types
-
-try:
-	from StringIO import StringIO
-except ImportError:
-	from io import StringIO
+from .._compat import string_types, StringIO
 
 from metadoc.core.containers import Series, DataFrame, Panel
 
@@ -18,7 +13,14 @@ def _parse_headered_data(fp, *args, **kwargs):
 	# if there is not one, go back to the top and read like a
 	# normal CSV
   loc = fp.tell()
-  if not find_yaml_break(next(fp)):
+
+  nextline = ''
+
+  while re.search(r'^\s*$', nextline):
+  	nextline = next(fp)
+
+  if not find_yaml_break(nextline):
+  	print('returning!!!')
   	fp.seek(loc)
   	return {}, pd.read_csv(fp, *args, **kwargs)
   
@@ -49,3 +51,5 @@ def read_csv(string_or_buffer, *args, **kwargs):
 			return Series(data, attrs=header)
 
 	return DataFrame(data, attrs=header)
+
+	
