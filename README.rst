@@ -137,19 +137,28 @@ TODO
 * Make ``coords`` and ``attrs`` persistent across slicing operations 
   (try ``df['pop'].to_xarray()`` from above example and watch it 
   fail...)
+
 * Improve hooks between ``pandas`` and ``metacsv``:
+
   - update ``coord`` names on ``df.index.names`` assignment
   - update ``coords`` on stack/unstack
   - update ``coords`` on 
+
 * Handle attributes indexed by coord/variable names --> assign to 
   coord/variable-specific ``attrs``
+
 * Let's start an issue tracker and get rid of this section!
+
 * Should we rethink "special attributes," e.g. coords? Maybe these should 
   have some special prefix like ``_coords`` when included in yaml headers to 
   avoid confusion with other generic attributes...
+
 * Allow special attributes (``coords``, ``variables``) in ``read_csv`` call
+
 * Allow external file headers
+
 * Write tests
+
 * Write documentation
 
 
