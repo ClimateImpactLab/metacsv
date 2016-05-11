@@ -9,8 +9,10 @@ addons:
       - liblapack-dev 
       - libatlas-base-dev
       - gfortran
+      - python-dev
+      - build-essential
       - python-numpy
-      - python-pandas
+      - python-scipy
 
 
 python:
