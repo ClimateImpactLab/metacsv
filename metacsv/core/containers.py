@@ -105,17 +105,21 @@ class Container(object):
 
     if coords is None:
       if not pd.isnull(self.index.names).any():
-        coords, base_coords, base_dependencies = self._validate_coords(self.index.names)
+        coords, base_coords, base_dependencies = self._coords._validate_coords(self.index.names)
       
       elif len(self.index.names) == 1 and self.index.names[0] is None:
         self.index.names = ['index']
-        coords, base_coords, base_dependencies = self._validate_coords(self.index.names)
+        coords, base_coords, base_dependencies = self._coords._validate_coords(self.index.names)
 
-      elif pd.isnull(self.index.names).all():
+      elif pd.isnull(self.index.names).any():
         self.index.names = [coord if coord is not None else 'level_{}'.format(i) for i, coord in enumerate(self.index.names)]
-        coords, base_coords, base_dependencies = self._validate_coords(self.index.names)
+        coords, base_coords, base_dependencies = self._coords._validate_coords(self.index.names)
 
     self._coords._update(coords)
+
+  @staticmethod
+  def get_unique_multiindex(series):
+    return series.iloc[np.unique(series.index.values, return_index=True)[1]]
 
   def to_xarray(self):
 
@@ -132,25 +136,25 @@ class Container(object):
 
     if len(self.shape) == 2:
 
-      coords = OrderedDict()
+      ds = xr.Dataset()
+
+      for coord in self.base_coords:
+        ds.coords[coord] = self.index.get_level_values(coord).unique()
+
+
       for coord in self.coords:
-        if coord in self.base_coords: continue
-        coord_data = self.reset_index([c for c in self.coords if not c in self._coords._base_dependencies[coord]], drop=False, inplace=False)[coord]
-        
-        coords[coord] = xr.DataArray.from_series(coord_data)
+        if coord in self.base_coords:
+          continue
 
-      if len(self.coords) > len(self.base_coords):
-        base_df = self.copy().reset_index([c for c in self.coords.keys() if not c in self.base_coords], drop=False)
-      else:
-        base_df = self
+        ds.coords[coord] = xr.DataArray.from_series(self.get_unique_multiindex(self.reset_index([c for c in self.index.names if c not in self._coords._base_dependencies[coord]], drop=False, inplace=False)[coord]))
 
-      data_vars = OrderedDict([(col, xr.DataArray.from_series(base_df[col])) for col in self.columns])
+      for col in self.columns:
+        ds[col] = xr.DataArray.from_series(self.get_unique_multiindex(self.reset_index([c for c in self.index.names if not c in self.base_coords], drop=False, inplace=False)[col]))
 
-      return xr.Dataset(
-        data_vars=data_vars, 
-        coords=coords, 
-        attrs=self.attrs)
-    
+      ds.attrs.update(self.attrs)
+
+      return ds
+
 
   def to_dataarray(self):
 
@@ -173,6 +177,15 @@ class Attributes(object):
     self._attrs = attrs
   def __get__(self):
     return self._attrs
+
+
+class Variables(object):
+  def __init__(self, variables):
+    self.__set__(variables)
+  def __set__(self, variables):
+    self._variables = variables
+  def __get__(self):
+    return self._variables
 
 
 class Series(Container, pd.Series):
@@ -220,14 +233,9 @@ class Series(Container, pd.Series):
     series_str = pd.Series.__repr__(self)
     return (self.metacsv_str + '\n' + series_str + '\n\n' + self.coords_str + self.attr_str)
     
-
-class Variables(object):
-  def __init__(self, variables):
-    self.__set__(variables)
-  def __set__(self, variables):
-    self._variables = variables
-  def __get__(self):
-    return self._variables
+  def to_pandas(self):
+    ''' return a copy of the data in a pandas.Series object '''
+    return pd.Series(self)
 
 
 
@@ -292,6 +300,10 @@ class DataFrame(Container, pd.DataFrame):
     df_str = pd.DataFrame.__repr__(self)
     return (self.metacsv_str + '\n' + df_str + '\n\n' + self.coords_str + '\n' + self.var_str + self.attr_str)
 
+  def to_pandas(self):
+    ''' return a copy of the data in a pandas.DataFrame object '''
+    return pd.DataFrame(self)
+
 
 class Panel(pd.Panel):
 
@@ -334,3 +346,7 @@ class Panel(pd.Panel):
   def __repr__(self):
     panel_str = pd.Panel.__repr__(self)
     return (self.metacsv_str + '\n' + panel_str + '\n\n' + self.coords_str + self.attr_str)
+
+  def to_pandas(self):
+    ''' return a copy of the data in a pandas.Panel object '''
+    return pd.Panel(self)

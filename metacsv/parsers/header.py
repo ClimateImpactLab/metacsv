@@ -16,11 +16,10 @@ def _parse_headered_data(fp, *args, **kwargs):
 
   nextline = ''
 
-  while re.search(r'^\s*$', nextline):
+  while re.search(r'^[\s\n\r]*$', nextline):
   	nextline = next(fp)
 
   if not find_yaml_break(nextline):
-  	print('returning!!!')
   	fp.seek(loc)
   	return {}, pd.read_csv(fp, *args, **kwargs)
   
