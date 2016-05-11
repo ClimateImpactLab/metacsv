@@ -7,12 +7,10 @@ MetaCSV
     :target: https://travis-ci.org/delgadom/metacsv
 
 .. image:: https://badge.fury.io/py/metacsv.png
-    :target: http://badge.fury.io/py/metacsv
+    :target: https://badge.fury.io/py/metacsv
 
-.. image:: https://coveralls.io/repos/github/delgadom/metacsv/badge.png?branch=master :target: https://coveralls.io/github/delgadom/metacsv?branch=master
-
-.. image:: https://pypip.in/d/metacsv/badge.png
-        :target: https://crate.io/packages/metacsv?version=latest
+.. image:: https://coveralls.io/repos/github/delgadom/metacsv/badge.png?branch=master 
+    :target: https://coveralls.io/github/delgadom/metacsv?branch=master
 
 
 ``metacsv`` - Tools for documentation-aware data reading, writing, and analysis
@@ -136,7 +134,7 @@ additional features and to contribute your own!
 TODO
 ============
 
-* Make ``coords`` and ``ttrs`` persistent across slicing operations 
+* Make ``coords`` and ``attrs`` persistent across slicing operations 
   (try ``df['pop'].to_xarray()`` from above example and watch it 
   fail...)
 * Improve hooks between ``pandas`` and ``metacsv``:
