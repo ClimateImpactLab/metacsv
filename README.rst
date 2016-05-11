@@ -3,13 +3,13 @@ MetaCSV
 =======
 
 
-.. image:: https://travis-ci.org/delgadom/metacsv.png?branch=master
+.. image:: https://travis-ci.org/delgadom/metacsv.svg?branch=master
     :target: https://travis-ci.org/delgadom/metacsv
 
-.. image:: https://badge.fury.io/py/metacsv.png
+.. image:: https://badge.fury.io/py/metacsv.svg
     :target: https://badge.fury.io/py/metacsv
 
-.. image:: https://coveralls.io/repos/github/delgadom/metacsv/badge.png?branch=master 
+.. image:: https://coveralls.io/repos/github/delgadom/metacsv/badge.svg?branch=master 
     :target: https://coveralls.io/github/delgadom/metacsv?branch=master
 
 
@@ -147,8 +147,16 @@ TODO
 * Should we rethink "special attributes," e.g. coords? Maybe these should 
   have some special prefix like ``_coords`` when included in yaml headers to 
   avoid confusion with other generic attributes...
+* Allow special attributes (``coords``, ``variables``) in ``read_csv`` call
+* Allow external file headers
 * Write tests
 * Write documentation
+
+
+Feature Requests
+==================
+* Create syntax for ``multi-csv`` --> ``Panel`` or combining using filename regex
+* Eventually? allow for on-disk manipulation of many/large files with dask/xarray
 
 
 
