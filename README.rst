@@ -15,6 +15,8 @@ MetaDoc
 .. image:: https://pypip.in/d/metadoc/badge.png
         :target: https://crate.io/packages/metadoc?version=latest
 
+.. image:: https://coveralls.io/repos/github/delgadom/metadoc/badge.svg?branch=master :target: https://coveralls.io/github/delgadom/metadoc?branch=master
+
 ``metadoc`` - Tools for documentation-aware data reading, writing, and analysis
 
 Features

@@ -24,7 +24,7 @@ class Container(object):
     '''
 
     if coords is None:
-      coords = {'index_{}'.format(i) if coord is None else coord: None for i, coord in enumerate(self.index.names)}
+      coords = dict(('index_{}'.format(i) if coord is None else coord, None) for i, coord in enumerate(self.index.names))
     self._coords = Coordinates(coords)
 
   @property
