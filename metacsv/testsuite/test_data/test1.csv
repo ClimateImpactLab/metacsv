@@ -1,8 +1,10 @@
 ---
 variables:
-  ind:  Index
   col1: Column 1
   col2: Column 2
+
+coords:
+  ind
 
 author:
   My Name

@@ -44,7 +44,10 @@ class Coordinates(object):
   def _validate_coords(coords):
     ''' Validate coords to test for cyclic graph '''
 
-    if not hasattr(coords, 'iterkeys'):
+    if isinstance(coords, string_types):
+      return OrderedDict([(coords, None)]), FrozenList([coords]), {coords: set([coords])}
+
+    elif not hasattr(coords, 'iterkeys'):
       coords = OrderedDict(zip(list(coords), [None for _ in range(len(coords))]))
       return coords, FrozenList(coords.keys()), {c: set([c]) for c in coords.keys()}
 

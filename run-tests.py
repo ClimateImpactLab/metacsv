@@ -1,5 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from metacsv.testsuite import main
+from metacsv.test_suite import main
 main()

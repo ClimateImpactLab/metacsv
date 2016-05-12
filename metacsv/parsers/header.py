@@ -40,10 +40,10 @@ def read_csv(string_or_buffer, *args, **kwargs):
 
 	if isinstance(string_or_buffer, string_types):
 		with open(string_or_buffer, 'r') as fp:
-			header, data = _parse_headered_data(fp, *args, **kwargs)
+			header, data = _parse_headered_data(fp, *args, engine='python', **kwargs)
 
 	else:
-		header, data = _parse_headered_data(string_or_buffer, *args, **kwargs)
+		header, data = _parse_headered_data(string_or_buffer, *args, engine='python', **kwargs)
 
 	if kwargs.get('squeeze', False):
 		if len(data.shape) == 1:

@@ -117,6 +117,17 @@ class Container(object):
 
     self._coords._update(coords)
 
+
+    if hasattr(self, 'columns') and hasattr(self, 'set_index'):
+      if len(self.index.names) == 1 and (self.index.names[0] is None):
+        append=False
+      else:
+        append=True
+
+      set_coords = [c for c in self.coords if (c not in self.index.names) and (c in self.columns)]
+      self.set_index(set_coords, inplace=True, append=append)
+
+
   @staticmethod
   def get_unique_multiindex(series):
     return series.iloc[np.unique(series.index.values, return_index=True)[1]]
@@ -287,6 +298,14 @@ class DataFrame(Container, pd.DataFrame):
 
     pd.DataFrame.__init__(self, *args, **kwargs)
     Container.__init__(self, coords=coords)
+
+    if len(self.index.names) == 1 and (self.index.names[0] is None):
+      append=False
+    else:
+      append=True
+
+    set_coords = [c for c in self.coords if (c not in self.index.names) and (c in self.columns)]
+    self.set_index(set_coords, append=append, inplace=True)
 
     self.variables = Variables(variables)
 

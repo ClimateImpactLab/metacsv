@@ -185,8 +185,6 @@ TODO
 
 * Maybe steal xarray's coordinate handling and save ourselves a whole lotta work?
 
-* Get numpy to build on travis-ci's servers so we can get our PyPi build-passing badge... :/
-
 
 Feature Requests
 ==================

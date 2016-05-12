@@ -65,5 +65,5 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
     ],
-    test_suite='metacsv.testsuite',
+    test_suite='metacsv.test_suite',
 )
