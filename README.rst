@@ -19,7 +19,7 @@ See the full documentation at ReadTheDocs_
 
 .. _ReadTheDocs: http://metacsv.rtfd.org
 
-Features
+Overview
 =========
 
 Read in CSV data with a yaml-compliant header directly into 
@@ -56,6 +56,22 @@ will be interpreted by the csv reader. The yaml data can have arbitrary complexi
     CAN,2011,34.3,1276.7
     ''')
     
+
+Special attributes
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``coords`` and ``variables`` attributes are keywords and are not simply passed 
+to the MetaCSV object's ``attrs`` attribute.
+
+``variables`` describes columns in the resulting ``DataFrame`` or ``Data variables`` 
+in the resulting ``xarray.Dataset``. Variables is not used when the CSV has only one 
+column and the argumetn ``squeeze=True`` is passed to ``read_csv``.
+
+``coords`` describes indices in the resulting ``DataFrame``/``Series``, or 
+``Coordinates`` in the resulting ``xarray.Dataset/xarray.DataArray``. Coordinates 
+are categorical or independent variables which index the object's ``values``. 
+
+
 
 Using MetaCSV-formatted files in python
 --------------------------------------------
@@ -107,6 +123,11 @@ The coordinates and MetaCSV attributes can be easily stripped from a MetaCSV Con
 xarray/netCDF
 ~~~~~~~~~~~~~~~
 
+``xarray`` provides a pandas-like interface to operating on indexed ``ndarray`` data. It 
+is modeled on the ``netCDF`` data storage format used frequently in climate science, but 
+is useful for many applications with higher-order data.
+
+
 .. code-block:: python
 
     >>> ds = df.to_xarray()
@@ -123,6 +144,9 @@ xarray/netCDF
         date: 2000-01-01
         author: A Person
     >>> ds.to_netcdf('my_netcdf_data.nc')
+
+Others
+~~~~~~~~~
 
 Currently, MetaCSV only supports conversion back to CSV and to 
 netCDF through the ``xarray`` module. However, feel free to suggest 
