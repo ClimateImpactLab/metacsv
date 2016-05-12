@@ -1,0 +1,2 @@
+[run]
+omit = metacsv/test_suite/*
