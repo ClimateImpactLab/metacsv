@@ -6,7 +6,7 @@ dependencies:
   - numpy=1.10.1
   - netcdf4=1.1.9
   - scipy=0.16.0
-  - toolz
+  - toolz 
   - xarray>0.7
   - pyyaml
   - pip:
