@@ -42,18 +42,18 @@ will be interpreted by the csv reader. The yaml data can have arbitrary complexi
     author: A Person
     date:   2000-01-01
     variables:
-        pop: {name: Population, unit: millions}
-        gdp: {name: Product, unit: 2005 $Bn}
-    coords:
-        region: !!null
-        regname: region
-        year: !!null
+        pop:
+          name: Population
+          unit: millions
+        gdp:
+          name: Product
+          unit: 2005 $Bn
     ---
-    region,regname,year,pop,gdp
-    USA,United States,2010,309.3,13599.3
-    USA,United States,2011,311.7,13817.0
-    CAN,Canada,2010,34.0,1240.0
-    CAN,Canada,2011,34.3,1276.7
+    region,year,pop,gdp
+    USA,2010,309.3,13599.3
+    USA,2011,311.7,13817.0
+    CAN,2010,34.0,1240.0
+    CAN,2011,34.3,1276.7
     ''')
     
 
@@ -64,20 +64,19 @@ Read MetaCSV-formatted data into python using pandas-like syntax:
 
 .. code-block:: python
 
-    >>> df = metacsv.read_csv(doc, index_col=[0,1,2])
+    >>> metacsv.read_csv(doc, index_col=[0,1])
     >>> df
     <metacsv.core.containers.DataFrame (4, 2)>
-                                 pop      gdp
-    region regname       year
-    USA    United States 2010  309.3  13599.3
-                         2011  311.7  13817.0
-    CAN    Canada        2010   34.0   1240.0
-                         2011   34.3   1276.7
+                   pop      gdp
+    region year
+    USA    2010  309.3  13599.3
+           2011  311.7  13817.0
+    CAN    2010   34.0   1240.0
+           2011   34.3   1276.7
     
     Coordinates
       * region     (region) object CAN, USA
       * year       (year) int64 2010, 2011
-        regname    (region) object Canada...
     Variables
         pop
         gdp
@@ -96,12 +95,12 @@ The coordinates and MetaCSV attributes can be easily stripped from a MetaCSV Con
 .. code-block:: python
 
     >>> df.to_pandas()
-                                 pop      gdp
-    region regname       year
-    USA    United States 2010  309.3  13599.3
-                         2011  311.7  13817.0
-    CAN    Canada        2010   34.0   1240.0
-                         2011   34.3   1276.7
+                   pop      gdp
+    region year
+    USA    2010  309.3  13599.3
+           2011  311.7  13817.0
+    CAN    2010   34.0   1240.0
+           2011   34.3   1276.7
 
 
 
@@ -117,14 +116,13 @@ xarray/netCDF
     Coordinates:
       * region   (region) object 'USA' 'CAN'
       * year     (year) int64 2010 2011
-        regname  (region) object 'United States' 'Canada'
     Data variables:
         pop      (region, year) float64 309.3 311.7 34.0 34.3
         gdp      (region, year) float64 1.36e+04 1.382e+04 1.24e+03 1.277e+03
     Attributes:
         date: 2000-01-01
         author: A Person
-    >>> ds.to_netcdf('my_data_netcdf.nc')
+    >>> ds.to_netcdf('my_netcdf_data.nc')
 
 Currently, MetaCSV only supports conversion back to CSV and to 
 netCDF through the ``xarray`` module. However, feel free to suggest 
@@ -161,12 +159,14 @@ TODO
 
 * Write documentation
 
+* Maybe steal xarray's coordinate handling and save ourselves a whole lotta work?
+
 
 Feature Requests
 ==================
 * Create syntax for ``multi-csv`` --> ``Panel`` or combining using filename regex
 * Eventually? allow for on-disk manipulation of many/large files with dask/xarray
-
+* Eventually? add xml, SQL, other structured syntax language conversions
 
 
 

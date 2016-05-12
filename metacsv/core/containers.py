@@ -194,7 +194,7 @@ class Series(Container, pd.Series):
   '''
 
   _metadata = [
-    'attrs',       # Metadata/documentation attributes
+    'attrs',        # Metadata/documentation attributes
     '_coords'       # Coordinates
   ]
 
@@ -245,8 +245,8 @@ class DataFrame(Container, pd.DataFrame):
   '''
 
   _metadata = [
-    'attrs',       # Metadata/documentation attributes
-    'variables',   # Column Names
+    'attrs',        # Metadata/documentation attributes
+    'variables',    # Column Names
     '_coords'       # Coordinates
   ]
 
@@ -308,7 +308,7 @@ class DataFrame(Container, pd.DataFrame):
 class Panel(pd.Panel):
 
   _metadata = [
-    'attrs',       # Metadata/documentation attributes
+    'attrs',        # Metadata/documentation attributes
     '_coords'       # Coordinates
   ]
 
