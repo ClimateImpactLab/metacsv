@@ -103,6 +103,21 @@ Read MetaCSV-formatted data into python using pandas-like syntax:
 Exporting MetaCSV data to other formats
 -----------------------------------------------
 
+CSV
+~~~~~~~~~
+
+A MetaCSV ``Series`` or ``DataFrame`` can be written as a yaml-prefixed CSV using 
+the same ``to_csv`` syntax as it's ``pandas`` counterpart:
+
+.. code-block:: python
+
+    >>> df.attrs['new attribute'] = 'changed in python!'
+    >>> # includes changes to data, attributes, variables, and coordinates
+    ... df.to_csv('my_new_data.csv')
+
+
+
+
 pandas
 ~~~~~~~~~~~~~~~
 

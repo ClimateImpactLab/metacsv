@@ -1,6 +1,6 @@
 
 
-import pandas as pd, numpy as np, xarray as xr
+import pandas as pd, numpy as np, xarray as xr, yaml
 from .._compat import string_types
 from collections import OrderedDict
 from pandas.core.base import FrozenList
@@ -125,12 +125,34 @@ class Container(object):
         append=True
 
       set_coords = [c for c in self.coords if (c not in self.index.names) and (c in self.columns)]
-      self.set_index(set_coords, inplace=True, append=append)
+      if len(set_coords) > 0:
+        self.set_index(set_coords, inplace=True, append=append)
 
 
   @staticmethod
   def get_unique_multiindex(series):
     return series.iloc[np.unique(series.index.values, return_index=True)[1]]
+
+  def _write_csv_to_file_object(self, fp, *args, **kwargs):
+    attr_dict = {}
+    attr_dict.update(dict(self.attrs))
+    attr_dict.update({'coords': dict(self.coords)})
+
+    if hasattr(self, 'variables'):
+      attr_dict.update({'variables': dict(self.variables._variables)})
+
+    fp.write('---\n')
+    fp.write(yaml.dump(attr_dict, default_flow_style=False))
+    fp.write('---\n')
+    self.pandas_parent.to_csv(self, fp, *args, **kwargs)
+
+
+  def to_csv(self, fp, *args, **kwargs):
+    if isinstance(fp, string_types):
+      with open(fp, 'w+') as fp2:
+        self._write_csv_to_file_object(fp2, *args, **kwargs)
+    else:
+      self._write_csv_to_file_object(fp, *args, **kwargs)
 
   def to_xarray(self):
 
@@ -205,9 +227,12 @@ class Series(Container, pd.Series):
   '''
 
   _metadata = [
+    
     'attrs',        # Metadata/documentation attributes
     '_coords'       # Coordinates
   ]
+
+  pandas_parent = pd.Series
 
   @property
   def _constructor(self):
@@ -256,10 +281,13 @@ class DataFrame(Container, pd.DataFrame):
   '''
 
   _metadata = [
+    
     'attrs',        # Metadata/documentation attributes
-    'variables',    # Column Names
+    '_variables',    # Column Names
     '_coords'       # Coordinates
   ]
+
+  pandas_parent = pd.DataFrame
 
   @property
   def _constructor(self):
@@ -272,6 +300,10 @@ class DataFrame(Container, pd.DataFrame):
   @property
   def _constructor_expanddims(self):
     return Panel
+
+  @property
+  def variables(self):
+    return self._variables
 
   def __init__(self, *args, **kwargs):
 
@@ -305,9 +337,10 @@ class DataFrame(Container, pd.DataFrame):
       append=True
 
     set_coords = [c for c in self.coords if (c not in self.index.names) and (c in self.columns)]
-    self.set_index(set_coords, append=append, inplace=True)
+    if len(set_coords) > 0:
+      self.set_index(set_coords, append=append, inplace=True)
 
-    self.variables = Variables(variables)
+    self._variables = Variables(variables)
 
   @property
   def var_str(self):
@@ -330,6 +363,8 @@ class Panel(pd.Panel):
     'attrs',        # Metadata/documentation attributes
     '_coords'       # Coordinates
   ]
+
+  pandas_parent = pd.Panel
 
   @property
   def _constructor(self):

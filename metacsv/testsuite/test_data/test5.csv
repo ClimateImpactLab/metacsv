@@ -1,3 +1,7 @@
+---
+coords: [ind1,ind2]
+author: series creator
+---
 ind1,ind2,data
 a,x,1
 b,y,3
