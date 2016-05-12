@@ -1,0 +1,15 @@
+name: test_env
+dependencies:
+  - python=3.5
+  - cython
+  - pytest
+  - numpy
+  - pandas
+  - scipy
+  - toolz
+  - xarray>0.7
+  - pyyaml
+  - pip:
+    - coveralls
+    - pytest-cov
+    - git+https://github.com/blaze/dask.git

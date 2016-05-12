@@ -1,0 +1,19 @@
+name: test_env
+channels:
+  - ajdawson  # cdat
+  - dbrown  # pynio
+dependencies:
+  - python=2.7
+  - cdat-lite
+  - dask
+  - pytest
+  - numpy
+  - pandas>=0.15.0
+  - pynio
+  - scipy
+  - xarray>0.7
+  - pyyaml
+  - pip:
+    - coveralls
+    - pytest-cov
+    - cyordereddict

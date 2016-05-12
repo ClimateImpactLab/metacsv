@@ -1,0 +1,11 @@
+name: test_env
+dependencies:
+  - python=3.4
+  - bottleneck
+  - pytest
+  - pandas
+  - xarray>0.7
+  - pyyaml
+  - pip:
+    - coveralls
+    - pytest-cov

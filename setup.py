@@ -14,9 +14,14 @@ about = {}
 with open("metacsv/__about__.py") as fp:
     exec(fp.read(), about)
 
-with open('requirements.txt') as f:
-    install_reqs = [line for line in f.read().split('\n') if line]
-    tests_reqs = []
+
+install_reqs = [
+    'pandas>=0.17',
+    'numpy>1.10',
+    'xarray>=0.7',
+    'pyyaml']
+
+tests_reqs = install_reqs + ['pytest >= 2.7.1']
 
 if sys.version_info < (2, 7):
     install_reqs += ['argparse']
