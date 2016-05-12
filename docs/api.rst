@@ -7,5 +7,11 @@ API
 .. automodule:: metacsv
     :members:
 
-    .. autoclass:: MetaCSV
+    .. autoclass:: Series
+        :members:
+
+    .. autoclass:: DataFrame
+        :members:
+
+    .. autoclass:: Panel
         :members:

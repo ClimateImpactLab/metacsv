@@ -5,7 +5,7 @@ language: python
 
 sudo: false # use container based build
 notifications:
-email: false
+  email: false
 
 
 matrix:

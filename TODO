@@ -1,22 +1,39 @@
-====
-TODO
-====
 
-* Make `coords` and `attrs` persistent across slicing operations 
-  (try `df['pop'].to_xarray()` from above example and watch it 
+TODO
+============
+
+* Make ``coords`` and ``attrs`` persistent across slicing operations 
+  (try ``df['pop'].to_xarray()`` from above example and watch it 
   fail...)
-* Improve hooks between `pandas` and `metacsv`:
-  - update `coord` names on `df.index.names` assignment
-  - update `coords` on stack/unstack
-  - update `coords` on 
+
+* Improve hooks between ``pandas`` and ``metacsv``:
+
+  - update ``coord`` names on ``df.index.names`` assignment
+  - update ``coords`` on stack/unstack
+  - update ``coords`` on 
+
 * Handle attributes indexed by coord/variable names --> assign to 
-  coord/variable-specific `attrs`
+  coord/variable-specific ``attrs``
+
 * Let's start an issue tracker and get rid of this section!
+
 * Should we rethink "special attributes," e.g. coords? Maybe these should 
-  have some special prefix like `_coords` when included in yaml headers to 
+  have some special prefix like ``_coords`` when included in yaml headers to 
   avoid confusion with other generic attributes...
+
+* Allow special attributes (``coords``, ``variables``) in ``read_csv`` call
+
+* Allow external file headers
+
 * Write tests
+
 * Write documentation
 
+* Maybe steal xarray's coordinate handling and save ourselves a whole lotta work?
 
-.. todo:: vim: set filetype=rst:
+
+Feature Requests
+==================
+* Create syntax for ``multi-csv`` --> ``Panel`` or combining using filename regex
+* Eventually? allow for on-disk manipulation of many/large files with dask/xarray
+* Eventually? add xml, SQL, other structured syntax language conversions
