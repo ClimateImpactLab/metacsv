@@ -29,10 +29,11 @@ a ``pandas`` ``Series``, ``DataFrame``, or ``Panel`` or an ``xarray``
 Data specification
 ----------------------------
 
-Data can be specified using a yaml-formatted header, with the doc-separation string
-above and below the yaml block. Only one yaml block is allowed. If the doc-separation
-string is not the first (non-whitespace) line in the file, all of the file's contents
-will be interpreted by the csv reader. The yaml data can have arbitrary complexity.
+Data can be specified using a yaml-formatted header, with the doc-separation 
+string (``---``) above and below the yaml block. Only one yaml block is allowed. 
+If the doc-separation string is not the first (non-whitespace) line in the file, 
+all of the file's contents will be interpreted by the csv reader. The yaml data 
+can have arbitrary complexity.
 
 .. code-block:: python
 
@@ -60,16 +61,18 @@ will be interpreted by the csv reader. The yaml data can have arbitrary complexi
 Special attributes
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-The ``coords`` and ``variables`` attributes are keywords and are not simply passed 
-to the MetaCSV object's ``attrs`` attribute.
+The ``coords`` and ``variables`` attributes are keywords and are not simply 
+passed to the MetaCSV object's ``attrs`` attribute.
 
-``variables`` describes columns in the resulting ``DataFrame`` or ``Data variables`` 
-in the resulting ``xarray.Dataset``. Variables is not used when the CSV has only one 
-column and the argumetn ``squeeze=True`` is passed to ``read_csv``.
+``variables`` describes columns in the resulting ``DataFrame`` or 
+``Data variables`` in the resulting ``xarray.Dataset``. Variables is not used 
+when the CSV has only one column and the argument ``squeeze=True`` is passed to 
+``read_csv``.
 
 ``coords`` describes indices in the resulting ``DataFrame``/``Series``, or 
-``Coordinates`` in the resulting ``xarray.Dataset/xarray.DataArray``. Coordinates 
-are categorical or independent variables which index the object's ``values``. 
+``Coordinates`` in the resulting ``xarray.Dataset/xarray.DataArray``. 
+Coordinates are categorical or independent variables which index the object's 
+``values``. 
 
 
 
@@ -106,8 +109,8 @@ Exporting MetaCSV data to other formats
 CSV
 ~~~~~~~~~
 
-A MetaCSV ``Series`` or ``DataFrame`` can be written as a yaml-prefixed CSV using 
-the same ``to_csv`` syntax as it's ``pandas`` counterpart:
+A MetaCSV ``Series`` or ``DataFrame`` can be written as a yaml-prefixed CSV 
+using the same ``to_csv`` syntax as it's ``pandas`` counterpart:
 
 .. code-block:: python
 
@@ -121,7 +124,8 @@ the same ``to_csv`` syntax as it's ``pandas`` counterpart:
 pandas
 ~~~~~~~~~~~~~~~
 
-The coordinates and MetaCSV attributes can be easily stripped from a MetaCSV Container:
+The coordinates and MetaCSV attributes can be easily stripped from a MetaCSV 
+Container:
 
 .. code-block:: python
 
@@ -138,9 +142,11 @@ The coordinates and MetaCSV attributes can be easily stripped from a MetaCSV Con
 xarray/netCDF
 ~~~~~~~~~~~~~~~
 
-``xarray`` provides a pandas-like interface to operating on indexed ``ndarray`` data. It 
-is modeled on the ``netCDF`` data storage format used frequently in climate science, but 
-is useful for many applications with higher-order data.
+``xarray``__ provides a pandas-like interface to operating on indexed ``ndarray`` 
+data. It is modeled on the ``netCDF`` data storage format used frequently in 
+climate science, but is useful for many applications with higher-order data.
+
+.. __: http://xarray.pydata.org/
 
 
 .. code-block:: python
@@ -198,14 +204,18 @@ TODO
 
 * Write documentation
 
-* Maybe steal xarray's coordinate handling and save ourselves a whole lotta work?
+* Maybe steal xarray's coordinate handling and save ourselves a whole lotta 
+  work?
 
 
 Feature Requests
 ==================
-* Create syntax for ``multi-csv`` --> ``Panel`` or combining using filename regex
-* Eventually? allow for on-disk manipulation of many/large files with dask/xarray
+* Create syntax for ``multi-csv`` --> ``Panel`` or combining using filename 
+  regex 
+* Eventually? allow for on-disk manipulation of many/large files with 
+  dask/xarray 
 * Eventually? add xml, SQL, other structured syntax language conversions
+
 
 
 
