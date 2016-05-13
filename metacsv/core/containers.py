@@ -142,7 +142,7 @@ class Container(object):
       attr_dict.update({'variables': dict(self.variables._variables)})
 
     fp.write('---\n')
-    fp.write(yaml.dump(attr_dict, default_flow_style=False))
+    fp.write(yaml.safe_dump(attr_dict, default_flow_style=False, allow_unicode=True))
     fp.write('---\n')
     self.pandas_parent.to_csv(self, fp, *args, **kwargs)
 
