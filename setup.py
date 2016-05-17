@@ -19,7 +19,8 @@ install_reqs = [
     'pandas>=0.17',
     'numpy>1.10',
     'xarray>=0.7',
-    'pyyaml']
+    'pyyaml',
+    'netCDF4']
 
 tests_reqs = install_reqs + ['pytest >= 2.7.1']
 
