@@ -90,7 +90,7 @@ class MetacsvTestCase(unittest.TestCase):
         self.assertEqual(csv1.variables._variables , csv2.variables._variables)
 
 
-    def test_command_line_interface(self):
+    def test_command_line_converter(self):
         def script_to_netcdf(readfile, outfile):
             os.system('python {s} netcdf "{fp}" "{dest}"'.format(
                 s='metacsv/scripts/convert.py',
@@ -101,13 +101,36 @@ class MetacsvTestCase(unittest.TestCase):
         newname = os.path.splitext(os.path.basename(testfile))[0] + '.nc'
         outfile = os.path.join(self.test_tmp_prefix, newname)
 
-        with helpers.captureStdErr(script_to_netcdf, testfile, outfile) as stdout:
-            self.assertTrue((stdout is None) or (stdout == ''))
+        with helpers.captureStdErr(script_to_netcdf, testfile, outfile) as stderr:
+            self.assertTrue(stdout == '')
 
         df = metacsv.read_csv(testfile)
-        with xr.open_dataset(outfile) as ds:
 
+        with xr.open_dataset(outfile) as ds:
             self.assertTrue((abs(df.values - ds.to_dataframe().set_index([i for i in df.coords if i not in df.base_coords]).values) < 1e-7).all().all())
+
+
+    def test_command_line_version_check(self):
+        def get_version(readfile):
+            os.system('python {s} "{fp}"'.format(
+                s='metacsv/scripts/version.py',
+                fp=readfile))
+
+        testfile = os.path.join(self.testdata_prefix, 'test6.csv')
+
+        with helpers.captureStdErr(get_version, testfile) as stderr:
+            self.assertTrue(stderr != '')
+
+        testfile = os.path.join(self.testdata_prefix, 'test5.csv')
+
+        with helpers.captureStdErr(get_version, testfile) as stderr:
+            self.assertTrue(stderr == '')
+
+        df = metacsv.read_csv(testfile)
+
+        with helpers.captureStdOut(get_version, testfile) as stdout:
+            self.assertTrue(stdout == df.attrs['version'])
+
 
     def tearDown(self):
         if os.path.isdir(self.test_tmp_prefix):
