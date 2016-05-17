@@ -30,6 +30,9 @@ class MetacsvTestCase(unittest.TestCase):
         csv1 = parsers.read_csv(os.path.join(self.testdata_prefix, 'test1.csv'))
         csv2 = pd.read_csv(os.path.join(self.testdata_prefix, 'test2.csv'))
 
+        print(csv1)
+        print(csv2)
+
         self.assertTrue((csv1.values == csv2.set_index('ind').values).all().all())
 
 
@@ -37,6 +40,8 @@ class MetacsvTestCase(unittest.TestCase):
         '''CSV Test 2: Make sure only base coordinates are used in determining xarray dimensionality'''
 
         df = parsers.read_csv(os.path.join(self.testdata_prefix, 'test6.csv'))
+
+        print(df)
 
         self.assertEqual(df.to_xarray().isnull().sum().col1, 0)
         self.assertEqual(df.to_xarray().isnull().sum().col2, 0)
@@ -51,6 +56,8 @@ class MetacsvTestCase(unittest.TestCase):
 
         s = parsers.read_csv(os.path.join(self.testdata_prefix, 'test5.csv'), squeeze=True, index_col=[0,1])
 
+        print(s)
+
         self.assertTrue(hasattr(s, 'attrs') and ('author' in s.attrs))
         self.assertEqual(s.attrs['author'], 'series creator')
 
@@ -64,6 +71,19 @@ class MetacsvTestCase(unittest.TestCase):
         csv1.to_csv(tmpfile)
 
         csv2 = parsers.read_csv(tmpfile)
+
+        print(csv1)
+        print(csv2)
+
+        self.assertTrue((abs(csv1.values - csv2.values) < 1e-7).all().all())
+        self.assertEqual(csv1.coords, csv2.coords)
+        self.assertEqual(csv1.variables._variables , csv2.variables._variables)
+
+        with open(tmpfile, 'w+') as tmp:
+            csv1.to_csv(tmp)
+
+        with open(tmpfile, 'r') as tmp:
+            csv2 = parsers.read_csv(tmp)
 
         self.assertTrue((abs(csv1.values - csv2.values) < 1e-7).all().all())
         self.assertEqual(csv1.coords, csv2.coords)

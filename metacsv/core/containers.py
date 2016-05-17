@@ -35,12 +35,12 @@ class Container(object):
   def base_coords(self):
     return self._coords.base_coords
 
-  @staticmethod
-  def pull_attribute(kwargs, attrs, attr):
-    data = None
-    if attr in kwargs:
-      data = kwargs.pop(attr)
-    attrs = kwargs.get(attrs)
+  # @staticmethod
+  # def pull_attribute(kwargs, attrs, attr):
+  #   data = None
+  #   if attr in kwargs:
+  #     data = kwargs.pop(attr)
+  #   attrs = kwargs.get(attrs)
 
   @property
   def metacsv_str(self):
@@ -101,7 +101,7 @@ class Container(object):
 
     return coords
 
-  def update_coords(self, coords=None):
+  def update_coords(self, coords=None):  # This needs some testing!!
 
     if coords is None:
       if not pd.isnull(self.index.names).any():
