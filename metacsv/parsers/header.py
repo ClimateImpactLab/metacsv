@@ -1,6 +1,6 @@
 
 import yaml, pandas as pd, re
-from .._compat import string_types, StringIO
+from .._compat import string_types
 
 from metacsv.core.containers import Series, DataFrame, Panel
 
@@ -38,21 +38,33 @@ def _parse_headered_data(fp, *args, **kwargs):
 
 def read_csv(string_or_buffer, *args, **kwargs):
 
+  # set defaults
   engine = kwargs.pop('engine', 'python')
+  kwargs['engine'] = engine
+  
+  header_file = kwargs.pop('header_file', None)
+
+  header = {}
+
+  if isinstance(header_file, string_types):
+    with open(header_file, 'r') as hf:
+      header = yaml.load(hf.read())
+
+  elif header_file is not None:
+    header = yaml.load(hf.read())
 
   if isinstance(string_or_buffer, string_types):
     with open(string_or_buffer, 'r') as fp:
-      header, data = _parse_headered_data(fp, *args, engine=engine, **kwargs)
+      _header, data = _parse_headered_data(fp, *args, **kwargs)
 
   else:
-    header, data = _parse_headered_data(string_or_buffer, *args, engine=engine, **kwargs)
+    _header, data = _parse_headered_data(string_or_buffer, *args, **kwargs)
+
+  header.update(_header)
 
   if kwargs.get('squeeze', False):
     if len(data.shape) == 1:
       return Series(data, attrs=header)
-
-    if data.shape[1] == 1:
-      return Series(data[data.columns[0]], attrs=header)
 
   return DataFrame(data, attrs=header)
 

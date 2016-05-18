@@ -14,6 +14,7 @@ if PY2:
 
     text_to_native = lambda s, enc: s.encode(enc)
 
+    has_iterkeys = lambda d: hasattr(d, 'iterkeys')
     iterkeys = lambda d: d.iterkeys()
     itervalues = lambda d: d.itervalues()
     iteritems = lambda d: d.iteritems()
@@ -45,6 +46,7 @@ else:
 
     text_to_native = lambda s, enc: s
 
+    has_iterkeys = lambda d: hasattr(d, 'keys')
     iterkeys = lambda d: iter(d.keys())
     itervalues = lambda d: iter(d.values())
     iteritems = lambda d: iter(d.items())

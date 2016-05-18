@@ -1,6 +1,6 @@
 
 
-from .._compat import string_types
+from .._compat import string_types, has_iterkeys, iterkeys
 from collections import OrderedDict
 from pandas.core.base import FrozenList
 
@@ -47,7 +47,7 @@ class Coordinates(object):
     if isinstance(coords, string_types):
       return OrderedDict([(coords, None)]), FrozenList([coords]), {coords: set([coords])}
 
-    elif not hasattr(coords, 'iterkeys'):
+    elif not has_iterkeys(coords):
       coords = OrderedDict(zip(list(coords), [None for _ in range(len(coords))]))
       return coords, FrozenList(coords.keys()), {c: set([c]) for c in coords.keys()}
 
@@ -87,7 +87,7 @@ class Coordinates(object):
           base_deps[coord] |= base_deps[ele]
 
     while len(coords) > 0:
-      find_coord_dependencies(next(coords.iterkeys()))
+      find_coord_dependencies(next(iterkeys(coords)))
 
     return dependencies, FrozenList(base_coords), base_deps
 
