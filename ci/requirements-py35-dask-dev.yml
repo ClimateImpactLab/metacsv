@@ -4,6 +4,7 @@ dependencies:
   - cython
   - pytest
   - h5py
+  - netcdf4
   - numpy
   - pandas
   - scipy

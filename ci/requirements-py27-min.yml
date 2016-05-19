@@ -3,6 +3,7 @@ dependencies:
   - python=2.7
   - pytest
   - h5py
+  - netcdf4
   - numpy==1.9.3
   - pandas==0.15.0
   - xarray>0.7
@@ -10,5 +11,3 @@ dependencies:
   - pip:
     - coveralls
     - pytest-cov
-    - h5netcdf
-    - git+https://github.com/Unidata/netcdf4-python.git
