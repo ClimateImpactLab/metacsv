@@ -8,12 +8,14 @@ from __future__ import (
     unicode_literals
 )
 
-import glob, os, xarray as xr, pandas as pd, numpy as np, shutil, json
+import glob, os, xarray as xr, pandas as pd, numpy as np, shutil, json, subprocess
 
 import metacsv
 from . import unittest
 from . import helpers
 
+class VersionError(ValueError):
+    pass
 
 class MetacsvTestCase(unittest.TestCase):
     testdata_prefix = 'metacsv/testsuite/test_data'
@@ -91,18 +93,20 @@ class MetacsvTestCase(unittest.TestCase):
 
 
     def test_command_line_converter(self):
-        def script_to_netcdf(readfile, outfile):
-            os.system('python {s} netcdf "{fp}" "{dest}"'.format(
-                s='metacsv/scripts/convert.py',
-                fp=readfile,
-                dest = outfile))
+        
+        convert_script = 'metacsv/scripts/convert.py'
 
         testfile = os.path.join(self.testdata_prefix, 'test6.csv')
         newname = os.path.splitext(os.path.basename(testfile))[0] + '.nc'
         outfile = os.path.join(self.test_tmp_prefix, newname)
 
-        with helpers.captureStdErr(script_to_netcdf, testfile, outfile) as stderr:
-            self.assertTrue(stdout == '')
+        p = subprocess.Popen(
+            ['python', convert_script, 'netcdf', testfile, outfile], 
+                stderr=subprocess.PIPE, 
+                stdout=subprocess.PIPE)
+
+        out, err = p.communicate()
+        self.assertEqual(err.strip(), '')
 
         df = metacsv.read_csv(testfile)
 
@@ -112,24 +116,29 @@ class MetacsvTestCase(unittest.TestCase):
 
     def test_command_line_version_check(self):
         def get_version(readfile):
-            os.system('python {s} "{fp}"'.format(
-                s='metacsv/scripts/version.py',
-                fp=readfile))
+            version_check_script = 'metacsv/scripts/version.py'
+
+
+            p = subprocess.Popen(
+                ['python',version_check_script,readfile], 
+                stderr=subprocess.PIPE, 
+                stdout=subprocess.PIPE)
+
+            out, err = p.communicate()
+            if err != '':
+                raise VersionError(err.strip())
+            else:
+                return out.strip()
 
         testfile = os.path.join(self.testdata_prefix, 'test6.csv')
 
-        with helpers.captureStdErr(get_version, testfile) as stderr:
-            self.assertTrue(stderr != '')
+        with self.assertRaises(VersionError):
+            get_version(testfile)
 
         testfile = os.path.join(self.testdata_prefix, 'test5.csv')
-
-        with helpers.captureStdErr(get_version, testfile) as stderr:
-            self.assertTrue(stderr == '')
-
         df = metacsv.read_csv(testfile)
 
-        with helpers.captureStdOut(get_version, testfile) as stdout:
-            self.assertTrue(stdout == df.attrs['version'])
+        self.assertEqual(get_version(testfile), df.attrs['version'])
 
 
     def tearDown(self):

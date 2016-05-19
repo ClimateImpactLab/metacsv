@@ -38,6 +38,8 @@ def _parse_headered_data(fp, *args, **kwargs):
 
 def read_csv(string_or_buffer, *args, **kwargs):
 
+  kwargs = dict(kwargs)
+
   # set defaults
   engine = kwargs.pop('engine', 'python')
   kwargs['engine'] = engine

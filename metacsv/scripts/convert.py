@@ -2,11 +2,11 @@
 
 import metacsv, argparse, os
 
-def to_netcdf(readfile, writefile=None, header_file=None):
+def to_netcdf(readfile, writefile=None, *args, **kwargs):
 	if writefile is None:
 		writefile = os.path.splitext(readfile)[0] + '.nc'
 
-	metacsv.read_csv(readfile, header_file=header_file).to_xarray().to_netcdf(writefile)
+	metacsv.read_csv(readfile, *args, **kwargs).to_xarray().to_netcdf(writefile)
 
 def get_parser():
 	parser = argparse.ArgumentParser('Convert MetaCSV-compliant files to other file types')
@@ -22,10 +22,10 @@ def main():
 	args = parser.parse_args()
 	
 	if args.action.lower() == 'netcdf':
-		to_netcdf(args.readfile, args.writefile, args.header)
+		to_netcdf(args.readfile, args.writefile, header_file=args.header)
 
 	elif args.action.lower() == 'csv':
-		to_csv(args.readfile, args.writefile, args.header)
+		to_csv(args.readfile, args.writefile, header_file=args.header)
 
 	else:
 		parser.print_help()
