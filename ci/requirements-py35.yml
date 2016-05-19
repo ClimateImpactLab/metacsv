@@ -17,3 +17,4 @@ dependencies:
     - coveralls
     - pytest-cov
     - h5netcdf
+    - git+https://github.com/Unidata/netcdf4-python.git

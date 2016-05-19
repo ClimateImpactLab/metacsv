@@ -21,3 +21,4 @@ dependencies:
     - dask
     - h5netcdf
     - toolz
+    - git+https://github.com/Unidata/netcdf4-python.git

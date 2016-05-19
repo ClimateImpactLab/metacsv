@@ -8,6 +8,7 @@ dependencies:
   - dask
   - pytest
   - numpy
+  - h5py
   - pandas>=0.15.0
   - pynio
   - scipy
@@ -17,3 +18,5 @@ dependencies:
     - coveralls
     - pytest-cov
     - cyordereddict
+    - h5netcdf
+    - git+https://github.com/Unidata/netcdf4-python.git

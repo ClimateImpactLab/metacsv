@@ -2,6 +2,7 @@ name: test_env
 dependencies:
   - python=3.5
   - cython=0.23.4
+  - h5py
   - pytest
   - numpy=1.10.1
   - netcdf4=1.1.9
