@@ -91,6 +91,15 @@ class MetacsvTestCase(unittest.TestCase):
         self.assertEqual(csv1.coords, csv2.coords)
         self.assertEqual(csv1.variables._variables , csv2.variables._variables)
 
+    def test_series_conversion_to_xarray(self):
+        '''CSV Test 5: Check conversion of metacsv.Series to xarray.DataArray'''
+
+        csv1 = metacsv.read_csv(os.path.join(self.testdata_prefix, 'test5.csv'), squeeze=True)
+        self.assertEqual(len(csv1.shape), 1)
+
+        self.assertEqual(csv1.to_xarray().shape, csv1.shape)
+        self.assertTrue((csv1.to_xarray().values == csv1.values).all())
+
 
     def test_command_line_converter(self):
         
@@ -106,7 +115,7 @@ class MetacsvTestCase(unittest.TestCase):
                 stdout=subprocess.PIPE)
 
         out, err = p.communicate()
-        self.assertEqual(err.strip(), '')
+        self.assertEqual(len(err.strip()), 0)
 
         df = metacsv.read_csv(testfile)
 
@@ -125,7 +134,7 @@ class MetacsvTestCase(unittest.TestCase):
                 stdout=subprocess.PIPE)
 
             out, err = p.communicate()
-            if err != '':
+            if len(err) != 0:
                 raise VersionError(err.strip())
             else:
                 return out.strip()

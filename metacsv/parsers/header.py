@@ -68,6 +68,12 @@ def read_csv(string_or_buffer, *args, **kwargs):
     if len(data.shape) == 1:
       return Series(data, attrs=header)
 
-  return DataFrame(data, attrs=header)
+  df = DataFrame(data, attrs=header)
+
+  squeeze = kwargs.get('squeeze', False)
+  if squeeze and df.shape[1] == 1:
+    return Series(df[df.columns[0]], attrs=header, coords=df.coords)
+  else:
+    return df
 
   

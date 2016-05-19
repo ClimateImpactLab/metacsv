@@ -1,5 +1,8 @@
 ---
-coords: [ind1,ind2]
+coords:
+  ind1: 
+  ind2: ind1
+
 author: series creator
 version: test5.2016-05-01.01
 ---
