@@ -17,10 +17,11 @@ matrix:
     env: CONDA_ENV=py27-cdat+pynio
   - python: 3.4
     env: CONDA_ENV=py34
-  - python: 3.5
-    env: CONDA_ENV=py35
   - python: 2.7
     env: CONDA_ENV=py27-pydap
+  allow_failures:
+  - python: 3.5
+    env: CONDA_ENV=py35
   - python: 3.5
     env: CONDA_ENV=py27-netcdf4-dev
     addons:
@@ -32,7 +33,6 @@ matrix:
     env: CONDA_ENV=py35-dask-dev
   - python: 3.5
     env: CONDA_ENV=py35-pandas-dev
-  allow_failures:
   - python: 2.7
     env: CONDA_ENV=py27-pydap
   - python: 3.5
@@ -65,9 +65,12 @@ install:
   - source activate test_env
   - python setup.py install
 
-script:
-  - py.test metacsv --cov-report
-  # - py.test metacsv --cov=metacsv --cov-report term-missing
+script:  
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then
+      py.test metacsv
+    else
+      py.test metacsv --cov=metacsv --cov-report term-missing
+    fi
 
 after_success:
 - coveralls
