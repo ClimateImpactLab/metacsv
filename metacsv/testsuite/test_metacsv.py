@@ -8,7 +8,7 @@ from __future__ import (
     unicode_literals
 )
 
-import glob, os, xarray as xr, pandas as pd, numpy as np, shutil, json, subprocess
+import glob, os, xarray as xr, pandas as pd, numpy as np, shutil, json, subprocess, locale
 
 import metacsv
 from . import unittest
@@ -137,7 +137,7 @@ class MetacsvTestCase(unittest.TestCase):
             if len(err) != 0:
                 raise VersionError(err.strip())
             else:
-                return out.strip()
+                return out.strip().decode(locale.getpreferredencoding())
 
         testfile = os.path.join(self.testdata_prefix, 'test6.csv')
 
