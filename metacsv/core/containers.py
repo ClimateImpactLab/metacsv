@@ -14,12 +14,6 @@ class Series(Container, pd.Series):
   metacsv.Series, inherrited from pandas.Series
   '''
 
-  _metadata = [
-    
-    'attrs',        # Metadata/documentation attributes
-    '_coords'       # Coordinates
-  ]
-
   pandas_parent = pd.Series
 
   @property
@@ -31,47 +25,15 @@ class Series(Container, pd.Series):
     return DataFrame
 
   def __init__(self, *args, **kwargs):
-
-    attrs = kwargs.pop('attrs', {})
-
-    coords = None
-
-    c1 = attrs.pop('coords', None)
-    c2 = kwargs.pop('coords', None)
-
-    if c1 is not None:
-      coords = c1
-
-    if c2 is not None:
-      if coords is None:
-        coords = c2
-      else:
-        coords.update(c2)
-
-    self.attrs = attrs
-
+    args, kwargs, special = Container.strip_special_attributes(args, kwargs)
     pd.Series.__init__(self, *args, **kwargs)
-    Container.__init__(self, coords=coords)
-
-    
-  def to_pandas(self):
-    ''' return a copy of the data in a pandas.Series object '''
-    return pd.Series(self)
-    
-
+    Container.__init__(self, **special)
 
 
 class DataFrame(Container, pd.DataFrame):
   '''
   metacsv.DataFrame, inherrited from pandas.DataFrame
   '''
-
-  _metadata = [
-    
-    'attrs',        # Metadata/documentation attributes
-    '_variables',    # Column Names
-    '_coords'       # Coordinates
-  ]
 
   pandas_parent = pd.DataFrame
 
@@ -87,49 +49,16 @@ class DataFrame(Container, pd.DataFrame):
   def _constructor_expanddims(self):
     return Panel
 
-  @property
-  def variables(self):
-    return self._variables
-
   def __init__(self, *args, **kwargs):
-
-    attrs = kwargs.pop('attrs', {})
-
-    coords = None
-
-    c1 = attrs.pop('coords', None)
-    c2 = kwargs.pop('coords', None)
-
-    if c1 is not None:
-      coords = c1
-
-    if c2 is not None:
-      if coords is None:
-        coords = c2
-      else:
-        coords.update(c2)
-
-    variables = attrs.pop('variables', {})
-    variables.update(kwargs.pop('variables', {}))
-
-    self.attrs = attrs
-
+    args, kwargs, special = Container.strip_special_attributes(args, kwargs)
     pd.DataFrame.__init__(self, *args, **kwargs)
-    Container.__init__(self, coords=coords)
-
-    self._variables = Variables(variables)
-
-  def to_pandas(self):
-    ''' return a copy of the data in a pandas.DataFrame object '''
-    return pd.DataFrame(self)
+    Container.__init__(self, **special)
 
 
 class Panel(pd.Panel):
-
-  _metadata = [
-    'attrs',        # Metadata/documentation attributes
-    '_coords'       # Coordinates
-  ]
+  '''
+  metacsv.Panel, inherrited from pandas.Panel
+  '''
 
   pandas_parent = pd.Panel
 
@@ -142,29 +71,7 @@ class Panel(pd.Panel):
     return DataFrame
 
   def __init__(self, *args, **kwargs):
-
-    attrs = kwargs.pop('attrs', {})
-
-    coords = None
-
-    c1 = attrs.pop('coords', None)
-    c2 = kwargs.pop('coords', None)
-
-    if c1 is not None:
-      coords = c1
-
-    if c2 is not None:
-      if coords is None:
-        coords = c2
-      else:
-        coords.update(c2)
-
-    self.attrs = attrs
-   
+    args, kwargs, special = Container.strip_special_attributes(args, kwargs)
     pd.Series.__init__(self, *args, **kwargs)
-    Container.__init__(self, coords=coords)
+    Container.__init__(self, **special)
     
-
-  def to_pandas(self):
-    ''' return a copy of the data in a pandas.Panel object '''
-    return pd.Panel(self)

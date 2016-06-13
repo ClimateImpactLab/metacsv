@@ -7,23 +7,47 @@ from collections import OrderedDict
 from pandas.core.base import FrozenList
 
 
-class Attributes(object):
-  def __init__(self, attrs):
-    self.__set__(attrs)
-  def __set__(self, attrs):
-    self._attrs = attrs
-  def __get__(self):
-    return self._attrs
+class _BaseProperty(object):
+  property_type = None # overload
+  repr_order = []
+
+  def __init__(self, data, container=None):
+    self._data = data
+  def __repr__(self):
+    repr_str = None if len(self._data) == 0 else self.property_type
+    for props, prop_data in self._data.items():
+      repr_str += '\n    {: <10} {}'.format(props, prop_data)
+    return repr_str
 
 
-class Variables(object):
-  def __init__(self, variables):
-    self.__set__(variables)
-  def __set__(self, variables):
-    self._variables = variables
-  def __get__(self):
-    return self._variables
+  def __get__(self, data):
+    if not hasattr(self, '_data'):
+      self._data = None
 
+    if self._data is None:
+      return None
+    return self._data
+
+  def __set__(self, value):
+    if value is None:
+      self._data = None
+    else:
+      self._data = value
+
+  def __del__(self):
+    del self._data
+
+  @classmethod
+  def get_property(cls):
+    return property(cls.__get__, cls.__set__, cls.__del__, cls.__doc__)
+
+
+class Attributes(_BaseProperty):
+  property_type = 'Attributes'
+
+
+class Variables(_BaseProperty):
+  property_type = 'Variables'
 
 
 class Coordinates(object):
@@ -31,17 +55,19 @@ class Coordinates(object):
   Manages coordinate system for MetaCSV data containers
   '''
 
-  def __init__(self, coords=None, data=None):
+  property_type = 'Coordinates'
+
+  def __init__(self, coords=None, container=None):
     
-    if data is None and coords is None:
+    if container is None and coords is None:
       raise ValueError('Must supply coords or data to __init__')
     
-    elif data is None:
-      self._data = None
+    elif container is None:
+      self._container = None
       self.__set__(coords)
 
-    elif isinstance(data, Container) or isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
-      self._data = data
+    elif isinstance(container, Container) or isinstance(container, pd.DataFrame) or isinstance(container, pd.Series):
+      self._container = container
       
       if coords is None:
         self._set_coords_from_data()
@@ -96,14 +122,14 @@ class Coordinates(object):
     return self._coords[key]
 
   def _repr_coord(self, coord, base=False, maxlen=50):
-    if self._data is None:
+    if self._container is None:
       datastr = ''
     else:
       datastr = ''
-      if isinstance(self._data.index, pd.MultiIndex):
-        coord_data = self._data.index.levels[self._data.index.names.index(coord)]
+      if isinstance(self._container.index, pd.MultiIndex):
+        coord_data = self._container.index.levels[self._container.index.names.index(coord)]
       else:
-        coord_data = self._data.index.values
+        coord_data = self._container.index.values
 
       datastr += ' {} '.format(coord_data.dtype)
 
@@ -124,7 +150,7 @@ class Coordinates(object):
     return coordstr
 
   def copy(self):
-    return Coordinates(self._coords.copy(), data=self._data)
+    return Coordinates(self._coords.copy(), container=self._container)
 
   def get_base_coords(self):
     return self._base_coords
@@ -186,16 +212,16 @@ class Coordinates(object):
 
   def _get_coords_from_data(self):
 
-    if not pd.isnull(self._data.index.names).any():
-      coords, base_coords, base_dependencies = self._coords._parse_coords_definition(self._data.index.names)
+    if not pd.isnull(self._container.index.names).any():
+      coords, base_coords, base_dependencies = self._parse_coords_definition(self._container.index.names)
     
-    elif len(self._data.index.names) == 1 and self._data.index.names[0] is None:
-      self._data.index.names = ['index']
-      coords, base_coords, base_dependencies = self._coords._parse_coords_definition(self._data.index.names)
+    elif len(self._container.index.names) == 1 and self._container.index.names[0] is None:
+      self._container.index.names = ['index']
+      coords, base_coords, base_dependencies = self._parse_coords_definition(self._container.index.names)
 
-    elif pd.isnull(self._data.index.names).any():
-      self._data.index.names = [coord if coord is not None else 'level_{}'.format(i) for i, coord in enumerate(self._data.index.names)]
-      coords, base_coords, base_dependencies = self._coords._parse_coords_definition(self._data.index.names)
+    elif pd.isnull(self._container.index.names).any():
+      self._container.index.names = [coord if coord is not None else 'level_{}'.format(i) for i, coord in enumerate(self._container.index.names)]
+      coords, base_coords, base_dependencies = self._parse_coords_definition(self._container.index.names)
 
     return coords, base_coords, base_dependencies
 
@@ -211,22 +237,22 @@ class Coordinates(object):
     self._coords.update(coords)
     self._set_coords_from_columns()
 
-  def _set_coords_from_columns(self, coords=None, data=None):
+  def _set_coords_from_columns(self, coords=None, container=None):
     coords = coords if coords is not None else self._coords
-    data   = data   if data   is not None else self._data
+    container   = container   if container   is not None else self._container
 
-    if self._data is None:
+    if self._container is None:
       return
 
-    if hasattr(data, 'columns') and hasattr(data, 'set_index'):
-      if len(data.index.names) == 1 and (data.index.names[0] is None):
+    if hasattr(container, 'columns') and hasattr(container, 'set_index'):
+      if len(container.index.names) == 1 and (container.index.names[0] is None):
         append=False
       else:
         append=True
 
-      set_coords = [c for c in coords if (c not in data.index.names) and (c in data.columns)]
+      set_coords = [c for c in coords if (c not in container.index.names) and (c in container.columns)]
       if len(set_coords) > 0:
-        data.set_index(set_coords, inplace=True, append=append)
+        container.set_index(set_coords, inplace=True, append=append)
 
 
   def update(self, coords):
@@ -249,19 +275,19 @@ class Coordinates(object):
     self._base_dependencies = base_dependencies
 
   @staticmethod
-  def _get_available_coords(data):
+  def _get_available_coords(container):
     available_coords = []
     for dim in ['index', 'columns']:
-      if hasattr(data, dim):
-        available_coords.extend([i for i in data.__getattr__(dim).names if i is not None])
+      if hasattr(container, dim):
+        available_coords.extend([i for i in container.__getattr__(dim).names if i is not None])
 
     return available_coords
 
-  def _prune(self, coords=None, data=None):
+  def _prune(self, coords=None, container=None):
     coords = coords if coords is not None else self._coords
-    data   = data   if data   is not None else self._data
+    container   = container   if container   is not None else self._container
 
-    available_coords = self._get_available_coords(data)
+    available_coords = self._get_available_coords(container)
 
     for c in coords:
       if c not in available_coords:
@@ -269,22 +295,22 @@ class Coordinates(object):
 
     return coords
 
-  def _validate_coords_against_data(self, coords, data=None):
-    data = data if data is not None else self._data
-    if data is None:
+  def _validate_coords_against_data(self, coords, container=None):
+    container = container if container is not None else self._container
+    if container is None:
       return
 
     for c in coords.keys():
-      assert c in data.index.names, "Coordinate '{c}' not found in data index".format(c=c)
+      assert c in container.index.names, "Coordinate '{c}' not found in container index".format(c=c)
 
-    for c in data.index.names:
+    for c in container.index.names:
       assert c in coords, "Data index '{c}' not found in supplied coordinates".format(c=c)
     
 
 
 class Container(object):
 
-  def __init__(self, coords=None, *args, **kwargs):
+  def __init__(self, coords=None, variables=None, attrs=None, *args, **kwargs):
     '''
     Initialization method for Container objects
 
@@ -297,10 +323,10 @@ class Container(object):
 
     '''
 
-    if coords is None:
-      self._coords = None
-    else:
-      self._coords = Coordinates(coords, data=self)
+    self.coords = Coordinates(coords, container=self)
+    self.attrs = Attributes(coords, container=self)
+    self.variables = Variables(coords, container=self)
+
 
   @property
   def coords(self):
@@ -317,15 +343,55 @@ class Container(object):
     if value is None:
       self._coords = None
     else:
-      self._coords = Coordinates(coords=value, data=self)
+      self._coords = Coordinates(value, container=self)
 
   @coords.deleter
   def coords(self):
     self._coords = None
 
+
   @property
-  def base_coords(self):
-    return self._coords.base_coords
+  def attrs(self):
+    '''Coordinates property of a metacsv Container'''
+    if not hasattr(self, '_attrs'):
+      self._attrs = None
+
+    if self._attrs is None:
+      return None
+    return self._attrs
+
+  @attrs.setter
+  def attrs(self, value):
+    if value is None:
+      self._attrs = None
+    else:
+      self._attrs = Attributes(value, container=self)
+
+  @attrs.deleter
+  def attrs(self):
+    self._attrs = None
+
+
+  @property
+  def variables(self):
+    '''Coordinates property of a metacsv Container'''
+    if not hasattr(self, '_variables'):
+      self._variables = None
+
+    if self._variables is None:
+      return None
+    return self._variables
+
+  @variables.setter
+  def variables(self, value):
+    if value is None:
+      self._variables = None
+    else:
+      self._variables = Variables(value, container=self)
+
+  @variables.deleter
+  def variables(self):
+    self._variables = None
 
   # @staticmethod
   # def pull_attribute(kwargs, attrs, attr):
@@ -351,11 +417,38 @@ class Container(object):
 
     return coords
 
-
-
   @staticmethod
   def get_unique_multiindex(series):
     return series.iloc[np.unique(series.index.values, return_index=True)[1]]
+
+  @staticmethod
+  def strip_special_attributes(args, kwargs):
+    attrs = kwargs.pop('attrs', {})
+
+    coords = None
+
+    c1 = attrs.pop('coords', None)
+    c2 = kwargs.pop('coords', None)
+
+    if c1 is not None:
+      coords = c1
+
+    if c2 is not None:
+      if coords is None:
+        coords = c2
+      else:
+        coords.update(c2)
+
+    variables = attrs.pop('variables', {})
+    variables.update(kwargs.pop('variables', {}))
+
+    special = {
+      'attrs': attrs,
+      'variables': variables,
+      'coords': coords
+    }
+
+    return args, kwargs, special
 
   def _write_csv_to_file_object(self, fp, *args, **kwargs):
     attr_dict = {}
@@ -414,7 +507,6 @@ class Container(object):
 
       return ds
 
-
   def to_dataarray(self):
 
     if len(self.shape) > 2:
@@ -442,15 +534,18 @@ class Container(object):
 
   @property
   def var_str(self):
-    if hasattr(self, 'variables'):
-      return ('Variables\n' + 
-        '\n'.join(['    {}'.format(v) for v in self.columns])
-        )
+    if hasattr(self, 'variables') and self.variables is not None:
+      return self.variables.__repr__()
     else:
       return ''
 
   @property
   def attr_str(self):
+    if hasattr(self, 'attrs') and self.attrs is not None:
+      return self.attrs.__repr__()
+    else:
+      return ''
+
     return (
       '' if len(self.attrs) == 0 else 
       'Attributes\n    ' + '\n    '.join(list(map(lambda x: '{}: {}'.format(*x), self.attrs.items())))
@@ -466,3 +561,8 @@ class Container(object):
 
   def __str__(self):
     return self._print_format()
+
+
+  def to_pandas(self):
+    ''' return a copy of the data in a pandas.DataFrame object '''
+    return self.pandas_parent(self)
