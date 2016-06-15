@@ -11,8 +11,14 @@ coords:
   s2: [ind3]
 
 variables:
-  col1: Column 1 data
-  col2: Column 2 data
+  col1: 
+    name: Column 1 data
+    unit: wigits
+    source: wigits.com
+  col2: 
+    name: Column 2 data
+    unit: wigits
+    source: wigits.com
 
 ---
 ind0,ind1,ind2,ind3,s1,s2,col1,col2

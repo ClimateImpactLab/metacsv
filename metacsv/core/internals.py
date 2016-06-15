@@ -27,6 +27,20 @@ class _BaseProperty(object):
   def __getitem__(self, key):
     return self._data[key]
 
+  def __setitem__(self, key, value):
+    self._data[key] = value
+
+  def __eq__(self, other):
+    if hasattr(other, '_data'):
+      return self._data == other._data
+    return False
+
+  def __ne__(self, other):
+    return not self.__eq__(other)
+
+  def __contains__(self, key):
+    return key in self._data
+
   def items(self):
     for k, v in self._data.items():
       yield (k,v)
@@ -90,7 +104,7 @@ class Coordinates(object):
       self._container = container
       
       if coords is None:
-        self._set_coords_from_data()
+        self.set_coords_from_data()
       else:
         self.__set__(coords)
         
@@ -164,7 +178,7 @@ class Coordinates(object):
 
     coordstr = '  * ' if base else '    '
     coordstr += '{: <10}'.format(coord)
-    coordstr += ' ({})'.format(coord if base else ','.join(self._coords[coord]))
+    coordstr += ' ({})'.format(coord if base else ','.join(list(map(str, self._coords[coord]))))
     coordstr += datastr
 
     return coordstr
@@ -178,6 +192,15 @@ class Coordinates(object):
   @property
   def base_coords(self):
     return self.get_base_coords()
+
+  @staticmethod
+  def parse_coord_definition(coord):
+    if isinstance(coord, str):
+      return {coord: None}
+    elif isinstance(coord, list):
+      return {c: None for c in coord}
+    elif isinstance(coord, dict) or isinstance(coord, OrderedDict):
+      return coord
 
 
   @staticmethod
@@ -245,7 +268,7 @@ class Coordinates(object):
 
     return coords, base_coords, base_dependencies
 
-  def _set_coords_from_data(self):
+  def set_coords_from_data(self):
     self._coords, self._base_coords, self._base_dependencies = self._get_coords_from_data()
 
 
@@ -423,16 +446,11 @@ class Container(object):
   def variables(self):
     self._variables = None
 
-  # @staticmethod
-  # def pull_attribute(kwargs, attrs, attr):
-  #   data = None
-  #   if attr in kwargs:
-  #     data = kwargs.pop(attr)
-  #   attrs = kwargs.get(attrs)
+  def add_coords(self):
+    self.coords = Coordinates(container=self)
 
   def _get_coord_data_from_index(self, coord):
     return self.index.get_level_values(coord)
-
 
   def _get_coords_dataarrays_from_index(self):
 
@@ -452,13 +470,18 @@ class Container(object):
     return series.iloc[np.unique(series.index.values, return_index=True)[1]]
 
   @staticmethod
+  def stringify_index_names(series):
+    series.index.names = list(map(str, series.index.names))
+    return series
+
+  @staticmethod
   def strip_special_attributes(args, kwargs):
     attrs = kwargs.pop('attrs', {})
 
     coords = None
 
-    c1 = attrs.pop('coords', None)
-    c2 = kwargs.pop('coords', None)
+    c1 = Coordinates.parse_coord_definition(attrs.pop('coords', None))
+    c2 = Coordinates.parse_coord_definition(kwargs.pop('coords', None))
 
     if c1 is not None:
       coords = c1
@@ -488,7 +511,7 @@ class Container(object):
       attr_dict.update({'coords': dict(self.coords.items())})
 
     if hasattr(self, 'variables'):
-      attr_dict.update({'variables': dict(self.variables._variables)})
+      attr_dict.update({'variables': dict(self.variables.items())})
 
     fp.write('---\n')
     fp.write(yaml.safe_dump(attr_dict, default_flow_style=False, allow_unicode=True))
@@ -506,7 +529,7 @@ class Container(object):
   def to_xarray(self):
 
     if self.coords is None:
-      self.coords = self.index.names
+      self.add_coords()
 
     if len(self.shape) > 2:
       raise NotImplementedError("to_xarray not yet implemented for Panel data")
@@ -524,19 +547,31 @@ class Container(object):
       ds = xr.Dataset()
 
       for coord in self.base_coords:
-        ds.coords[coord] = self.index.get_level_values(coord).unique()
+        ds.coords[str(coord)] = self.index.get_level_values(coord).unique()
 
 
       for coord in self.coords:
         if coord in self.base_coords:
           continue
 
-        ds.coords[coord] = xr.DataArray.from_series(self.get_unique_multiindex(self.reset_index([c for c in self.index.names if c not in self._coords._base_dependencies[coord]], drop=False, inplace=False)[coord]))
+        ds.coords[str(coord)] = xr.DataArray.from_series(self.stringify_index_names(self.get_unique_multiindex(self.reset_index([c for c in self.index.names if c not in self._coords._base_dependencies[coord]], drop=False, inplace=False)[coord])))
 
       for col in self.columns:
-        ds[col] = xr.DataArray.from_series(self.get_unique_multiindex(self.reset_index([c for c in self.index.names if not c in self.base_coords], drop=False, inplace=False)[col]))
+        reset = [c for c in self.index.names if not c in self.base_coords]
+        if len(reset) > 0:
+          ds[str(col)] = xr.DataArray.from_series(self.stringify_index_names(self.get_unique_multiindex(self.reset_index(reset, drop=False, inplace=False)[col])))
+        else:
+          ds[str(col)] = xr.DataArray.from_series(self.stringify_index_names(self.get_unique_multiindex(self[col])))
 
       ds.attrs.update(self.attrs)
+
+      if hasattr(self, 'variables'):
+        for var, attrs in self.variables.items():
+          if var in ds.data_vars:
+            ds.data_vars[var].attrs.update(attrs)
+
+          if var in ds.coords:
+            ds.coords[var].attrs.update(attrs)
 
       return ds
 

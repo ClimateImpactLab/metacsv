@@ -1,10 +1,7 @@
 
-from __future__ import (
-    absolute_import, division, print_function, with_statement,
-    unicode_literals
-)
-
-import metacsv, argparse, sys
+from __future__ import absolute_import, print_function
+from . import metacsv
+import argparse, sys
 
 def get_version(readfile):
 	df = metacsv.read_csv(readfile)

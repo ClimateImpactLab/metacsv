@@ -37,8 +37,12 @@ def _parse_headered_data(fp, *args, **kwargs):
 
 
 def read_csv(string_or_buffer, *args, **kwargs):
-
+  
   kwargs = dict(kwargs)
+
+  coords = kwargs.pop('coords', {})
+  attrs = kwargs.pop('attrs', {})
+  squeeze = kwargs.get('squeeze', False)
 
   # set defaults
   engine = kwargs.pop('engine', 'python')
@@ -63,14 +67,20 @@ def read_csv(string_or_buffer, *args, **kwargs):
     _header, data = _parse_headered_data(string_or_buffer, *args, **kwargs)
 
   header.update(_header)
+  header.update(attrs)
 
-  if kwargs.get('squeeze', False):
+  if squeeze:
     if len(data.shape) == 1:
-      return Series(data, attrs=header)
+      if len(coords) > 0:
+        return Series(data, attrs=header, coords=coords)
+      else:
+        return Series(data, attrs=header)
 
-  df = DataFrame(data, attrs=header)
+  if len(coords) > 0:
+    df = DataFrame(data, attrs=header, coords=coords)
+  else:
+    df = DataFrame(data, attrs=header)
 
-  squeeze = kwargs.get('squeeze', False)
   if squeeze and df.shape[1] == 1:
     return Series(df[df.columns[0]], attrs=header, coords=df.coords)
   else:

@@ -1,6 +1,7 @@
 
-
-import metacsv, argparse, os
+from __future__ import absolute_import, print_function
+from . import metacsv
+import argparse, os
 
 def to_netcdf(readfile, writefile=None, *args, **kwargs):
 	if writefile is None:

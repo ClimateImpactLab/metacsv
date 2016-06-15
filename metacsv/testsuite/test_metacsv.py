@@ -79,7 +79,7 @@ class MetacsvTestCase(unittest.TestCase):
 
         self.assertTrue((abs(csv1.values - csv2.values) < 1e-7).all().all())
         self.assertEqual(csv1.coords, csv2.coords)
-        self.assertEqual(csv1.variables._variables , csv2.variables._variables)
+        self.assertEqual(csv1.variables , csv2.variables)
 
         with open(tmpfile, 'w+') as tmp:
             csv1.to_csv(tmp)
@@ -89,7 +89,7 @@ class MetacsvTestCase(unittest.TestCase):
 
         self.assertTrue((abs(csv1.values - csv2.values) < 1e-7).all().all())
         self.assertEqual(csv1.coords, csv2.coords)
-        self.assertEqual(csv1.variables._variables , csv2.variables._variables)
+        self.assertEqual(csv1.variables , csv2.variables)
 
     def test_series_conversion_to_xarray(self):
         '''CSV Test 5: Check conversion of metacsv.Series to xarray.DataArray'''
@@ -148,6 +148,10 @@ class MetacsvTestCase(unittest.TestCase):
         df = metacsv.read_csv(testfile)
 
         self.assertEqual(get_version(testfile), df.attrs['version'])
+
+    def test_xarray_variable_attribute_persistence(self):
+        testfile = os.path.join(self.testdata_prefix, 'test6.csv')
+        self.assertTrue(metacsv.read_csv(testfile).to_xarray().col1.attrs['unit'], 'wigits')
 
 
     def tearDown(self):
