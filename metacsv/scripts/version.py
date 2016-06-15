@@ -1,6 +1,6 @@
 
 from __future__ import absolute_import, print_function
-from . import metacsv
+import metacsv
 import argparse, sys
 
 def get_version(readfile):

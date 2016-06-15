@@ -1,7 +1,8 @@
 
 
-import pandas as pd, numpy as np, xarray as xr, yaml
+import pandas as pd, numpy as np, yaml
 from .._compat import string_types, has_iterkeys, iterkeys
+from .converters import convert_to_xarray
 from .exceptions import GraphIsCyclicError
 from collections import OrderedDict
 from pandas.core.base import FrozenList
@@ -11,45 +12,83 @@ class _BaseProperty(object):
   property_type = None # overload
   repr_order = []
 
-  def __init__(self, data, container=None):
-    self._data = data
+  def __init__(self, data=None, container=None):
+    self.__set__(data)
 
   def __repr__(self):
-    repr_str = None if len(self._data) == 0 else self.property_type
-    for props, prop_data in self._data.items():
-      repr_str += '\n    {: <10} {}'.format(props, prop_data)
-    return repr_str
+    return str(self)
+
+  def __str__(self):
+    if self._data is not None and len(self._data) > 0:
+      repr_str = '' if len(self._data) == 0 else self.property_type
+      for props, prop_data in self._data.items():
+        repr_str += '\n    {: <10} {}'.format(props, prop_data)
+      return repr_str
+    else:
+      return '<Empty {}>'.format(self.property_type)
 
   def __iter__(self):
-    for k, v in self._data.items():
-      yield k, v
+    if self._data is not None:
+      for k, v in self._data.items():
+        yield k, v
+
+  def pop(self, key, *default):
+    if self._data is not None:
+      if len(default) == 0:
+        return self._data.pop(key)
+      elif len(default) == 1:
+        return self._data.pop(key, default[0])
+      else:
+        raise ValueError('pop() takes exactly 2 arguments ({} given)'.format(len(default)+1))
+
+    else:
+      raise KeyError('{} not yet assigned.'.format(self.property_type))
+
+  def update(self, value):
+    if self._data is not None:
+      if isinstance(value, _BaseProperty):
+        self._data.update(value._data)
+      elif has_iterkeys(value):
+        if len(value) > 0:
+          self._data.update(value)
+    if isinstance(value, None):
+      return
+    if isinstance(value, dict):
+      if len(value) > 0:
+        self._data = value
+
 
   def __getitem__(self, key):
     return self._data[key]
 
   def __setitem__(self, key, value):
-    self._data[key] = value
+    if isinstance(value, _BaseProperty):
+      self._data[key] = value._data
+    else:
+      self._data[key] = value
 
   def __eq__(self, other):
     if hasattr(other, '_data'):
       return self._data == other._data
+    if other is None and self._data is None:
+      return True
     return False
 
   def __ne__(self, other):
     return not self.__eq__(other)
 
   def __contains__(self, key):
+    if self._data is None:
+      return False
     return key in self._data
 
   def items(self):
-    for k, v in self._data.items():
-      yield (k,v)
+    if self._data is not None:
+      for k, v in self._data.items():
+        yield (k,v)
 
-  def update(self, value):
-    if self._data is None:
-      self._data = value
-    else:
-      self._data.update(dict(value))
+  def copy(self):
+    return type(self)(self)
 
   def __get__(self, data):
     if not hasattr(self, '_data'):
@@ -57,11 +96,14 @@ class _BaseProperty(object):
 
     if self._data is None:
       return None
+
     return self._data
 
   def __set__(self, value):
     if value is None:
       self._data = None
+    elif isinstance(value, _BaseProperty):
+      self._data = value._data
     else:
       if isinstance(value, dict) or isinstance(value, OrderedDict):
         self._data = value
@@ -71,9 +113,6 @@ class _BaseProperty(object):
   def __del__(self):
     del self._data
 
-  @classmethod
-  def get_property(cls):
-    return property(cls.__get__, cls.__set__, cls.__del__, cls.__doc__)
 
 
 class Attributes(_BaseProperty):
@@ -94,7 +133,7 @@ class Coordinates(object):
   def __init__(self, coords=None, container=None):
     
     if container is None and coords is None:
-      raise ValueError('Must supply coords or data to __init__')
+      self.__set__(coords)
     
     elif container is None:
       self._container = None
@@ -112,6 +151,9 @@ class Coordinates(object):
       raise TypeError('__init__ data argument must be a metacsv or pandas DataFrame or Series')
 
   def __set__(self, coords):
+    self._coords            = None
+    self._base_coords       = None
+    self._base_dependencies = None
 
     if isinstance(coords, Coordinates):
       _coords             = coords._coords
@@ -130,11 +172,14 @@ class Coordinates(object):
 
   def __repr__(self):
     coords_str = 'Coordinates'
-    for base in self._base_coords:
-      coords_str += '\n' + self._repr_coord(base, base=True)
-    for coord in [c for c in self._coords if not c in self._base_coords]:
-      coords_str += '\n' + self._repr_coord(coord, base=False)
-    return coords_str
+    if self._coords is not None:
+      for base in self._base_coords:
+        coords_str += '\n' + self._repr_coord(base, base=True)
+      for coord in [c for c in self._coords if not c in self._base_coords]:
+        coords_str += '\n' + self._repr_coord(coord, base=False)
+      return coords_str
+    else:
+      return ''
 
   def __iter__(self):
     for k in self._coords.keys():
@@ -184,14 +229,11 @@ class Coordinates(object):
     return coordstr
 
   def copy(self):
-    return Coordinates(self._coords.copy(), container=self._container)
-
-  def get_base_coords(self):
-    return self._base_coords
+    return Coordinates(None if self._coords is None else self._coords.copy(), container=self._container)
 
   @property
   def base_coords(self):
-    return self.get_base_coords()
+    return self._base_coords
 
   @staticmethod
   def parse_coord_definition(coord):
@@ -204,8 +246,11 @@ class Coordinates(object):
 
 
   @staticmethod
-  def _parse_coords_definition(coords):
+  def _parse_coords_definition(coords=None):
     ''' Validate coords to test for cyclic graph '''
+    if coords is None:
+      return None, None, None
+
     if isinstance(coords, string_types):
       return OrderedDict([(coords, None)]), FrozenList([coords]), {coords: set([coords])}
 
@@ -282,6 +327,9 @@ class Coordinates(object):
 
   def _set_coords_from_columns(self, coords=None, container=None):
     coords = coords if coords is not None else self._coords
+    if coords is None:
+      return 
+
     container   = container   if container   is not None else self._container
 
     if self._container is None:
@@ -328,6 +376,9 @@ class Coordinates(object):
 
   def _prune(self, coords=None, container=None):
     coords = coords if coords is not None else self._coords
+    if coords is None:
+      return
+
     container   = container   if container   is not None else self._container
 
     available_coords = self._get_available_coords(container)
@@ -338,7 +389,10 @@ class Coordinates(object):
 
     return coords
 
-  def _validate_coords_against_data(self, coords, container=None):
+  def _validate_coords_against_data(self, coords=None, container=None):
+    if coords is None:
+      return
+
     container = container if container is not None else self._container
     if container is None:
       return
@@ -375,16 +429,14 @@ class Container(object):
   def coords(self):
     '''Coordinates property of a metacsv Container'''
     if not hasattr(self, '_coords'):
-      self._coords = None
+      self._coords = Coordinates()
 
-    if self._coords is None:
-      return None
     return self._coords
 
   @coords.setter
   def coords(self, value):
     if value is None:
-      self._coords = None
+      self._coords = Coordinates()
     else:
       self._coords = Coordinates(value, container=self)
 
@@ -395,7 +447,7 @@ class Container(object):
   @property
   def base_coords(self):
     if not hasattr(self, '_coords'):
-      self._coords = None
+      self._coords = Coordinates()
 
     if self._coords is None:
       return None
@@ -407,16 +459,14 @@ class Container(object):
   def attrs(self):
     '''Coordinates property of a metacsv Container'''
     if not hasattr(self, '_attrs'):
-      self._attrs = None
+      self._attrs = Attributes()
 
-    if self._attrs is None:
-      return None
     return self._attrs
 
   @attrs.setter
   def attrs(self, value):
     if value is None:
-      self._attrs = None
+      self._attrs = Attributes()
     else:
       self._attrs = Attributes(value, container=self)
 
@@ -429,16 +479,17 @@ class Container(object):
   def variables(self):
     '''Coordinates property of a metacsv Container'''
     if not hasattr(self, '_variables'):
-      self._variables = None
+      self._variables = Variables()
 
-    if self._variables is None:
-      return None
+    if self._variables == None:
+      return
+
     return self._variables
 
   @variables.setter
   def variables(self, value):
     if value is None:
-      self._variables = None
+      self._variables = Variables()
     else:
       self._variables = Variables(value, container=self)
 
@@ -452,19 +503,6 @@ class Container(object):
   def _get_coord_data_from_index(self, coord):
     return self.index.get_level_values(coord)
 
-  def _get_coords_dataarrays_from_index(self):
-
-    coords = OrderedDict()
-
-    for coord in self.base_coords:
-      coords[str(coord)] = self._get_coord_data_from_index(coord).values
-
-    for coord in [k for k in self.coords if k not in self.base_coords]:
-      deps = self.coords[coord]
-      coords[str(coord)] = xr.DataArray.from_series(pd.Series(self._get_coord_data_from_index(coord), index=pd.MultiIndex.from_tuples(list(zip(*tuple(self._get_coord_data_from_index(dep) for dep in deps))), names=list(map(str, deps)))))
-
-    return coords
-
   @staticmethod
   def get_unique_multiindex(series):
     return series.iloc[np.unique(series.index.values, return_index=True)[1]]
@@ -476,6 +514,7 @@ class Container(object):
 
   @staticmethod
   def strip_special_attributes(args, kwargs):
+
     attrs = kwargs.pop('attrs', {})
 
     coords = None
@@ -492,8 +531,8 @@ class Container(object):
       else:
         coords.update(c2)
 
-    variables = attrs.pop('variables', {})
-    variables.update(kwargs.pop('variables', {}))
+    variables = attrs.pop('variables', dict([]))
+    variables.update(kwargs.pop('variables', dict([])))
 
     special = {
       'attrs': attrs,
@@ -527,53 +566,7 @@ class Container(object):
       self._write_csv_to_file_object(fp, *args, **kwargs)
 
   def to_xarray(self):
-
-    if self.coords is None:
-      self.add_coords()
-
-    if len(self.shape) > 2:
-      raise NotImplementedError("to_xarray not yet implemented for Panel data")
-
-    if len(self.shape) == 1:
-      coords = self._get_coords_dataarrays_from_index()
-      return xr.DataArray.from_series(pd.Series(
-        self.values, 
-        index=pd.MultiIndex.from_tuples(
-          list(zip(*tuple([self._get_coord_data_from_index(coord) for coord in self.base_coords]))), 
-          names=list(map(str, self.base_coords)))))
-
-    if len(self.shape) == 2:
-
-      ds = xr.Dataset()
-
-      for coord in self.base_coords:
-        ds.coords[str(coord)] = self.index.get_level_values(coord).unique()
-
-
-      for coord in self.coords:
-        if coord in self.base_coords:
-          continue
-
-        ds.coords[str(coord)] = xr.DataArray.from_series(self.stringify_index_names(self.get_unique_multiindex(self.reset_index([c for c in self.index.names if c not in self._coords._base_dependencies[coord]], drop=False, inplace=False)[coord])))
-
-      for col in self.columns:
-        reset = [c for c in self.index.names if not c in self.base_coords]
-        if len(reset) > 0:
-          ds[str(col)] = xr.DataArray.from_series(self.stringify_index_names(self.get_unique_multiindex(self.reset_index(reset, drop=False, inplace=False)[col])))
-        else:
-          ds[str(col)] = xr.DataArray.from_series(self.stringify_index_names(self.get_unique_multiindex(self[col])))
-
-      ds.attrs.update(self.attrs)
-
-      if hasattr(self, 'variables'):
-        for var, attrs in self.variables.items():
-          if var in ds.data_vars:
-            ds.data_vars[var].attrs.update(attrs)
-
-          if var in ds.coords:
-            ds.coords[var].attrs.update(attrs)
-
-      return ds
+    return convert_to_xarray(self)
 
   def to_dataarray(self):
 
@@ -587,42 +580,12 @@ class Container(object):
       self.columns.names = [c if c is not None else 'ind_{}'.format(len(self.index.names) + i) for i, c in enumerate(self.columns.names)]
       
       return self.unstack(self.columns.names[0]).to_dataarray()
-
-
-  @property
-  def metacsv_str(self):
-    return '<{} {}>'.format(type(self).__module__ + '.' + type(self).__name__, self.shape)
-
-  @property
-  def coords_str(self):
-    if self.coords is None:
-      return ''
-    else:
-      return self.coords.__repr__()
-
-  @property
-  def var_str(self):
-    if hasattr(self, 'variables') and self.variables is not None:
-      return self.variables.__repr__()
-    else:
-      return ''
-
-  @property
-  def attr_str(self):
-    if hasattr(self, 'attrs') and self.attrs is not None:
-      return self.attrs.__repr__()
-    else:
-      return ''
-
-    return (
-      '' if len(self.attrs) == 0 else 
-      'Attributes\n    ' + '\n    '.join(list(map(lambda x: '{}: {}'.format(*x), self.attrs.items())))
-      )
     
   def _print_format(self):
+    metacsv_str = '<{} {}>'.format(type(self).__module__ + '.' + type(self).__name__, self.shape)
     data_str = self.pandas_parent.__str__(self)
-    postscript = '\n'.join([p for p in [self.coords_str, self.var_str, self.attr_str] if p is not None and len(p) > 0])
-    return (self.metacsv_str + '\n' + data_str + ('\n\n' if len(postscript)>0 else '') + postscript)
+    postscript = '\n'.join([str(p) for p in [self.coords, self.variables, self.attrs] if p != None])
+    return (metacsv_str + '\n' + data_str + ('\n\n' if len(postscript)>0 else '') + postscript)
 
   def __repr__(self):
     return str(self)
@@ -634,3 +597,6 @@ class Container(object):
   def to_pandas(self):
     ''' return a copy of the data in a pandas.DataFrame object '''
     return self.pandas_parent(self)
+
+
+

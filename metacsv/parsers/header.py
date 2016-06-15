@@ -82,7 +82,11 @@ def read_csv(string_or_buffer, *args, **kwargs):
     df = DataFrame(data, attrs=header)
 
   if squeeze and df.shape[1] == 1:
-    return Series(df[df.columns[0]], attrs=header, coords=df.coords)
+    attrs = df.attrs.copy()
+    if hasattr(df.variables, 'get'):
+      attrs.update({'variables': df.variables.get(df.columns[0], {})})
+
+    return Series(df[df.columns[0]], attrs=attrs, coords=df.coords.copy())
   else:
     return df
 
