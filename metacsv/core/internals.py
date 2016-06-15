@@ -13,12 +13,29 @@ class _BaseProperty(object):
 
   def __init__(self, data, container=None):
     self._data = data
+
   def __repr__(self):
     repr_str = None if len(self._data) == 0 else self.property_type
     for props, prop_data in self._data.items():
       repr_str += '\n    {: <10} {}'.format(props, prop_data)
     return repr_str
 
+  def __iter__(self):
+    for k, v in self._data.items():
+      yield k, v
+
+  def __getitem__(self, key):
+    return self._data[key]
+
+  def items(self):
+    for k, v in self._data.items():
+      yield (k,v)
+
+  def update(self, value):
+    if self._data is None:
+      self._data = value
+    else:
+      self._data.update(dict(value))
 
   def __get__(self, data):
     if not hasattr(self, '_data'):
@@ -32,7 +49,10 @@ class _BaseProperty(object):
     if value is None:
       self._data = None
     else:
-      self._data = value
+      if isinstance(value, dict) or isinstance(value, OrderedDict):
+        self._data = value
+      else:
+        raise TypeError
 
   def __del__(self):
     del self._data
@@ -323,9 +343,9 @@ class Container(object):
 
     '''
 
-    self.coords = Coordinates(coords, container=self)
-    self.attrs = Attributes(coords, container=self)
-    self.variables = Variables(coords, container=self)
+    self.coords = coords
+    self.attrs = attrs
+    self.variables = variables
 
 
   @property
@@ -348,6 +368,16 @@ class Container(object):
   @coords.deleter
   def coords(self):
     self._coords = None
+
+  @property
+  def base_coords(self):
+    if not hasattr(self, '_coords'):
+      self._coords = None
+
+    if self._coords is None:
+      return None
+
+    return self._coords._base_coords
 
 
   @property
@@ -475,6 +505,9 @@ class Container(object):
 
   def to_xarray(self):
 
+    if self.coords is None:
+      self.coords = self.index.names
+
     if len(self.shape) > 2:
       raise NotImplementedError("to_xarray not yet implemented for Panel data")
 
@@ -553,7 +586,7 @@ class Container(object):
     
   def _print_format(self):
     data_str = self.pandas_parent.__str__(self)
-    postscript = '\n'.join([p for p in [self.coords_str, self.var_str, self.attr_str] if len(p) > 0])
+    postscript = '\n'.join([p for p in [self.coords_str, self.var_str, self.attr_str] if p is not None and len(p) > 0])
     return (self.metacsv_str + '\n' + data_str + ('\n\n' if len(postscript)>0 else '') + postscript)
 
   def __repr__(self):
