@@ -43,10 +43,21 @@ class MetacsvTestCase(unittest.TestCase):
 
         df = metacsv.read_csv(os.path.join(self.testdata_prefix, 'test6.csv'))
 
-        df.__repr__()
+        df_str = df.__repr__()
 
         self.assertEqual(df.to_xarray().isnull().sum().col1, 0)
         self.assertEqual(df.to_xarray().isnull().sum().col2, 0)
+
+        # Test automatic coords assignment
+        df = metacsv.read_csv(os.path.join(self.testdata_prefix, 'test5.csv'), squeeze=True)
+        del df.coords
+
+        ds = df.to_xarray()
+
+        self.assertNotEqual(len(df.shape), len(ds.shape))
+        self.assertEqual(df.shape[0], ds.shape[0])
+        self.assertTrue(ds.shape[1] > 1)
+
 
     def test_for_series_attributes(self):
         '''CSV Test 3: Ensure read_csv preserves attrs with squeeze=True conversion to Series
@@ -206,9 +217,14 @@ class MetacsvTestCase(unittest.TestCase):
         self.assertEqual(attrs.pop('author', None), None)
 
         df.attrs.update(attrs)
+        df.attrs.update({'project': 'metacsv'})
+
+        self.assertNotEqual(df.attrs, attrs)
+        del df.attrs['project']
+        self.assertEqual(df.attrs, attrs)
 
         self.assertEqual(df.attrs['contact'], 'me@email.com')
-        self.assertEqual(df.attrs, attrs)
+        self.assertEqual(df.attrs.get('contact'), 'me@email.com')
         self.assertEqual(df.attrs.pop('contact'), 'me@email.com')
         self.assertEqual(df.attrs.pop('contact', 'nope'), 'nope')
         self.assertNotEqual(df.attrs, attrs)

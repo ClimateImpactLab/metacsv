@@ -83,6 +83,12 @@ class _BaseProperty(object):
     else:
       self._data[key] = value
 
+  def __delitem__(self, key):
+    if self._data is None:
+      raise KeyError('{} not yet assigned.'.format(self.property_type))
+    del self._data[key]
+
+
   def __eq__(self, other):
     if hasattr(other, '_data'):
       return self._data == other._data
