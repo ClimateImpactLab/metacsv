@@ -15,9 +15,6 @@ def _get_coords_dataarrays_from_index(container):
 
   coords = OrderedDict()
 
-  print(container)
-  print(container.base_coords)
-
   for coord in container.base_coords:
     coords[str(coord)] = container._get_coord_data_from_index(coord).values
 

@@ -533,9 +533,6 @@ class Container(object):
       else:
         coords.update(c2)
 
-    print(coords)
-    print(attrs)
-
     variables = attrs.pop('variables', dict([]))
     variables.update(kwargs.pop('variables', dict([])))
 
