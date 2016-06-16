@@ -206,6 +206,7 @@ class MetacsvTestCase(unittest.TestCase):
         self.assertEqual(df.variables[df.columns[1]]['units'], 'wigits')
 
         attrs = metacsv.core.internals.Attributes()
+        self.assertEqual(attrs, None)
 
         self.assertEqual(attrs, None)
         self.assertEqual(attrs.__repr__(), '<Empty Attributes>')
@@ -225,6 +226,7 @@ class MetacsvTestCase(unittest.TestCase):
 
         self.assertEqual(df.attrs['contact'], 'me@email.com')
         self.assertEqual(df.attrs.get('contact'), 'me@email.com')
+        self.assertEqual(df.attrs.get('other', 'thing'), 'thing')
         self.assertEqual(df.attrs.pop('contact'), 'me@email.com')
         self.assertEqual(df.attrs.pop('contact', 'nope'), 'nope')
         self.assertNotEqual(df.attrs, attrs)
