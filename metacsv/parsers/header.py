@@ -1,6 +1,7 @@
 
 import yaml, pandas as pd, re
 from .._compat import string_types
+from ..core.internals import Container
 
 from metacsv.core.containers import Series, DataFrame, Panel
 
@@ -40,8 +41,6 @@ def read_csv(string_or_buffer, *args, **kwargs):
   
   kwargs = dict(kwargs)
 
-  coords = kwargs.pop('coords', {})
-  attrs = kwargs.pop('attrs', {})
   squeeze = kwargs.get('squeeze', False)
 
   # set defaults
@@ -67,26 +66,18 @@ def read_csv(string_or_buffer, *args, **kwargs):
     _header, data = _parse_headered_data(string_or_buffer, *args, **kwargs)
 
   header.update(_header)
-  header.update(attrs)
+
+  kwargs.update({'attrs': header})
+  args, kwargs, special = Container.strip_special_attributes(args, kwargs)
 
   if squeeze:
     if len(data.shape) == 1:
-      if len(coords) > 0:
-        return Series(data, attrs=header, coords=coords)
-      else:
-        return Series(data, attrs=header)
+      return Series(data, **special)
 
-  if len(coords) > 0:
-    df = DataFrame(data, attrs=header, coords=coords)
-  else:
-    df = DataFrame(data, attrs=header)
+  df = DataFrame(data, **special)
 
   if squeeze and df.shape[1] == 1:
-    attrs = df.attrs.copy()
-    if hasattr(df.variables, 'get'):
-      attrs.update({'variables': df.variables.get(df.columns[0], {})})
-
-    return Series(df[df.columns[0]], attrs=attrs, coords=df.coords.copy())
+    return Series(df[df.columns[0]], **special)
   else:
     return df
 

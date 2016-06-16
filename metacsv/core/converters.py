@@ -2,16 +2,25 @@
 Utilities for converting metacsv Containers to other data formats
 '''
 
-import pandas as pd
+import pandas as pd, yaml
 from collections import OrderedDict
 
 xr = None
+
+def import_xarray():
+  global xr
+  if xr is None:
+    try:
+      import xarray as xr
+    except ImportError:
+      raise ImportError('Cannot send to xarray - xarray library not found. See http://xarray.pydata.org/')
+
 
 def _get_coords_dataarrays_from_index(container):
 
   global xr
   if xr is None:
-    import xarray as xr
+    import_xarray()
 
   coords = OrderedDict()
 
@@ -31,10 +40,13 @@ def convert_to_xarray(container):
   
   global xr
   if xr is None:
-    import xarray as xr
+    import_xarray()
 
   if container.coords == None:
     container.add_coords()
+
+  if container.coords == None:
+    raise ValueError
 
   if len(container.shape) > 2:
     raise NotImplementedError("to_xarray not yet implemented for Panel data")
@@ -79,3 +91,20 @@ def convert_to_xarray(container):
           ds.coords[var].attrs.update(attrs)
 
     return ds
+
+
+
+def write_to_csv_object(container, fp, *args, **kwargs):
+  attr_dict = {}
+  attr_dict.update(dict(container.attrs))
+
+  if container.coords is not None:
+    attr_dict.update({'coords': dict(container.coords.items())})
+
+  if hasattr(container, 'variables'):
+    attr_dict.update({'variables': dict(container.variables.items())})
+
+  fp.write('---\n')
+  fp.write(yaml.safe_dump(attr_dict, default_flow_style=False, allow_unicode=True))
+  fp.write('---\n')
+  container.pandas_parent.to_csv(container, fp, *args, **kwargs)
