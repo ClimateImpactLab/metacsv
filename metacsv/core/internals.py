@@ -196,7 +196,7 @@ class Coordinates(object):
   # ensure compatability with PY3 and 
   # pd._compat utilities
   def items(self):
-    if self._coord is not None:
+    if self._coords is not None:
       for k, v in self._coords.items():
         yield (k,v)
 
@@ -537,24 +537,17 @@ class Container(object):
 
     attrs = kwargs.pop('attrs', {}).copy()
 
-    coords = dict()
-
     def update_property(p_data, data, func=lambda x: x):
       if hasattr(data, 'copy'):
         data = data.copy()
       parsed = func(data)
-      try:
-        p_data.update(data)
-      except ValueError:
-        print(p_data)
-        print(data)
-        raise ValueError
+      p_data.update(parsed)
 
     def strip_property(prop, func = lambda x: x):
-      p_data = dict()
+      p_data = {}
 
-      update_property(p_data, attrs.pop(prop, dict()), func)
-      update_property(p_data, kwargs.pop(prop, dict()), func)
+      update_property(p_data, attrs.pop(prop, {}), func)
+      update_property(p_data, kwargs.pop(prop, {}), func)
       
       if len(p_data) == 0:
         p_data = None
