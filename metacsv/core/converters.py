@@ -5,8 +5,13 @@ Utilities for converting metacsv Containers to other data formats
 import pandas as pd
 from collections import OrderedDict
 
+xr = None
 
 def _get_coords_dataarrays_from_index(container):
+
+  global xr
+  if xr is None:
+    import xarray as xr
 
   coords = OrderedDict()
 
@@ -26,8 +31,10 @@ def convert_to_xarray(container):
   '''
   Converst metacsv Containers to xarray data types. Requires xarray.
   '''
-
-  import xarray as xr
+  
+  global xr
+  if xr is None:
+    import xarray as xr
 
   if container.coords == None:
     container.add_coords()
@@ -66,7 +73,7 @@ def convert_to_xarray(container):
 
     ds.attrs.update(container.attrs)
 
-    if hasattr(container, 'variables'):
+    if hasattr(container, 'variables') and container.variables != None:
       for var, attrs in container.variables.items():
         if var in ds.data_vars:
           ds.data_vars[var].attrs.update(attrs)

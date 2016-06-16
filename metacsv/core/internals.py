@@ -70,7 +70,7 @@ class _BaseProperty(object):
   def __eq__(self, other):
     if hasattr(other, '_data'):
       return self._data == other._data
-    if other is None and self._data is None:
+    if other is None and (self._data is None or len(self._data) == 0):
       return True
     return False
 
@@ -192,6 +192,8 @@ class Coordinates(object):
   def __eq__(self, other):
     if isinstance(other, Coordinates):
       return (self._coords == other._coords) and (self._base_coords == other._base_coords)
+    elif (other is None) and (self._coords is None):
+      return True
     return False
 
   def __ne__(self, other):
@@ -229,7 +231,7 @@ class Coordinates(object):
     return coordstr
 
   def copy(self):
-    return Coordinates(None if self._coords is None else self._coords.copy(), container=self._container)
+    return Coordinates(None if self._coords is None else self._coords.copy())
 
   @property
   def base_coords(self):
@@ -530,6 +532,9 @@ class Container(object):
         coords = c2
       else:
         coords.update(c2)
+
+    print(coords)
+    print(attrs)
 
     variables = attrs.pop('variables', dict([]))
     variables.update(kwargs.pop('variables', dict([])))

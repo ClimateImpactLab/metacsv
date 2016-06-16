@@ -15,6 +15,7 @@ class Series(Container, pd.Series):
   '''
 
   pandas_parent = pd.Series
+  _metadata = ['_coords', '_attrs', '_variables']
 
   @property
   def _constructor(self):
@@ -36,6 +37,7 @@ class DataFrame(Container, pd.DataFrame):
   '''
 
   pandas_parent = pd.DataFrame
+  _metadata = ['_coords', '_attrs', '_variables']
 
   @property
   def _constructor(self):
@@ -55,12 +57,13 @@ class DataFrame(Container, pd.DataFrame):
     Container.__init__(self, **special)
 
 
-class Panel(pd.Panel):
+class Panel(Container, pd.Panel):
   '''
   metacsv.Panel, inherrited from pandas.Panel
   '''
 
   pandas_parent = pd.Panel
+  _metadata = ['_coords', '_attrs', '_variables']
 
   @property
   def _constructor(self):
@@ -72,6 +75,6 @@ class Panel(pd.Panel):
 
   def __init__(self, *args, **kwargs):
     args, kwargs, special = Container.strip_special_attributes(args, kwargs)
-    pd.Series.__init__(self, *args, **kwargs)
+    pd.Panel.__init__(self, *args, **kwargs)
     Container.__init__(self, **special)
     
