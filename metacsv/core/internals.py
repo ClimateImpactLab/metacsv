@@ -57,23 +57,27 @@ class _BaseProperty(object):
       raise KeyError('{} not yet assigned.'.format(self.property_type))
 
   def update(self, value):
-    if self._data is not None:
-      if isinstance(value, _BaseProperty):
-        self._data.update(value._data)
-      elif has_iterkeys(value):
-        if len(value) > 0:
-          self._data.update(value)
-    if isinstance(value, None):
-      return
-    if isinstance(value, dict):
+    if self._data == None:
+      self._data = {}
+
+    if isinstance(value, _BaseProperty):
+      self._data.update(value._data)
+    elif has_iterkeys(value):
       if len(value) > 0:
-        self._data = value
+        self._data.update(value)
+    else:
+      raise TypeError('Passed value is not iterable')
 
 
   def __getitem__(self, key):
+    if self._data is None:
+      raise KeyError('{} not yet assigned.'.format(self.property_type))
     return self._data[key]
 
   def __setitem__(self, key, value):
+    if self._data is None:
+      self._data = {}
+
     if isinstance(value, _BaseProperty):
       self._data[key] = value._data
     else:

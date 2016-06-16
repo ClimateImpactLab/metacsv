@@ -153,6 +153,78 @@ class MetacsvTestCase(unittest.TestCase):
         testfile = os.path.join(self.testdata_prefix, 'test6.csv')
         self.assertTrue(metacsv.read_csv(testfile).to_xarray().col1.attrs['unit'], 'wigits')
 
+    def test_change_dims(self):
+        testfile = os.path.join(self.testdata_prefix, 'test6.csv')
+        df = metacsv.read_csv(testfile)
+
+        # Test DataFrame._constructor_sliced
+        series = df[df.columns[0]]
+        self.assertTrue(hasattr(series, 'coords'))
+        
+        # Test Series._constructor_expanddims
+        df2 = metacsv.DataFrame({df.columns[0]: series})
+        self.assertTrue(hasattr(df2, 'coords'))
+
+        # Test DataFrame._constructor_expanddims
+        panel = metacsv.Panel({'df': df})
+        self.assertTrue(hasattr(panel, 'coords'))
+
+        # Test Panel._constructor_sliced
+        df3 = panel['df']
+        self.assertTrue(hasattr(df3, 'coords'))
+
+    def test_standalone_properties(self):
+
+        df = metacsv.read_csv(os.path.join(self.testdata_prefix, 'test3.csv'))
+
+        df.columns = ['index', 'column1', 'column2']
+        df.set_index('index', inplace=True)
+
+        variables = metacsv.core.internals.Variables({
+            'column1': {
+                'units': 'wigits'
+            },
+            'column2': {
+                'units': 'wigits'
+            }})
+
+        df.variables = variables
+
+        self.assertEqual(df.variables, variables)
+        self.assertEqual(df.variables.__repr__(), variables.__repr__())
+        self.assertEqual(df.variables[df.columns[1]]['units'], 'wigits')
+
+        attrs = metacsv.core.internals.Attributes()
+
+        self.assertEqual(attrs, None)
+        self.assertEqual(attrs.__repr__(), '<Empty Attributes>')
+
+        attrs['author'] = 'My Name'
+        attrs['contact'] = 'me@email.com'
+
+        self.assertEqual(attrs.pop('author', None), 'My Name')
+        self.assertEqual(attrs.pop('author', None), None)
+
+        df.attrs.update(attrs)
+
+        self.assertEqual(df.attrs['contact'], 'me@email.com')
+        self.assertEqual(df.attrs, attrs)
+        self.assertEqual(df.attrs.pop('contact'), 'me@email.com')
+        self.assertEqual(df.attrs.pop('contact', 'nope'), 'nope')
+        self.assertNotEqual(df.attrs, attrs)
+
+        del df.variables
+
+        # Test round trip
+        df2 = metacsv.read_csv(
+            os.path.join(self.testdata_prefix, 'test3.csv'),
+            index_col=[0], skiprows=1,
+            names=['column1', 'column2'])
+
+        df2.index.names = ['index']
+
+        self.assertTrue((df == df2).all().all())
+
 
     def tearDown(self):
         if os.path.isdir(self.test_tmp_prefix):

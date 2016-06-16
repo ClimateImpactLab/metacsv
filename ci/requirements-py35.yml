@@ -16,4 +16,4 @@ dependencies:
   - pip:
     - coveralls
     - pytest-cov
-    - git+https://github.com/Unidata/netcdf4-python.git
+    # - git+https://github.com/Unidata/netcdf4-python.git
