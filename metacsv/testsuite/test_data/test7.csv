@@ -1,0 +1,12 @@
+---
+variables:
+  col1: The first column [wigits]
+  col2: The second column [digits]
+
+author: series creator
+version: test5.2016-05-01.01
+---
+ind,col1,col2
+a,0,1
+b,2,3
+c,4,5
