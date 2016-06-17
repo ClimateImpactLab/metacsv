@@ -1,6 +1,6 @@
 
 
-import pandas as pd, numpy as np, yaml
+import pandas as pd, numpy as np, yaml, re
 from .._compat import string_types, has_iterkeys, iterkeys
 from .converters import convert_to_xarray, write_to_csv_object
 from .exceptions import GraphIsCyclicError
