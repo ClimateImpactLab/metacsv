@@ -1,10 +1,10 @@
 
-from __future__ import absolute_import, print_function
-import metacsv
+from __future__ import print_function
+from ..parsers.header import read_csv
 import argparse, sys
 
 def get_version(readfile):
-	df = metacsv.read_csv(readfile)
+	df = read_csv(readfile)
 	version = df.attrs.get('version', None)
 	return version
 

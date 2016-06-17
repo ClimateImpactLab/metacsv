@@ -243,6 +243,15 @@ class MetacsvTestCase(unittest.TestCase):
 
         self.assertTrue((df == df2).all().all())
 
+    def test_parse_vars(self):
+
+        df = metacsv.read_csv(os.path.join(self.testdata_prefix, 'test7.csv'), parse_var=True, index_col=0)
+        ds = df.to_xarray()
+
+        self.assertEqual(ds.col1.attrs['description'], 'The first column')
+        self.assertEqual(ds.col1.attrs['unit'], 'wigits')
+        self.assertEqual(ds.col2.attrs['description'], 'The second column')
+        self.assertEqual(ds.col2.attrs['unit'], 'digits')
 
     def tearDown(self):
         if os.path.isdir(self.test_tmp_prefix):

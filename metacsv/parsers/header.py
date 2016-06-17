@@ -1,7 +1,7 @@
 
 import yaml, pandas as pd, re
 from .._compat import string_types
-from ..core.internals import Container
+from ..core.internals import Container, Variables
 
 from metacsv.core.containers import Series, DataFrame, Panel
 
@@ -42,6 +42,7 @@ def read_csv(string_or_buffer, *args, **kwargs):
   kwargs = dict(kwargs)
 
   squeeze = kwargs.get('squeeze', False)
+  parse_var = kwargs.pop('parse_var', False)
 
   # set defaults
   engine = kwargs.pop('engine', 'python')
@@ -69,6 +70,11 @@ def read_csv(string_or_buffer, *args, **kwargs):
 
   kwargs.update({'attrs': header})
   args, kwargs, special = Container.strip_special_attributes(args, kwargs)
+
+  if parse_var:
+    if 'variables' in special:
+      for key, var in special['variables'].items():
+        special['variables'][key] = Variables.parse_string_var(var)
 
   if squeeze:
     if len(data.shape) == 1:

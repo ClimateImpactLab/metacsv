@@ -1,13 +1,13 @@
 
-from __future__ import absolute_import, print_function
-import metacsv
+from __future__ import print_function
+from ..parsers.header import read_csv
 import argparse, os
 
 def to_netcdf(readfile, writefile=None, *args, **kwargs):
 	if writefile is None:
 		writefile = os.path.splitext(readfile)[0] + '.nc'
 
-	metacsv.read_csv(readfile, *args, **kwargs).to_xarray().to_netcdf(writefile)
+	read_csv(readfile, *args, **kwargs).to_xarray().to_netcdf(writefile)
 
 def get_parser():
 	parser = argparse.ArgumentParser('Convert MetaCSV-compliant files to other file types')
