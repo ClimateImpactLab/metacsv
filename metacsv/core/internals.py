@@ -22,7 +22,7 @@ class _BaseProperty(object):
     if self._data is not None and len(self._data) > 0:
       repr_str = '' if len(self._data) == 0 else self.property_type
       for props, prop_data in self._data.items():
-        repr_str += '\n    {: <10} {}'.format(props, prop_data)
+        repr_str += '\n    {: <10} {}'.format(str(props)+':', prop_data)
       return repr_str
     else:
       return '<Empty {}>'.format(self.property_type)

@@ -28,7 +28,7 @@ def _parse_headered_data(fp, *args, **kwargs):
   this_line = ''
 
   while not find_yaml_break(this_line):
-    yaml_text += '\n' + this_line
+    yaml_text += '\n' + this_line.rstrip('\n')
     this_line = next(fp)
 
   header = yaml.load(yaml_text)
@@ -42,7 +42,7 @@ def read_csv(string_or_buffer, *args, **kwargs):
   kwargs = dict(kwargs)
 
   squeeze = kwargs.get('squeeze', False)
-  parse_var = kwargs.pop('parse_var', False)
+  parse_vars = kwargs.pop('parse_vars', False)
 
   # set defaults
   engine = kwargs.pop('engine', 'python')
@@ -71,7 +71,7 @@ def read_csv(string_or_buffer, *args, **kwargs):
   kwargs.update({'attrs': header})
   args, kwargs, special = Container.strip_special_attributes(args, kwargs)
 
-  if parse_var:
+  if parse_vars:
     if 'variables' in special:
       for key, var in special['variables'].items():
         special['variables'][key] = Variables.parse_string_var(var)
