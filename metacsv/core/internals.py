@@ -143,6 +143,20 @@ class Attributes(_BaseProperty):
 
 class Variables(_BaseProperty):
   property_type = 'Variables'
+  
+  @staticmethod
+  def parse_string_var(defn):
+    if not isinstance(defn, string_types):
+      return defn
+    pattern = re.search(r'^(?P<desc>[^\[]+)(\s+\[(?P<unit>.+)\])?$', defn)
+    if not pattern:
+      return defn
+    vardata = {'description': pattern.group('desc')}
+    unit = pattern.group('unit')
+    if unit:
+      vardata['unit'] = unit
+    return vardata
+
 
 
 class Coordinates(object):
