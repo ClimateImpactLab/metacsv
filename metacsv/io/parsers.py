@@ -1,12 +1,16 @@
 
-import yaml, pandas as pd, re
+import pandas as pd, re
+from .yaml_tools import ordered_load
 from .._compat import string_types
 from ..core.internals import Container, Variables
 
 from metacsv.core.containers import Series, DataFrame, Panel
 
-def find_yaml_break(line):
+def find_yaml_start(line):
   return re.search(r'^\s*-{3,}\s*$', line) is not None
+
+def find_yaml_stop(line):
+  return re.search(r'^\s*\.{3,}\s*$', line) is not None
 
 def _parse_headered_data(fp, *args, **kwargs):
 
@@ -20,36 +24,33 @@ def _parse_headered_data(fp, *args, **kwargs):
   while re.search(r'^[\s\n\r]*$', nextline):
     nextline = next(fp)
 
-  if not find_yaml_break(nextline):
+  if not find_yaml_start(nextline):
     fp.seek(loc)
     return {}, pd.read_csv(fp, *args, **kwargs)
   
   yaml_text = ''
   this_line = ''
 
-  while not find_yaml_break(this_line):
+  while not find_yaml_stop(this_line):
     yaml_text += '\n' + this_line.rstrip('\n')
     this_line = next(fp)
 
-  header = yaml.load(yaml_text)
+  header = ordered_load(yaml_text)
   data = pd.read_csv(fp, *args, **kwargs)
 
   return header, data
 
 
-def read_csv(string_or_buffer, *args, **kwargs):
+def read_csv(string_or_buffer, header_file=None, parse_vars=False, *args, **kwargs):
   
   kwargs = dict(kwargs)
 
   squeeze = kwargs.get('squeeze', False)
-  parse_vars = kwargs.pop('parse_vars', False)
 
   # set defaults
   engine = kwargs.pop('engine', 'python')
   kwargs['engine'] = engine
   
-  header_file = kwargs.pop('header_file', None)
-
   header = {}
 
   if isinstance(header_file, string_types):

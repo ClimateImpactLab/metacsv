@@ -1,11 +1,12 @@
 
 
-import pandas as pd, numpy as np, yaml, re
-from .._compat import string_types, has_iterkeys, iterkeys
-from .converters import convert_to_xarray, write_to_csv_object
-from .exceptions import GraphIsCyclicError
+import pandas as pd, numpy as np, re
 from collections import OrderedDict
 from pandas.core.base import FrozenList
+
+from .exceptions import GraphIsCyclicError
+from .._compat import string_types, has_iterkeys, iterkeys
+from ..io import to_xarray, to_csv, to_pandas
 
 
 class _BaseProperty(object):
@@ -110,7 +111,10 @@ class _BaseProperty(object):
         yield (k,v)
 
   def copy(self):
-    return type(self)(self)
+    if self.data is not None:
+      return type(self)(self._data.copy(), container=None)
+    else:
+      return type(self)()
 
   def __get__(self, data):
     if not hasattr(self, '_data'):
@@ -238,6 +242,11 @@ class Coordinates(object):
   def __getitem__(self, key):
     return self._coords[key]
 
+  def __len__(self):
+    if self._coords is None:
+      return 0
+    return len(self._coords)
+
   def _repr_coord(self, coord, base=False, maxlen=50):
     if self._container is None:
       datastr = ''
@@ -252,22 +261,23 @@ class Coordinates(object):
 
       for i, ind in enumerate(coord_data):
         if len(datastr) + len(str(ind)) + 5 > maxlen:
-          return datastr + '...'
+          datastr += '...'
+          break
 
         if i > 0:
           datastr += ', '
 
         datastr += '{}'.format(ind)
 
-    coordstr = '  * ' if base else '    '
-    coordstr += '{: <10}'.format(coord)
-    coordstr += ' ({})'.format(coord if base else ','.join(list(map(str, self._coords[coord]))))
+    coordstr = ('  * ' if base else '    ')
+    coordstr += ('{: <10}'.format(coord))
+    coordstr += (' ({})'.format(coord if base else ','.join(list(map(str, self._coords[coord])))))
     coordstr += datastr
 
     return coordstr
 
   def copy(self):
-    return Coordinates(None if self._coords is None else self._coords.copy())
+    return type(self)(self._coords.copy(), container=None)
 
   @property
   def base_coords(self):
@@ -326,6 +336,11 @@ class Coordinates(object):
     while len(coords) > 0:
       find_coord_dependencies(next(iterkeys(coords)))
 
+    # Convert from sets to lists
+    for k, v in dependencies.items():
+      if v is not None:
+        dependencies[k] = list(v)
+
     return dependencies, FrozenList(base_coords), base_deps
 
   def _get_coords_from_data(self):
@@ -347,13 +362,22 @@ class Coordinates(object):
     self._coords, self._base_coords, self._base_dependencies = self._get_coords_from_data()
 
 
-  def update_coords(self, coords=None):  # This needs some testing!!
+  def update(self, coords=None):  # This needs some testing!!
 
     if coords is None:
       coords, base_coords, base_dependencies = self._get_coords_from_data()
 
-    self._coords.update(coords)
-    self._send_coords_in_cols_to_index()
+    self._prune()
+
+    if (not hasattr(self, '_coords')) or self._coords is None:
+      _coords = OrderedDict()
+    else:
+      _coords = self._coords.copy()
+
+    orig_coords = _coords
+    for k, v in coords.items():
+      orig_coords[k] = v
+    self.__set__(orig_coords)
 
   def _send_coords_in_cols_to_index(self, coords=None, container=None):
     coords = coords if coords is not None else self._coords
@@ -375,26 +399,6 @@ class Coordinates(object):
       if len(set_coords) > 0:
         container.set_index(set_coords, inplace=True, append=append)
 
-
-  def update(self, coords):
-
-    self._prune()
-
-    if not hasattr(self, '_coords'):
-      _coords = {}
-    else:
-      _coords = self._coords.copy()
-
-    _coords.update(coords)
-    coords, base_coords, base_dependencies = self.parse_coords_definition(_coords)
-    self._validate_coords_against_data(coords=coords)
-
-    assert len(base_coords) > 0, "Index must have at least one base coordinate"
-
-    self._coords = coords
-    self._base_coords = base_coords
-    self._base_dependencies = base_dependencies
-
   @staticmethod
   def _get_available_coords(container):
     available_coords = []
@@ -410,9 +414,10 @@ class Coordinates(object):
       return
 
     container   = container   if container   is not None else self._container
+    if container is None:
+      return
 
-    available_coords = self._get_available_coords(container
-)
+    available_coords = self._get_available_coords(container)
     for c in coords:
       if c not in available_coords:
         coords.pop(c)
@@ -614,11 +619,7 @@ class Container(object):
   # Container conversion & I/O
 
   def to_csv(self, fp, *args, **kwargs):
-    if isinstance(fp, string_types):
-      with open(fp, 'w+') as fp2:
-        write_to_csv_object(self, fp2, *args, **kwargs)
-    else:
-      write_to_csv_object(self, fp, *args, **kwargs)
+    to_csv.metacsv_to_csv(self, fp, *args, **kwargs)
 
   def to_pandas(self):
     ''' return a copy of the data in a pandas.DataFrame object '''
@@ -626,18 +627,27 @@ class Container(object):
 
   def to_xarray(self):
     ''' return an xarray container '''
-    return convert_to_xarray(self)
+    if len(container.shape) == 1:
+      return to_xarray.metacsv_series_to_dataarray(container)
+    elif len(container.shape) == 2:
+      return to_xarray.metacsv_dataframe_to_dataset(container)
+    elif len(container.shape) > 2:
+      raise NotImplementedError('to_dataarray not yet implemented for Panel data')
 
   def to_dataarray(self):
-    ''' return an xarray.DataArray (if DataFrame, columns will be unstacked and treated as a coordinate) '''
+    ''' return an xarray container '''
+    if len(container.shape) == 1:
+      return to_xarray.metacsv_series_to_dataarray(container)
+    elif len(container.shape) == 2:
+      return to_xarray.metacsv_dataframe_to_dataset(container)
+    elif len(container.shape) > 2:
+      raise NotImplementedError('to_dataarray not yet implemented for Panel data')
 
-    if len(self.shape) > 2:
-      raise NotImplementedError("to_dataset not yet implemented for Panel data")
-
-    if len(self.shape) == 1:
-      return self.to_xarray()
-
-    if len(self.shape) == 2:
-      self.columns.names = [c if c is not None else 'ind_{}'.format(len(self.index.names) + i) for i, c in enumerate(self.columns.names)]
-      
-      return self.unstack(self.columns.names[0]).to_dataarray()
+  def to_dataset(self):
+    ''' return an xarray container '''
+    if len(container.shape) == 1:
+      return to_xarray.metacsv_series_to_dataset(container)
+    elif len(container.shape) == 2:
+      return to_xarray.metacsv_dataframe_to_dataset(container)
+    elif len(container.shape) > 2:
+      raise NotImplementedError('to_dataarray not yet implemented for Panel data')

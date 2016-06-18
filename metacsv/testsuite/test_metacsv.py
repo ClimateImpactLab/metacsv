@@ -253,6 +253,28 @@ class MetacsvTestCase(unittest.TestCase):
         self.assertEqual(ds.col2.attrs['description'], 'The second column')
         self.assertEqual(ds.col2.attrs['unit'], 'digits')
 
+    def test_attr_updating(self):
+
+        df = metacsv.read_csv(os.path.join(self.testdata_prefix, 'test6.csv'))
+        df.coords.update({'ind3': ['s2'], 's2': None})
+        coords = df.coords
+
+        # Send to xarray.Dataset
+        ds = df.to_xarray()
+
+        del df.coords
+
+        # Create a similarly indexed series by 
+        # applying coords after the slice operation
+        s = df['col1']
+        s.coords = coords
+
+        # Send to xarray.DataArray
+        da = s.to_xarray()
+
+        self.assertTrue((ds.col1.dims == da.dims).all().all())
+
+
     def tearDown(self):
         if os.path.isdir(self.test_tmp_prefix):
             shutil.rmtree(self.test_tmp_prefix)

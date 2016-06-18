@@ -95,7 +95,7 @@ def convert_to_xarray(container):
 
 
 def write_to_csv_object(container, fp, *args, **kwargs):
-  attr_dict = {}
+  attr_dict = OrderedDict()
   attr_dict.update(dict(container.attrs))
 
   if container.coords is not None:
@@ -104,7 +104,8 @@ def write_to_csv_object(container, fp, *args, **kwargs):
   if hasattr(container, 'variables'):
     attr_dict.update({'variables': dict(container.variables.items())})
 
-  fp.write('---\n')
-  fp.write(yaml.safe_dump(attr_dict, default_flow_style=False, allow_unicode=True))
-  fp.write('---\n')
+  if len(attr_dict) > 0:
+    fp.write('---\n')
+    fp.write(yaml.safe_dump(attr_dict, default_flow_style=False, allow_unicode=True))
+    fp.write('...\n')
   container.pandas_parent.to_csv(container, fp, *args, **kwargs)

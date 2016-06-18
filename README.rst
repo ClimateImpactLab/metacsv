@@ -22,18 +22,18 @@ See the full documentation at ReadTheDocs_
 Overview
 =========
 
-Read in CSV data with a yaml-compliant header directly into 
-a ``pandas`` ``Series``, ``DataFrame``, or ``Panel`` or an ``xarray`` 
-``DataArray`` or ``Dataset``.
+**MetaCSV** provides tools to read in CSV data with a yaml-compliant header 
+directly into a ``pandas`` ``Series``, ``DataFrame``, or ``Panel`` or an 
+``xarray`` ``DataArray`` or ``Dataset``.
 
 Data specification
 ----------------------------
 
-Data can be specified using a yaml-formatted header, with the doc-separation 
-string (``---``) above and below the yaml block. Only one yaml block is allowed. 
-If the doc-separation string is not the first (non-whitespace) line in the file, 
-all of the file's contents will be interpreted by the csv reader. The yaml data 
-can have arbitrary complexity.
+Data can be specified using a yaml-formatted header, with the YAML *start-mark*
+string (``---``) above and the YAML *end-mark* string (``...``) below the yaml 
+block. Only one yaml block is allowed. If the doc-separation string is not the 
+first (non-whitespace) line in the file, all of the file's contents will be 
+interpreted by the csv reader. The yaml data can have arbitrary complexity.
 
 .. code-block:: python
 
