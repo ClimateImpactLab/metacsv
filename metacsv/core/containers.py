@@ -1,7 +1,10 @@
 from __future__ import absolute_import, division, print_function, \
     with_statement, unicode_literals
 
-import pandas as pd, numpy as np, xarray as xr, yaml
+import pandas as pd
+import numpy as np
+import xarray as xr
+import yaml
 from .._compat import string_types
 from collections import OrderedDict
 from pandas.core.base import FrozenList
@@ -9,73 +12,74 @@ from pandas.core.base import FrozenList
 from .internals import Attributes, Container, Coordinates, Variables
 
 
-
 class Series(Container, pd.Series):
-  '''
-  metacsv.Series, inherrited from pandas.Series
-  '''
+    '''
+    metacsv.Series, inherrited from pandas.Series
+    '''
 
-  pandas_parent = pd.Series
-  _metadata = ['_coords', '_attrs', '_variables']
+    pandas_parent = pd.Series
+    _metadata = ['_coords', '_attrs', '_variables']
 
-  @property
-  def _constructor(self):
-    return Series
+    @property
+    def _constructor(self):
+        return Series
 
-  @property
-  def _constructor_expanddim(self):
-    return DataFrame
+    @property
+    def _constructor_expanddim(self):
+        return DataFrame
 
-  def __init__(self, *args, **kwargs):
-    args, kwargs, special = Container.strip_special_attributes(args, kwargs)
-    pd.Series.__init__(self, *args, **kwargs)
-    Container.__init__(self, **special)
+    def __init__(self, *args, **kwargs):
+        args, kwargs, special = Container.strip_special_attributes(
+            args, kwargs)
+        pd.Series.__init__(self, *args, **kwargs)
+        Container.__init__(self, **special)
 
 
 class DataFrame(Container, pd.DataFrame):
-  '''
-  metacsv.DataFrame, inherrited from pandas.DataFrame
-  '''
+    '''
+    metacsv.DataFrame, inherrited from pandas.DataFrame
+    '''
 
-  pandas_parent = pd.DataFrame
-  _metadata = ['_coords', '_attrs', '_variables']
+    pandas_parent = pd.DataFrame
+    _metadata = ['_coords', '_attrs', '_variables']
 
-  @property
-  def _constructor(self):
-    return DataFrame
+    @property
+    def _constructor(self):
+        return DataFrame
 
-  @property
-  def _constructor_sliced(self):
-    return Series
+    @property
+    def _constructor_sliced(self):
+        return Series
 
-  @property
-  def _constructor_expanddims(self):
-    return Panel
+    @property
+    def _constructor_expanddims(self):
+        return Panel
 
-  def __init__(self, *args, **kwargs):
-    args, kwargs, special = Container.strip_special_attributes(args, kwargs)
-    pd.DataFrame.__init__(self, *args, **kwargs)
-    Container.__init__(self, **special)
+    def __init__(self, *args, **kwargs):
+        args, kwargs, special = Container.strip_special_attributes(
+            args, kwargs)
+        pd.DataFrame.__init__(self, *args, **kwargs)
+        Container.__init__(self, **special)
 
 
 class Panel(Container, pd.Panel):
-  '''
-  metacsv.Panel, inherrited from pandas.Panel
-  '''
+    '''
+    metacsv.Panel, inherrited from pandas.Panel
+    '''
 
-  pandas_parent = pd.Panel
-  _metadata = ['_coords', '_attrs', '_variables']
+    pandas_parent = pd.Panel
+    _metadata = ['_coords', '_attrs', '_variables']
 
-  @property
-  def _constructor(self):
-    return Panel
+    @property
+    def _constructor(self):
+        return Panel
 
-  @property
-  def _constructor_sliced(self):
-    return DataFrame
+    @property
+    def _constructor_sliced(self):
+        return DataFrame
 
-  def __init__(self, *args, **kwargs):
-    args, kwargs, special = Container.strip_special_attributes(args, kwargs)
-    pd.Panel.__init__(self, *args, **kwargs)
-    Container.__init__(self, **special)
-    
+    def __init__(self, *args, **kwargs):
+        args, kwargs, special = Container.strip_special_attributes(
+            args, kwargs)
+        pd.Panel.__init__(self, *args, **kwargs)
+        Container.__init__(self, **special)

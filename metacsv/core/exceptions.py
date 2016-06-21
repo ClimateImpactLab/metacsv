@@ -1,3 +1,3 @@
 
 class GraphIsCyclicError(ValueError):
-  pass
+    pass

@@ -3,9 +3,10 @@ Utilities for converting between metacsv-compatible data formats
 '''
 
 from __future__ import absolute_import, division, print_function, \
-        with_statement, unicode_literals
+    with_statement, unicode_literals
 
-import pandas as pd, numpy as np
+import pandas as pd
+import numpy as np
 from collections import OrderedDict
 from .to_xarray import metacsv_series_to_dataarray, metacsv_series_to_dataset, metacsv_dataframe_to_dataset, metacsv_dataframe_to_dataarray
 from .to_csv import metacsv_to_csv
@@ -25,10 +26,11 @@ def _coerce_to_metacsv(container):
         elif isinstance(container, pd.Panel):
             container = Panel(container)
         else:
-            raise TypeError('Unknown data type. Must be a Series, DataFrame, or Panel')
-
+            raise TypeError(
+                'Unknown data type. Must be a Series, DataFrame, or Panel')
 
     return container
+
 
 def _parse_args(container, attrs, coords, variables):
 
@@ -51,10 +53,11 @@ def _parse_args(container, attrs, coords, variables):
         else:
             container.variables.update(variables)
 
+
 def to_dataset(container, attrs=None, coords=None, variables=None):
     '''
     Convert a CSV, Series, DataFrame, Panel, DataArray, or Dataset to an xArray.Dataset
-    
+
     Args:
         container (object): A pandas or metacsv Series, DataFrame, or Panel, an xarray DataArray or Dataset, or a filepath to a csv or netcdf file.
 
@@ -65,7 +68,7 @@ def to_dataset(container, attrs=None, coords=None, variables=None):
 
     Note:
         If a Series is passed, the variable will be named 'data'. to_dataset is not yet implemented for Panel data.
-    
+
     Example:
 
     >>> metacsv.to_dataset(pd.DataFrame(np.random.rand((3,4))), attrs={'author': 'my name'})
@@ -90,13 +93,14 @@ def to_dataset(container, attrs=None, coords=None, variables=None):
     elif len(container.shape) == 2:
         return metacsv_dataframe_to_dataset(container)
     elif len(container.shape) > 2:
-        raise NotImplementedError('to_dataarray not yet implemented for Panel data')
+        raise NotImplementedError(
+            'to_dataarray not yet implemented for Panel data')
 
 
 def to_dataarray(container, attrs=None, coords=None, variables=None):
     '''
     Convert a CSV, Series, DataFrame, Panel, DataArray, or Dataset to an xArray.DataArray
-    
+
     Args:
         container (object): A pandas or metacsv Series, DataFrame, or Panel, an xarray DataArray or Dataset, or a filepath to a csv or netcdf file.
 
@@ -104,7 +108,7 @@ def to_dataarray(container, attrs=None, coords=None, variables=None):
         attrs (dict-like): Container attributes
         coords (dict-like): Container coordinates
         variables (dict-like): Variable-specific attributes
-    
+
     Note:
         If a DataFrame is passed, columns will be stacked and treated as coordinates. to_dataset is not yet implemented for Panel data.
 
@@ -130,12 +134,14 @@ def to_dataarray(container, attrs=None, coords=None, variables=None):
     elif len(container.shape) == 2:
         return metacsv_dataframe_to_dataarray(container)
     elif len(container.shape) > 2:
-        raise NotImplementedError('to_dataarray not yet implemented for Panel data')
+        raise NotImplementedError(
+            'to_dataarray not yet implemented for Panel data')
+
 
 def to_xarray(container, attrs=None, coords=None, variables=None):
     '''
     Convert a Series to an xarray.DataArray and a CSV or DataFrame to an xArray.Dataset
-    
+
     Args:
         container (object): A pandas or metacsv Series, DataFrame, or Panel, an xarray DataArray or Dataset, or a filepath to a csv or netcdf file.
 
@@ -143,7 +149,7 @@ def to_xarray(container, attrs=None, coords=None, variables=None):
         attrs (dict-like): Container attributes
         coords (dict-like): Container coordinates
         variables (dict-like): Variable-specific attributes
-    
+
     Note:
         to_dataset is not yet implemented for Panel data.
 
@@ -190,12 +196,14 @@ def to_xarray(container, attrs=None, coords=None, variables=None):
     elif len(container.shape) == 2:
         return to_dataset(container)
     elif len(container.shape) > 2:
-        raise NotImplementedError('to_dataarray not yet implemented for Panel data')
+        raise NotImplementedError(
+            'to_dataarray not yet implemented for Panel data')
+
 
 def to_pandas(container):
     '''
     Write a CSV, Series, DataFrame, Panel, DataArray, or Dataset to a metacsv-formatted csv
-    
+
     Args:
         container (object): A pandas or metacsv Series, DataFrame, or Panel, an xarray DataArray or Dataset, or a filepath to a csv or netcdf file.
         fp (str): Path to which to write the metacsv-formatted CSV
@@ -238,10 +246,11 @@ def to_pandas(container):
     if hasattr(container, 'pandas_parent'):
         return container.pandas_parent(container)
 
+
 def to_csv(container, fp, attrs=None, coords=None, variables=None, *args, **kwargs):
     '''
     Write a CSV, Series, DataFrame, Panel, DataArray, or Dataset to a metacsv-formatted csv
-    
+
     Args:
         container (object): A pandas or metacsv Series, DataFrame, or Panel, an xarray DataArray or Dataset, or a filepath to a csv or netcdf file.
         fp (str): Path to which to write the metacsv-formatted CSV
@@ -257,7 +266,7 @@ def to_csv(container, fp, attrs=None, coords=None, variables=None, *args, **kwar
 
     >>> metacsv.to_csv(pd.DataFrame(np.random.rand((3,4))), attrs={'author': 'my name'})
     '''
-    
+
     container = _coerce_to_metacsv(container)
     _parse_args(container, attrs, coords, variables)
     metacsv_to_csv(container, fp, *args, **kwargs)

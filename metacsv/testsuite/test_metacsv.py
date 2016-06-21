@@ -9,14 +9,24 @@ from __future__ import (
     unicode_literals
 )
 
-import glob, os, xarray as xr, pandas as pd, numpy as np, shutil, json, subprocess, locale
+import glob
+import os
+import xarray as xr
+import pandas as pd
+import numpy as np
+import shutil
+import json
+import subprocess
+import locale
 
 import metacsv
 from . import unittest
 from . import helpers
 
+
 class VersionError(ValueError):
     pass
+
 
 class MetacsvTestCase(unittest.TestCase):
     testdata_prefix = 'metacsv/testsuite/test_data'
@@ -28,16 +38,16 @@ class MetacsvTestCase(unittest.TestCase):
 
     def test_read_csv(self):
         """CSV Test 1: Check DataFrame data for CSVs with and without yaml headers"""
-        
 
-        csv1 = metacsv.read_csv(os.path.join(self.testdata_prefix, 'test1.csv'))
+        csv1 = metacsv.read_csv(os.path.join(
+            self.testdata_prefix, 'test1.csv'))
         csv2 = pd.read_csv(os.path.join(self.testdata_prefix, 'test2.csv'))
 
         csv1.__repr__()
         csv2.__repr__()
 
-        self.assertTrue((csv1.values == csv2.set_index('ind').values).all().all())
-
+        self.assertTrue(
+            (csv1.values == csv2.set_index('ind').values).all().all())
 
     def test_coordinate_conversion_to_xarray(self):
         '''CSV Test 2: Make sure only base coordinates are used in determining xarray dimensionality'''
@@ -50,7 +60,8 @@ class MetacsvTestCase(unittest.TestCase):
         self.assertEqual(df.to_xarray().isnull().sum().col2, 0)
 
         # Test automatic coords assignment
-        df = metacsv.read_csv(os.path.join(self.testdata_prefix, 'test5.csv'), squeeze=True)
+        df = metacsv.read_csv(os.path.join(
+            self.testdata_prefix, 'test5.csv'), squeeze=True)
         del df.coords
 
         ds = df.to_xarray()
@@ -58,7 +69,6 @@ class MetacsvTestCase(unittest.TestCase):
         self.assertNotEqual(len(df.shape), len(ds.shape))
         self.assertEqual(df.shape[0], ds.shape[0])
         self.assertTrue(ds.shape[1] > 1)
-
 
     def test_for_series_attributes(self):
         '''CSV Test 3: Ensure read_csv preserves attrs with squeeze=True conversion to Series
@@ -68,7 +78,8 @@ class MetacsvTestCase(unittest.TestCase):
         does not work.
         '''
 
-        s = metacsv.read_csv(os.path.join(self.testdata_prefix, 'test5.csv'), squeeze=True, index_col=[0,1])
+        s = metacsv.read_csv(os.path.join(
+            self.testdata_prefix, 'test5.csv'), squeeze=True, index_col=[0, 1])
 
         s.__repr__()
 
@@ -78,9 +89,10 @@ class MetacsvTestCase(unittest.TestCase):
     def test_write_and_read_equivalency(self):
         '''CSV Test 4: Ensure data and attr consistency after write and re-read'''
 
-        csv1 = metacsv.read_csv(os.path.join(self.testdata_prefix, 'test1.csv'))
+        csv1 = metacsv.read_csv(os.path.join(
+            self.testdata_prefix, 'test1.csv'))
         csv1.attrs['other stuff'] = 'this should show up after write'
-        csv1['new_col'] = (np.random.random((len(csv1),1)))
+        csv1['new_col'] = (np.random.random((len(csv1), 1)))
         tmpfile = os.path.join(self.test_tmp_prefix, 'test_write_1.csv')
         csv1.to_csv(tmpfile)
 
@@ -91,7 +103,7 @@ class MetacsvTestCase(unittest.TestCase):
 
         self.assertTrue((abs(csv1.values - csv2.values) < 1e-7).all().all())
         self.assertEqual(csv1.coords, csv2.coords)
-        self.assertEqual(csv1.variables , csv2.variables)
+        self.assertEqual(csv1.variables, csv2.variables)
 
         with open(tmpfile, 'w+') as tmp:
             csv1.to_csv(tmp)
@@ -101,20 +113,20 @@ class MetacsvTestCase(unittest.TestCase):
 
         self.assertTrue((abs(csv1.values - csv2.values) < 1e-7).all().all())
         self.assertEqual(csv1.coords, csv2.coords)
-        self.assertEqual(csv1.variables , csv2.variables)
+        self.assertEqual(csv1.variables, csv2.variables)
 
     def test_series_conversion_to_xarray(self):
         '''CSV Test 5: Check conversion of metacsv.Series to xarray.DataArray'''
 
-        csv1 = metacsv.read_csv(os.path.join(self.testdata_prefix, 'test5.csv'), squeeze=True)
+        csv1 = metacsv.read_csv(os.path.join(
+            self.testdata_prefix, 'test5.csv'), squeeze=True)
         self.assertEqual(len(csv1.shape), 1)
 
         self.assertEqual(csv1.to_xarray().shape, csv1.shape)
         self.assertTrue((csv1.to_xarray().values == csv1.values).all())
 
-
     def test_command_line_converter(self):
-        
+
         convert_script = 'metacsv.scripts.convert'
 
         testfile = os.path.join(self.testdata_prefix, 'test6.csv')
@@ -122,9 +134,9 @@ class MetacsvTestCase(unittest.TestCase):
         outfile = os.path.join(self.test_tmp_prefix, newname)
 
         p = subprocess.Popen(
-            ['python', '-m', convert_script, 'netcdf', testfile, outfile], 
-                stderr=subprocess.PIPE, 
-                stdout=subprocess.PIPE)
+            ['python', '-m', convert_script, 'netcdf', testfile, outfile],
+            stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE)
 
         out, err = p.communicate()
         self.assertEqual(len(err.strip()), 0)
@@ -132,17 +144,16 @@ class MetacsvTestCase(unittest.TestCase):
         df = metacsv.read_csv(testfile)
 
         with xr.open_dataset(outfile) as ds:
-            self.assertTrue((abs(df.values - ds.to_dataframe().set_index([i for i in df.coords if i not in df.base_coords]).values) < 1e-7).all().all())
-
+            self.assertTrue((abs(df.values - ds.to_dataframe().set_index(
+                [i for i in df.coords if i not in df.base_coords]).values) < 1e-7).all().all())
 
     def test_command_line_version_check(self):
         def get_version(readfile):
             version_check_script = 'metacsv.scripts.version'
 
-
             p = subprocess.Popen(
-                ['python','-m', version_check_script,readfile], 
-                stderr=subprocess.PIPE, 
+                ['python', '-m', version_check_script, readfile],
+                stderr=subprocess.PIPE,
                 stdout=subprocess.PIPE)
 
             out, err = p.communicate()
@@ -163,7 +174,8 @@ class MetacsvTestCase(unittest.TestCase):
 
     def test_xarray_variable_attribute_persistence(self):
         testfile = os.path.join(self.testdata_prefix, 'test6.csv')
-        self.assertTrue(metacsv.read_csv(testfile).to_xarray().col1.attrs['unit'], 'wigits')
+        self.assertTrue(metacsv.read_csv(
+            testfile).to_xarray().col1.attrs['unit'], 'wigits')
 
     def test_change_dims(self):
         testfile = os.path.join(self.testdata_prefix, 'test6.csv')
@@ -172,7 +184,7 @@ class MetacsvTestCase(unittest.TestCase):
         # Test DataFrame._constructor_sliced
         series = df[df.columns[0]]
         self.assertTrue(hasattr(series, 'coords'))
-        
+
         # Test Series._constructor_expanddims
         df2 = metacsv.DataFrame({df.columns[0]: series})
         self.assertTrue(hasattr(df2, 'coords'))
@@ -246,7 +258,8 @@ class MetacsvTestCase(unittest.TestCase):
 
     def test_parse_vars(self):
 
-        df = metacsv.read_csv(os.path.join(self.testdata_prefix, 'test7.csv'), parse_vars=True, index_col=0)
+        df = metacsv.read_csv(os.path.join(
+            self.testdata_prefix, 'test7.csv'), parse_vars=True, index_col=0)
         ds = df.to_xarray()
 
         self.assertEqual(ds.col1.attrs['description'], 'The first column')
@@ -265,7 +278,7 @@ class MetacsvTestCase(unittest.TestCase):
 
         del df.coords
 
-        # Create a similarly indexed series by 
+        # Create a similarly indexed series by
         # applying coords after the slice operation
         s = df['col1']
         s.coords = coords
@@ -274,7 +287,6 @@ class MetacsvTestCase(unittest.TestCase):
         da = s.to_xarray()
 
         self.assertTrue((ds.col1 == da).all().all())
-
 
     def tearDown(self):
         if os.path.isdir(self.test_tmp_prefix):
@@ -287,4 +299,3 @@ def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(MetacsvTestCase))
     return suite
-

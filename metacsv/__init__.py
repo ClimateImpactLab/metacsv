@@ -15,13 +15,13 @@ from __future__ import absolute_import, division, print_function, \
 from .core import *
 
 from .io.parsers import (
-	read_csv)
+    read_csv)
 
 from .io.converters import (
-	to_dataset,
-	to_dataarray,
-	to_xarray,
-	to_pandas,
-	to_csv)
+    to_dataset,
+    to_dataarray,
+    to_xarray,
+    to_pandas,
+    to_csv)
 
 from .scripts import *

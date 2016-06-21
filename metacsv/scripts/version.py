@@ -8,31 +8,35 @@ from __future__ import (
 
 # from ...metacsv.io.parsers import read_csv
 from . import metacsv
-import argparse, sys
+import argparse
+import sys
+
 
 def get_version(readfile):
-	df = metacsv.read_csv(readfile)
-	version = df.attrs.get('version', None)
-	return version
+    df = metacsv.read_csv(readfile)
+    version = df.attrs.get('version', None)
+    return version
 
 
 def get_parser():
-	parser = argparse.ArgumentParser('Get the version number from a MetaCSV-formatted CSV file')
-	parser.add_argument('readfile', help='Input CSV file to read')
+    parser = argparse.ArgumentParser(
+        'Get the version number from a MetaCSV-formatted CSV file')
+    parser.add_argument('readfile', help='Input CSV file to read')
 
-	return parser
+    return parser
+
 
 def main():
-	parser = get_parser()
-	args = parser.parse_args()
+    parser = get_parser()
+    args = parser.parse_args()
 
-	version = get_version(args.readfile)
+    version = get_version(args.readfile)
 
-	if version is None:
-		print('No version found', file=sys.stderr)
+    if version is None:
+        print('No version found', file=sys.stderr)
 
-	else:
-		print(version)
+    else:
+        print(version)
 
 if __name__ == "__main__":
-	main()
+    main()
