@@ -66,6 +66,7 @@ Using MetaCSV-formatted files in python
 Read MetaCSV-formatted data into python using pandas-like syntax: 
 
 .. code-block:: python
+
     >>> df = metacsv.read_csv(doc, index_col=[0,1])
     >>> df
     <metacsv.core.containers.DataFrame (4, 4)>
@@ -85,6 +86,7 @@ Read MetaCSV-formatted data into python using pandas-like syntax:
 These properties can be transferred from one data container to another:
 
 .. code-block:: python
+
     >>> s = metacsv.Series(np.random.random(6))
     >>> s
     <metacsv.core.containers.Series (6,)>
