@@ -5,95 +5,95 @@ language: python
 
 sudo: false # use container based build
 notifications:
-    email: false
+  email: false
 
 
 matrix:
-    fast_finish: true
-    include:
-    - python: 2.7
-        env: CONDA_ENV=py27-min
-    - python: 2.7
-        env: CONDA_ENV=py27-cdat+pynio
-    - python: 3.4
-        env: CONDA_ENV=py34
-    - python: 3.5
-        env: CONDA_ENV=py35
-    - python: 2.7
-        env: CONDA_ENV=py27-pydap
-    - python: 3.5
-        env: CONDA_ENV=py27-netcdf4-dev
-        addons:
-            apt_packages:
-                - libhdf5-serial-dev
-                - netcdf-bin
-                - libnetcdf-dev
-    - python: 3.5
-        env: CONDA_ENV=py35-dask-dev
-    - python: 3.5
-        env: CONDA_ENV=py35-pandas-dev
-    allow_failures:
-    - python: 2.7
-        env: CONDA_ENV=py27-pydap
-    - python: 3.5
-        env: CONDA_ENV=py27-netcdf4-dev
-        addons:
-            apt_packages:
-                - libhdf5-serial-dev
-                - netcdf-bin
-                - libnetcdf-dev
-    - python: 3.5
-        env: CONDA_ENV=py35-dask-dev
-    - python: 3.5
-        env: CONDA_ENV=py35-pandas-dev
+  fast_finish: true
+  include:
+  - python: 2.7
+    env: CONDA_ENV=py27-min
+  - python: 2.7
+    env: CONDA_ENV=py27-cdat+pynio
+  - python: 3.4
+    env: CONDA_ENV=py34
+  - python: 3.5
+    env: CONDA_ENV=py35
+  - python: 2.7
+    env: CONDA_ENV=py27-pydap
+  - python: 3.5
+    env: CONDA_ENV=py27-netcdf4-dev
+    addons:
+      apt_packages:
+        - libhdf5-serial-dev
+        - netcdf-bin
+        - libnetcdf-dev
+  - python: 3.5
+    env: CONDA_ENV=py35-dask-dev
+  - python: 3.5
+    env: CONDA_ENV=py35-pandas-dev
+  allow_failures:
+  - python: 2.7
+    env: CONDA_ENV=py27-pydap
+  - python: 3.5
+    env: CONDA_ENV=py27-netcdf4-dev
+    addons:
+      apt_packages:
+        - libhdf5-serial-dev
+        - netcdf-bin
+        - libnetcdf-dev
+  - python: 3.5
+    env: CONDA_ENV=py35-dask-dev
+  - python: 3.5
+    env: CONDA_ENV=py35-pandas-dev
 
 before_install:
-    - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-            wget http://repo.continuum.io/miniconda/Miniconda-3.16.0-Linux-x86_64.sh -O miniconda.sh;
-        else
-            wget http://repo.continuum.io/miniconda/Miniconda3-3.16.0-Linux-x86_64.sh -O miniconda.sh;
-        fi
-    - bash miniconda.sh -b -p $HOME/miniconda
-    - export PATH="$HOME/miniconda/bin:$PATH"
-    - hash -r
-    - conda config --set always_yes yes --set changeps1 no
-    - conda update -q conda
-    - conda info -a
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      wget http://repo.continuum.io/miniconda/Miniconda-3.16.0-Linux-x86_64.sh -O miniconda.sh;
+    else
+      wget http://repo.continuum.io/miniconda/Miniconda3-3.16.0-Linux-x86_64.sh -O miniconda.sh;
+    fi
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a
 
 install:
-    - conda env create --file ci/requirements-$CONDA_ENV.yml
-    - source activate test_env
-    - python setup.py install
+  - conda env create --file ci/requirements-$CONDA_ENV.yml
+  - source activate test_env
+  - python setup.py install
 
 script:
-    - if [[ "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then
-            py.test metacsv;
-        else
-            py.test metacsv --cov=metacsv --cov-report term-missing;
-        fi
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then
+      py.test metacsv;
+    else
+      py.test metacsv --cov=metacsv --cov-report term-missing;
+    fi
 
 after_success:
 - coveralls
 
 # addons:
-#     apt:
-#         packages:
-#             - libblas-dev
-#             - liblapack-dev 
-#             - libatlas-base-dev
-#             - gfortran
-#             - python-dev
-#             - build-essential
-#             - python-numpy
-#             - python-scipy
-#             - python-pandas
+#   apt:
+#     packages:
+#       - libblas-dev
+#       - liblapack-dev 
+#       - libatlas-base-dev
+#       - gfortran
+#       - python-dev
+#       - build-essential
+#       - python-numpy
+#       - python-scipy
+#       - python-pandas
 
 # python:
-#     - "3.5"
-#     - "3.4"
-#     - "3.3"
-#     - "2.7"
-#     - "pypy"
+#   - "3.5"
+#   - "3.4"
+#   - "3.3"
+#   - "2.7"
+#   - "pypy"
 
 # # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 # install: pip install -r requirements.txt
