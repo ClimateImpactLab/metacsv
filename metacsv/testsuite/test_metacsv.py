@@ -4,7 +4,8 @@
 """Tests for `metacsv` module."""
 
 from __future__ import (
-    absolute_import, division, print_function, with_statement,
+    absolute_import,
+    division, print_function, with_statement,
     unicode_literals
 )
 
@@ -114,14 +115,14 @@ class MetacsvTestCase(unittest.TestCase):
 
     def test_command_line_converter(self):
         
-        convert_script = 'metacsv/scripts/convert.py'
+        convert_script = 'metacsv.scripts.convert'
 
         testfile = os.path.join(self.testdata_prefix, 'test6.csv')
         newname = os.path.splitext(os.path.basename(testfile))[0] + '.nc'
         outfile = os.path.join(self.test_tmp_prefix, newname)
 
         p = subprocess.Popen(
-            ['python', convert_script, 'netcdf', testfile, outfile], 
+            ['python', '-m', convert_script, 'netcdf', testfile, outfile], 
                 stderr=subprocess.PIPE, 
                 stdout=subprocess.PIPE)
 
@@ -136,11 +137,11 @@ class MetacsvTestCase(unittest.TestCase):
 
     def test_command_line_version_check(self):
         def get_version(readfile):
-            version_check_script = 'metacsv/scripts/version.py'
+            version_check_script = 'metacsv.scripts.version'
 
 
             p = subprocess.Popen(
-                ['python',version_check_script,readfile], 
+                ['python','-m', version_check_script,readfile], 
                 stderr=subprocess.PIPE, 
                 stdout=subprocess.PIPE)
 
@@ -272,7 +273,7 @@ class MetacsvTestCase(unittest.TestCase):
         # Send to xarray.DataArray
         da = s.to_xarray()
 
-        self.assertTrue((ds.col1.dims == da.dims).all().all())
+        self.assertTrue((ds.col1 == da).all().all())
 
 
     def tearDown(self):

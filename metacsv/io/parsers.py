@@ -1,10 +1,12 @@
 
+from __future__ import absolute_import, division, print_function, \
+    with_statement, unicode_literals
+
 import pandas as pd, re
 from .yaml_tools import ordered_load
 from .._compat import string_types
 from ..core.internals import Container, Variables
-
-from metacsv.core.containers import Series, DataFrame, Panel
+from ..core.containers import Series, DataFrame, Panel
 
 def find_yaml_start(line):
   return re.search(r'^\s*-{3,}\s*$', line) is not None

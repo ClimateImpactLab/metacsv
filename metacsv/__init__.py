@@ -12,10 +12,7 @@ Tools for documentation-aware data reading, writing, and analysis
 from __future__ import absolute_import, division, print_function, \
     with_statement, unicode_literals
 
-from .core.containers import (
-	Series, 
-	DataFrame, 
-	Panel)
+from .core import *
 
 from .io.parsers import (
 	read_csv)
@@ -26,3 +23,5 @@ from .io.converters import (
 	to_xarray,
 	to_pandas,
 	to_csv)
+
+from .scripts import *

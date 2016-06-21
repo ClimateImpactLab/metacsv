@@ -56,6 +56,9 @@ def _append_coords_to_dataset(ds, container, base_only, attrs=None):
   if xr is None:
     _import_xarray()
 
+  if container.coords == None:
+    container.add_coords()
+
   for coord in container.base_coords:
     ds.coords[str(coord)] = container.index.get_level_values(coord).unique()
     ds.coords[str(coord)].attrs = container.variables.get(coord, {})
@@ -143,7 +146,7 @@ def metacsv_dataframe_to_dataset(dataframe, name='data', attrs=None):
   reset = [c for c in dataframe.coords if c not in dataframe.base_coords]
 
   if len(reset) > 0:
-    base_only = dataframe.reset_index(reset, drop=False)
+    base_only = dataframe.reset_index(reset, drop=False, inplace=False)
   else:
     base_only = dataframe
 

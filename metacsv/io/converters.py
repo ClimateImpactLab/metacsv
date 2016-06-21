@@ -2,6 +2,9 @@
 Utilities for converting metacsv Containers to other data formats
 '''
 
+from __future__ import absolute_import, division, print_function, \
+    with_statement, unicode_literals
+
 import pandas as pd, numpy as np
 from collections import OrderedDict
 from .to_xarray import metacsv_series_to_dataarray, metacsv_series_to_dataset, metacsv_dataframe_to_dataset, metacsv_dataframe_to_dataarray

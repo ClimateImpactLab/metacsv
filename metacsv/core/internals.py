@@ -1,4 +1,6 @@
 
+from __future__ import absolute_import, division, print_function, \
+    with_statement, unicode_literals
 
 import pandas as pd, numpy as np, re
 from collections import OrderedDict
@@ -365,6 +367,12 @@ class Coordinates(object):
   def update(self, coords=None):  # This needs some testing!!
 
     if coords is None:
+      coords = self._coords
+
+    if coords is None:
+      if self._container is None:
+        raise ValueError('Cannot update coordinates from data unless assigned to a container')
+
       coords, base_coords, base_dependencies = self._get_coords_from_data()
 
     self._prune()
@@ -627,27 +635,29 @@ class Container(object):
 
   def to_xarray(self):
     ''' return an xarray container '''
-    if len(container.shape) == 1:
-      return to_xarray.metacsv_series_to_dataarray(container)
-    elif len(container.shape) == 2:
-      return to_xarray.metacsv_dataframe_to_dataset(container)
-    elif len(container.shape) > 2:
+    if len(self.shape) == 1:
+      return to_xarray.metacsv_series_to_dataarray(self)
+    elif len(self.shape) == 2:
+      return to_xarray.metacsv_dataframe_to_dataset(self)
+    elif len(self.shape) > 2:
       raise NotImplementedError('to_dataarray not yet implemented for Panel data')
 
   def to_dataarray(self):
-    ''' return an xarray container '''
-    if len(container.shape) == 1:
-      return to_xarray.metacsv_series_to_dataarray(container)
-    elif len(container.shape) == 2:
-      return to_xarray.metacsv_dataframe_to_dataset(container)
-    elif len(container.shape) > 2:
+    ''' return an xarray.DataArray '''
+    if len(self.shape) == 1:
+      return to_xarray.metacsv_series_to_dataarray(self)
+    elif len(self.shape) == 2:
+      return to_xarray.metacsv_dataframe_to_dataset(self)
+    elif len(self.shape) > 2:
       raise NotImplementedError('to_dataarray not yet implemented for Panel data')
 
   def to_dataset(self):
-    ''' return an xarray container '''
-    if len(container.shape) == 1:
-      return to_xarray.metacsv_series_to_dataset(container)
-    elif len(container.shape) == 2:
-      return to_xarray.metacsv_dataframe_to_dataset(container)
-    elif len(container.shape) > 2:
+    ''' return an xarray.Dataset '''
+    if len(self.shape) == 1:
+      return to_xarray.metacsv_series_to_dataset(self)
+    elif len(self.shape) == 2:
+      return to_xarray.metacsv_dataframe_to_dataset(self)
+    elif len(self.shape) > 2:
       raise NotImplementedError('to_dataarray not yet implemented for Panel data')
+
+

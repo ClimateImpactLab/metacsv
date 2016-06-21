@@ -1,6 +1,7 @@
 
 from collections import OrderedDict
 from .yaml_tools import ordered_dump
+from .._compat import string_types, has_iterkeys, iterkeys
 
 
 def _to_csv_object(container, fp, *args, **kwargs):

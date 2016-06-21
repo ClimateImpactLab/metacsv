@@ -1,11 +1,12 @@
-
+from __future__ import absolute_import, division, print_function, \
+    with_statement, unicode_literals
 
 import pandas as pd, numpy as np, xarray as xr, yaml
 from .._compat import string_types
 from collections import OrderedDict
 from pandas.core.base import FrozenList
 
-from metacsv.core.internals import Attributes, Container, Coordinates, Variables
+from .internals import Attributes, Container, Coordinates, Variables
 
 
 
