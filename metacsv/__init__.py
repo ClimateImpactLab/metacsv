@@ -15,7 +15,8 @@ from __future__ import absolute_import, division, print_function, \
 from .core import *
 
 from .io.parsers import (
-    read_csv)
+    read_csv,
+    read_pickle)
 
 from .io.converters import (
     to_dataset,

@@ -93,3 +93,7 @@ def read_csv(string_or_buffer, header_file=None, parse_vars=False, *args, **kwar
         return Series(df[df.columns[0]], **special)
     else:
         return df
+
+
+def read_pickle(string_or_buffer):
+    return pd.read_pickle(string_or_buffer)

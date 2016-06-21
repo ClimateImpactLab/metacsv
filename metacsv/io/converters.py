@@ -7,24 +7,27 @@ from __future__ import absolute_import, division, print_function, \
 
 import pandas as pd
 import numpy as np
+import xarray as xr
 from collections import OrderedDict
 from .to_xarray import metacsv_series_to_dataarray, metacsv_series_to_dataset, metacsv_dataframe_to_dataset, metacsv_dataframe_to_dataarray
 from .to_csv import metacsv_to_csv
 from .parsers import read_csv
 from ..core.containers import Series, DataFrame, Panel
-from .._compat import string_types
+from .._compat import string_types, BytesIO, StringIO
 
 
 def _coerce_to_metacsv(container):
     if not isinstance(container, (Series, DataFrame, Panel)):
-        if isinstance(container, str):
-            container = metacsv.read_csv(container)
+        if isinstance(container, string_types) or isinstance(container, StringIO) or isinstance(container, BytesIO):
+            container = read_csv(container)
         elif isinstance(container, pd.Series):
             container = Series(container)
         elif isinstance(container, pd.DataFrame):
             container = DataFrame(container)
         elif isinstance(container, pd.Panel):
             container = Panel(container)
+        elif isinstance(container, (xr.DataArray, xr.Dataset)):
+            raise NotImplementedError('automatic coersion of xarray objects not yet implemented')
         else:
             raise TypeError(
                 'Unknown data type. Must be a Series, DataFrame, or Panel')

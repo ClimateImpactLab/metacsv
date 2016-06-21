@@ -37,7 +37,8 @@ interpreted by the csv reader. The yaml data can have arbitrary complexity.
 
 .. code-block:: python
 
-    >>> import metacsv, io
+    >>> import metacsv, numpy as np, 
+    >>> import StringIO as io # import io for python 3
     >>> doc = io.StringIO('''
     ---
     author: A Person
@@ -69,13 +70,14 @@ Read MetaCSV-formatted data into python using pandas-like syntax:
 
     >>> df = metacsv.read_csv(doc, index_col=[0,1])
     >>> df
-    <metacsv.core.containers.DataFrame (4, 4)>
-      region  year    pop      gdp
-    0    USA  2010  309.3  13599.3
-    1    USA  2011  311.7  13817.0
-    2    CAN  2010   34.0   1240.0
-    3    CAN  2011   34.3   1276.7
-
+    <metacsv.core.containers.DataFrame (4, 2)>
+                   pop      gdp
+    region year
+    USA    2010  309.3  13599.3
+           2011  311.7  13817.0
+    CAN    2010   34.0   1240.0
+           2011   34.3   1276.7
+    
     Variables
         gdp:       OrderedDict([('name', 'Product'), ('unit', '2005 $Bn')])
         pop:       OrderedDict([('name', 'Population'), ('unit', 'millions')])
@@ -113,20 +115,11 @@ These properties can be transferred from one data container to another:
         author:    A Person
     
 
-Special attributes
-~~~~~~~~~~~~~~~~~~~~~~~
-
-The ``coords`` and ``variables`` attributes are keywords and are not simply 
-passed to the MetaCSV object's ``attrs`` attribute.
-
-``variables`` describes columns in the resulting ``DataFrame`` or 
-``Data variables`` in the resulting ``xarray.Dataset``.
-
-``coords`` describes indices in the resulting ``DataFrame``/``Series``, or 
-``Coordinates`` in the resulting ``xarray.Dataset/xarray.DataArray``. 
-Coordinates are categorical or independent variables which index the object's 
-``values``. 
-
+All MetaCSV attributes, including the ``attrs`` Attribute object, can be copied, 
+assigned to new objects, and deleted. Since these attributes are largely 
+unstable across normal pandas data processing, it is recommended that attributes 
+be copied before data work is attempted and then reassigned before IO 
+conversions.
 
 
 Exporting MetaCSV data to other formats
@@ -192,6 +185,32 @@ climate science, but is useful for many applications with higher-order data.
         author: A Person
     >>> ds.to_netcdf('my_netcdf_data.nc')
 
+Pickling
+~~~~~~~~~
+
+Pickling works just like pandas.
+
+.. code-block:: python
+
+    >>> df.to_pickle('my_metacsv_pickle.pkl')
+    >>> metacsv.read_pickle('my_metacsv_pickle.pkl')
+    <metacsv.core.containers.DataFrame (4, 2)>
+                   pop      gdp
+    region year
+    USA    2010  309.3  13599.3
+           2011  311.7  13817.0
+    CAN    2010   34.0   1240.0
+           2011   34.3   1276.7
+
+    Variables
+        gdp:       OrderedDict([('name', 'Product'), ('unit', '2005 $Bn')])
+        pop:       OrderedDict([('name', 'Population'), ('unit', 'millions')])
+    Attributes
+        date:      2000-01-01
+        author:    A Person
+
+
+
 Others
 ~~~~~~~~~
 
@@ -200,8 +219,299 @@ netCDF through the ``xarray`` module. However, feel free to suggest
 additional features and to contribute your own!
 
 
+
+Conversion to other types on the fly
+-----------------------------------------------
+
+Special conversion utilities allow you to convert any metacsv, pandas, or xarray 
+container or a CSV filepath into any other type in this group.
+
+* to_csv
+
+```to_csv`` allows you to write any container or csv file to a metacsv-formatted 
+csv file. Keyword arguments ``attrs``, ``coords``, and ``variables`` will be 
+attached to the data before it is written. Any conflicts in these attributes 
+will be updated with the arguments to this function
+
+.. code-block::python
+    >>> import pandas as pd, numpy as np, xarray as xr, metacsv
+    >>> df = pd.DataFrame(np.random.random((3,4)), columns=list('abcd'))
+    >>> df
+              a         b         c         d
+    0  0.558083  0.665184  0.226173  0.339905
+    1  0.541712  0.835804  0.326078  0.179103
+    2  0.332869  0.435573  0.904612  0.823884
+    
+    >>> metacsv.to_csv(df, 'mycsv.csv', attrs={'author': 'my name'})
+    >>> 
+    >>> df2 = metacsv.read_csv('mycsv.csv', index_col=[0])
+    >>> df2
+    <metacsv.core.containers.DataFrame (3, 4)>
+              a         b         c         d
+    0  0.558083  0.665184  0.226173  0.339905
+    1  0.541712  0.835804  0.326078  0.179103
+    2  0.332869  0.435573  0.904612  0.823884
+    
+    Attributes
+        date:      2016-01-01
+        author:    my name
+    
+    >>> metacsv.to_csv(df2, 'mycsv.csv', attrs={'author': 'new name'})
+    >>> 
+    >>> metacsv.read_csv('mycsv.csv', index_col=[0])
+    <metacsv.core.containers.DataFrame (3, 4)>
+              a         b         c         d
+    0  0.558083  0.665184  0.226173  0.339905
+    1  0.541712  0.835804  0.326078  0.179103
+    2  0.332869  0.435573  0.904612  0.823884
+    
+    Attributes
+        date:      2016-01-01
+        author:    new name
+
+* to_xarray
+
+``to_xarray`` returns any container or csv file as an xarray container. Table 
+data (CSV files and DataFrames) will create ``xarray.Dataset`` objects, while 
+Series objects will create ``xarray.DataArray`` objects. Keyword arguments 
+``attrs``, ``coords``, and ``variables`` will be attached to the data before it 
+is written. Any conflicts in these attributes will be updated with the arguments 
+to this function.
+
+* to_dataarray
+
+``to_dataarray`` returns any container or csv file as an ``xarray.DataArray``. 
+Table data (CSV files and DataFrames) will be stacked, with columns re-arranged 
+as new ``xarray.Coordinates``. Keyword arguments ``attrs``, ``coords``, and 
+``variables`` will be attached to the data before it is written. Any conflicts 
+in these attributes will be updated with the arguments to this function.
+
+* to_dataset
+
+``to_dataarray`` returns any container or csv file as an ``xarray.DataArray``. 
+Table data (CSV files and DataFrames) will be stacked, with columns re-arranged 
+as new ``xarray.Coordinates``. Keyword arguments ``attrs``, ``coords``, and 
+``variables`` will be attached to the data before it is written. Any conflicts 
+in these attributes will be updated with the arguments to this function.
+
+* to_pandas
+
+``to_pandas`` strips special attributes and returns an ordinary ``Series`` or 
+``DataFrame`` object.
+
+
+Special attributes
+-----------------------------------------------
+
+The ``coords`` and ``variables`` attributes are keywords and are not simply 
+passed to the MetaCSV object's ``attrs`` attribute.
+
+
+Variables
+~~~~~~~~~~~~~
+
+Variables are attributes which apply to speicific columns or data variables. In 
+MetaCSV containers, variables are displayed as a separate set of attributes. On 
+conversion to ``xarray``, these attributes are assigned to variable-specific 
+``attrs``:
+
+.. code-block::python
+
+    >>> ds = df.to_xarray()
+    >>> ds
+    <xarray.Dataset>
+    Dimensions:  (index: 4)
+    Coordinates:
+      * index    (index) int64 0 1 2 3
+    Data variables:
+        region   (index) object 'USA' 'USA' 'CAN' 'CAN'
+        year     (index) int64 2010 2011 2010 2011
+        pop      (index) float64 309.3 311.7 34.0 34.3
+        gdp      (index) float64 1.36e+04 1.382e+04 1.24e+03 1.277e+03
+    Attributes:
+        date: 2000-01-01
+        author: A Person
+
+    >>> ds.pop
+    <xarray.DataArray 'pop' (index: 4)>
+    array([ 309.3,  311.7,   34. ,   34.3])
+    Coordinates:
+      * index    (index) int64 0 1 2 3
+    Attributes:
+        name: Population
+        unit: millions
+
+Note that at present, variables are not persistent across slicing operations.
+
+Variables have a special ``read_csv`` argument that allows parsing of one-line 
+variable definitions:
+
+.. code-block::python
+
+    >>> doc = io.StringIO('''
+    ---
+    author: A Person
+    date:   2000-01-01
+    variables:
+        pop: Population [millions]
+        gdp: Product [2005 $Bn]
+    ...
+    region,year,pop,gdp
+    USA,2010,309.3,13599.3
+    USA,2011,311.7,13817.0
+    CAN,2010,34.0,1240.0
+    CAN,2011,34.3,1276.7
+    ''')
+    
+    >>> metacsv.read_csv(doc, index_col=0, parse_vars=True)
+    <metacsv.core.containers.DataFrame (4, 3)>
+            year    pop      gdp
+    region
+    USA     2010  309.3  13599.3
+    USA     2011  311.7  13817.0
+    CAN     2010   34.0   1240.0
+    CAN     2011   34.3   1276.7
+    
+    Variables
+        gdp:       {u'description': 'Product', u'unit': '2005 $Bn'}
+        pop:       {u'description': 'Population', u'unit': 'millions'}
+    Attributes
+        date:      2000-01-01
+        author:    A Person
+
+Coordinates
+~~~~~~~~~~~~~
+
+The conceptual foundation of coordinates is taken from ``xarray``, where data is 
+treated as an ndarray rather than a table. If you plan to only work with the 
+pandas-like features of ``metacsv``, you do not really need coordinates.
+
+That said, specifying the ``coords`` attribute in a csv results in automatic
+index handling:
+
+.. code-block::python
+
+    >>> doc = io.StringIO('''
+    ---
+    author: A Person
+    date:   2000-01-01
+    variables:
+        pop:
+          name: Population
+          unit: millions
+        gdp:
+          name: Product
+          unit: 2005 $Bn
+    coords:
+        - region
+        - year
+    ...
+    region,year,pop,gdp
+    USA,2010,309.3,13599.3
+    USA,2011,311.7,13817.0
+    CAN,2010,34.0,1240.0
+    CAN,2011,34.3,1276.7
+    ''')
+    
+    >>> df = metacsv.read_csv(doc)
+    >>> df
+    <metacsv.core.containers.DataFrame (4, 2)>
+                   pop      gdp
+    region year
+    USA    2010  309.3  13599.3
+           2011  311.7  13817.0
+    CAN    2010   34.0   1240.0
+           2011   34.3   1276.7
+    
+    Coordinates
+      * region     (region) object CAN, USA
+      * year       (year) int64 2010, 2011
+    Variables
+        gdp:       OrderedDict([('name', 'Product'), ('unit', '2005 $Bn')])
+        pop:       OrderedDict([('name', 'Population'), ('unit', 'millions')])
+    Attributes
+        date:      2000-01-01
+        author:    A Person
+
+
+Coordinates become especially useful, however, when moving to ``xarray`` objects 
+or ``netCDF`` files. The ``DataFrame`` above will have no trouble, as ``region`` 
+and ``year`` are orthoganal:
+
+.. code-block::python
+
+    <xarray.Dataset>
+    Dimensions:  (region: 2, year: 2)
+    Coordinates:
+      * region   (region) object 'USA' 'CAN'
+      * year     (year) int64 2010 2011
+    Data variables:
+        pop      (region, year) float64 309.3 311.7 34.0 34.3
+        gdp      (region, year) float64 1.36e+04 1.382e+04 1.24e+03 1.277e+03
+    Attributes:
+        date: 2000-01-01
+        author: A Person
+
+This becomes more complicated when columns in the index are not independent and 
+cannot be thought of as orthogonal. In this case, you can specify ``coords`` as 
+a dict-like attribute either in the CSV header or as an argument to the 
+conversion method:
+
+.. code-block::python
+    doc = io.StringIO('''
+    ---
+    author: A Person
+    date:   2000-01-01
+    variables:
+        pop:
+          name: Population
+          unit: millions
+        gdp:
+          name: Product
+          unit: 2005 $Bn
+    coords:
+        region:
+        regname: 'region'
+        continent: 'region'
+        year:
+    ...
+    region,regname,continent,year,pop,gdp
+    USA,United States,North America,2010,309.3,13599.3
+    USA,United States,North America,2011,311.7,13817.0
+    CAN,Canada,North America,2010,34.0,1240.0
+    CAN,Canada,North America,2011,34.3,1276.7
+    ''')
+    
+    >>> metacsv.to_xarray(doc, attrs={'note': additional attribute'})
+    <xarray.Dataset>
+    Dimensions:    (region: 2, year: 2)
+    Coordinates:
+      * region     (region) object 'USA' 'CAN'
+      * year       (year) int64 2010 2011
+        regname    (region) object 'United States' 'Canada'
+        continent  (region) object 'North America' 'North America'
+    Data variables:
+        pop        (region, year) float64 309.3 311.7 34.0 34.3
+        gdp        (region, year) float64 1.36e+04 1.382e+04 1.24e+03 1.277e+03
+    Attributes:
+        date: 2000-01-01
+        note: additional attribute
+        author: A Person
+
+Note that the resulting ``Dataset`` is not indexed by the cartesian product of 
+all four coordinates, but only by the base coordinates, indicated by the ``*``. 
+Without first setting the ``coords`` attribute this way, the resulting data 
+would have ``NaN`` values corresponding to ``(USA, Canada)`` and 
+``(CAN, United States)``.
+
+
 TODO
 ============
+
+* Allow automatic coersion of ``xarray.Dataset`` and ``xarray.DataArray`` 
+  objects to MetaCSV containers.
+
+* Extend metacsv functionality to ``Panel`` objects
 
 * Make ``coords`` and ``attrs`` persistent across slicing operations 
   (try ``df['pop'].to_xarray()`` from above example and watch it 
@@ -213,25 +523,25 @@ TODO
   - update ``coords`` on stack/unstack
   - update ``coords`` on 
 
+* Improve parser to automatically strip trailing commas and other excel relics
+
+* Enable ``read_csv(engine='C')``... this currently does not work.
+
 * Handle attributes indexed by coord/variable names --> assign to 
   coord/variable-specific ``attrs``
 
 * Let's start an issue tracker and get rid of this section!
 
-* Should we rethink "special attributes," e.g. coords? Maybe these should 
+* Should we rethink "special attribute," naming e.g. coords? Maybe these should 
   have some special prefix like ``_coords`` when included in yaml headers to 
   avoid confusion with other generic attributes...
 
-* Allow special attributes (``coords``, ``variables``) in ``read_csv`` call
+* Allow attribute assertions (e.g. ``version='>1.6.0'``) in ``read_csv`` call
 
-* Allow external file headers
+* Improve test coverage
 
-* Write tests
+* Improve documentation & build readthedocs page
 
-* Write documentation
-
-* Maybe steal xarray's coordinate handling and save ourselves a whole lotta 
-  work?
 
 
 Feature Requests
