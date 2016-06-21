@@ -49,13 +49,66 @@ interpreted by the csv reader. The yaml data can have arbitrary complexity.
         gdp:
           name: Product
           unit: 2005 $Bn
-    ---
+    ...
     region,year,pop,gdp
     USA,2010,309.3,13599.3
     USA,2011,311.7,13817.0
     CAN,2010,34.0,1240.0
     CAN,2011,34.3,1276.7
     ''')
+
+
+
+Using MetaCSV-formatted files in python
+--------------------------------------------
+
+
+Read MetaCSV-formatted data into python using pandas-like syntax: 
+
+.. code-block:: python
+    >>> df = metacsv.read_csv(doc, index_col=[0,1])
+    >>> df
+    <metacsv.core.containers.DataFrame (4, 4)>
+      region  year    pop      gdp
+    0    USA  2010  309.3  13599.3
+    1    USA  2011  311.7  13817.0
+    2    CAN  2010   34.0   1240.0
+    3    CAN  2011   34.3   1276.7
+
+    Variables
+        gdp:       OrderedDict([('name', 'Product'), ('unit', '2005 $Bn')])
+        pop:       OrderedDict([('name', 'Population'), ('unit', 'millions')])
+    Attributes
+        date:      2000-01-01
+        author:    A Person
+
+These properties can be transferred from one data container to another:
+
+.. code-block:: python
+    >>> s = metacsv.Series(np.random.random(6))
+    >>> s
+    <metacsv.core.containers.Series (6,)>
+    0    0.881924
+    1    0.556330
+    2    0.554700
+    3    0.221284
+    4    0.970801
+    5    0.946414
+    dtype: float64
+    >>> s.attrs = df.attrs
+    >>> s
+    <metacsv.core.containers.Series (6,)>
+    0    0.881924
+    1    0.556330
+    2    0.554700
+    3    0.221284
+    4    0.970801
+    5    0.946414
+    dtype: float64
+
+    Attributes
+        date:      2000-01-01
+        author:    A Person
     
 
 Special attributes
@@ -65,9 +118,7 @@ The ``coords`` and ``variables`` attributes are keywords and are not simply
 passed to the MetaCSV object's ``attrs`` attribute.
 
 ``variables`` describes columns in the resulting ``DataFrame`` or 
-``Data variables`` in the resulting ``xarray.Dataset``. Variables is not used 
-when the CSV has only one column and the argument ``squeeze=True`` is passed to 
-``read_csv``.
+``Data variables`` in the resulting ``xarray.Dataset``.
 
 ``coords`` describes indices in the resulting ``DataFrame``/``Series``, or 
 ``Coordinates`` in the resulting ``xarray.Dataset/xarray.DataArray``. 
@@ -75,33 +126,6 @@ Coordinates are categorical or independent variables which index the object's
 ``values``. 
 
 
-
-Using MetaCSV-formatted files in python
---------------------------------------------
-
-Read MetaCSV-formatted data into python using pandas-like syntax: 
-
-.. code-block:: python
-
-    >>> metacsv.read_csv(doc, index_col=[0,1])
-    >>> df
-    <metacsv.core.containers.DataFrame (4, 2)>
-                   pop      gdp
-    region year
-    USA    2010  309.3  13599.3
-           2011  311.7  13817.0
-    CAN    2010   34.0   1240.0
-           2011   34.3   1276.7
-    
-    Coordinates
-      * region     (region) object CAN, USA
-      * year       (year) int64 2010, 2011
-    Variables
-        pop
-        gdp
-    Attributes
-        date: 2000-01-01
-        author: A Person
 
 Exporting MetaCSV data to other formats
 -----------------------------------------------
@@ -115,10 +139,10 @@ using the same ``to_csv`` syntax as it's ``pandas`` counterpart:
 .. code-block:: python
 
     >>> df.attrs['new attribute'] = 'changed in python!'
-    >>> # includes changes to data, attributes, variables, and coordinates
-    ... df.to_csv('my_new_data.csv')
+    >>> df.to_csv('my_new_data.csv')
 
-
+The resulting csv will include a yaml-formatted header with the original 
+metadata updated to include attr['new attribute'].,
 
 
 pandas

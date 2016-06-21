@@ -8,10 +8,10 @@ def _to_csv_object(container, fp, *args, **kwargs):
   attr_dict = OrderedDict()
   attr_dict.update(dict(container.attrs))
 
-  if container.coords is not None:
+  if container.coords != None:
     attr_dict.update({'coords': dict(container.coords.items())})
 
-  if hasattr(container, 'variables'):
+  if hasattr(container, 'variables') and container.variables != None:
     attr_dict.update({'variables': dict(container.variables.items())})
 
   if len(attr_dict) > 0:

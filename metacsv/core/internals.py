@@ -57,7 +57,11 @@ class _BaseProperty(object):
         raise ValueError('get() takes exactly 2 arguments ({} given)'.format(len(default)+1))
 
     else:
-      raise KeyError('{} not yet assigned.'.format(self.property_type))
+      if len(default) == 1:
+        return default[0]
+      else:
+        raise KeyError('{} not yet assigned.'.format(self.property_type))
+
 
   def update(self, value):
     if self._data == None:
@@ -531,9 +535,6 @@ class Container(object):
     '''Coordinates property of a metacsv Container'''
     if not hasattr(self, '_variables'):
       self._variables = Variables()
-
-    if self._variables == None:
-      return
 
     return self._variables
 
