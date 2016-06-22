@@ -304,6 +304,9 @@ class MetacsvTestCase(unittest.TestCase):
             coords = metacsv.core.internals.Coordinates({'a': 'b'}, container=[])
 
         coords = metacsv.core.internals.Coordinates()
+
+        with self.assertRaises(ValueError):
+            coords.update()
         
         with self.assertRaises(KeyError):
             coords['a']
@@ -358,6 +361,13 @@ class MetacsvTestCase(unittest.TestCase):
 
         self.assertTrue((ds.col1 == da).all().all())
 
+        df = metacsv.DataFrame(np.random.random((3,4)))
+        df.add_coords()
+        del df.coords
+
+        df.index = pd.MultiIndex.from_tuples([('a','x'),('b','y'),('c','z')])
+        df.add_coords()
+
 
     def test_converters(self):
 
@@ -386,6 +396,46 @@ class MetacsvTestCase(unittest.TestCase):
         attrs = metacsv.core.internals.Attributes()
         attrs.update(da.attrs)
         self.assertEqual(df2.attrs, attrs)
+
+        df = metacsv.read_csv(os.path.join(self.testdata_prefix, 'test6.csv'))
+        ds = df.to_xarray()
+        da = df.to_dataarray()
+        self.assertFalse(ds.col2.isnull().any())
+
+        attrs = df.attrs.copy()
+        coords = df.coords.copy()
+        variables = df.variables.copy()
+
+        df.columns.names = ['cols']
+
+        s = df.stack('cols')
+        metacsv.to_csv(s, tmpfile, attrs={'author': 'my name'})
+        s = metacsv.Series(s)
+        coords.update({'cols': None})
+        s.attrs = attrs
+        s.coords = coords
+        s.variables = variables
+
+        s.to_xarray()
+        s.to_dataarray()
+        s.to_dataset()
+
+        with self.assertRaises(TypeError):
+            metacsv.to_xarray(['a','b','c'])
+
+        metacsv.to_csv(
+            os.path.join(self.testdata_prefix, 'test6.csv'), 
+            tmpfile, 
+            attrs={'author': 'test author'},
+            variables={'col1': {'unit': 'digits'}})
+
+
+        df = metacsv.read_csv(tmpfile)
+        self.assertEqual(df.attrs['author'], 'test author')
+
+        ds = metacsv.to_xarray(tmpfile)
+        self.assertEqual(ds.col1.attrs['unit'], 'digits')
+
 
     def tearDown(self):
         if os.path.isdir(self.test_tmp_prefix):

@@ -135,6 +135,9 @@ class _BaseProperty(object):
             for k, v in self._data.items():
                 yield (k, v)
 
+    def iteritems(self):
+      return self.items()
+
     def copy(self):
         if self._data is not None:
             return type(self)(self._data.copy(), container=None)
@@ -610,6 +613,15 @@ class Container(object):
             special['attrs'] = attrs
 
         return args, kwargs, special
+
+    def __getitem__(self, key):
+      if key == 'attrs':
+        return self.attrs
+      if key == 'coords':
+        return self.coords
+      if key == 'variables':
+        return self.variables
+      return self.pandas_parent.__getitem__(self, key)
 
     # Container formatting
 

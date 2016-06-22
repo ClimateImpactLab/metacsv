@@ -21,30 +21,6 @@ def _import_xarray():
                 'Cannot send to xarray - xarray library not found. See http://xarray.pydata.org/')
 
 
-def _get_coords_dataarrays_from_index(container):
-
-    global xr
-    if xr is None:
-        _import_xarray()
-
-    coords = OrderedDict()
-
-    for coord in container.base_coords:
-        coords[str(coord)] = container._get_coord_data_from_index(coord).values
-
-    for coord in [k for k in container.coords if k not in container.base_coords]:
-        deps = container.coords[coord]
-        xr_coord = pd.Series(container._get_coord_data_from_index(coord), index=pd.MultiIndex.from_tuples(list(
-            zip(*tuple(container._get_coord_data_from_index(dep) for dep in deps))), names=list(map(str, deps))))
-        try:
-            coords[str(coord)] = xr.DataArray.from_series(xr_coord)
-        except Exception:
-            print(xr_coord)
-            raise ValueError
-
-    return coords
-
-
 def _check_series_unique(series):
     def check_unique(group):
         assert len(group.drop_duplicates()) == 1, "Data not uniquely indexed for base coords: ({})".format(
