@@ -19,10 +19,12 @@ if PY2:
     itervalues = lambda d: d.itervalues()
     iteritems = lambda d: d.iteritems()
 
-    from cStringIO import StringIO as BytesIO
+    from cStringIO import StringIO as BytesIO, InputType
     from StringIO import StringIO
     import cPickle as pickle
     import ConfigParser as configparser
+
+    stream_types = (StringIO, InputType)
 
     from itertools import izip, imap
     range_type = xrange
@@ -54,6 +56,8 @@ else:
     from io import StringIO, BytesIO
     import pickle
     import configparser
+
+    stream_types = (StringIO, BytesIO)
 
     izip = zip
     imap = map

@@ -281,13 +281,12 @@ class MetacsvTestCase(unittest.TestCase):
             var.parse_string_var(['unit'])
 
         self.assertTrue('description' in var.parse_string_var('variable name [unit]'))
+        self.assertEqual(var.parse_string_var('variable [ name'), 'variable [ name')
         
         with self.assertRaises(TypeError):
             df.variables = []
 
         del df.variables
-
-
 
         # Test round trip
         df2 = metacsv.read_csv(
@@ -298,6 +297,22 @@ class MetacsvTestCase(unittest.TestCase):
         df2.index.names = ['index']
 
         self.assertTrue((df == df2).all().all())
+
+    def test_standalone_coords(self):
+
+        with self.assertRaises(TypeError):
+            coords = metacsv.core.internals.Coordinates({'a': 'b'}, container=[])
+
+        coords = metacsv.core.internals.Coordinates()
+        
+        with self.assertRaises(KeyError):
+            coords['a']
+            
+        self.assertEqual(coords.__repr__(), '<Empty Coordinates>')
+
+        coords.update({'a': None})
+        self.assertNotEqual(coords.__repr__(), '<Empty Coordinates>')
+
 
     def test_parse_vars(self):
         df = metacsv.read_csv(
@@ -342,6 +357,35 @@ class MetacsvTestCase(unittest.TestCase):
         da = s.to_xarray()
 
         self.assertTrue((ds.col1 == da).all().all())
+
+
+    def test_converters(self):
+
+        tmpfile = os.path.join(self.test_tmp_prefix, 'test_write_1.csv')
+
+        df = pd.DataFrame(np.random.random((3,4)), columns=list('abcd'))
+        df.index.names = ['ind']
+
+        attrs = {'author': 'My Name'}
+
+        metacsv.to_csv(df, tmpfile, attrs=attrs, coords={'ind': None})
+        da = metacsv.to_dataarray(df, attrs=attrs, coords={'ind': None})
+        ds1 = metacsv.to_xarray(df, attrs=attrs, coords={'ind': None})
+        ds2 = metacsv.to_dataset(df, attrs=attrs, coords={'ind': None})
+        
+        df2 = metacsv.DataFrame(df, attrs=attrs)
+        df2.add_coords()
+
+        df3 = metacsv.read_csv(tmpfile)
+
+        self.assertEqual(df2.coords, df3.coords)
+
+        self.assertTrue((ds1 == ds2).all().all())
+        self.assertEqual(df.shape[0]*df.shape[1], da.shape[0]*da.shape[1])
+
+        attrs = metacsv.core.internals.Attributes()
+        attrs.update(da.attrs)
+        self.assertEqual(df2.attrs, attrs)
 
     def tearDown(self):
         if os.path.isdir(self.test_tmp_prefix):

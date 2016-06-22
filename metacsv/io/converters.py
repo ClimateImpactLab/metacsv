@@ -13,12 +13,12 @@ from .to_xarray import metacsv_series_to_dataarray, metacsv_series_to_dataset, m
 from .to_csv import metacsv_to_csv
 from .parsers import read_csv
 from ..core.containers import Series, DataFrame, Panel
-from .._compat import string_types, BytesIO, StringIO
+from .._compat import string_types, stream_types, BytesIO, StringIO
 
 
 def _coerce_to_metacsv(container):
     if not isinstance(container, (Series, DataFrame, Panel)):
-        if isinstance(container, string_types) or isinstance(container, StringIO) or isinstance(container, BytesIO):
+        if isinstance(container, (string_types, stream_types)):
             container = read_csv(container)
         elif isinstance(container, pd.Series):
             container = Series(container)

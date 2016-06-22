@@ -155,7 +155,7 @@ class Variables(_BaseProperty):
     def parse_string_var(defn):
         if not isinstance(defn, string_types):
             raise TypeError('parse_string_var only accepts string arguments')
-        pattern = re.search(r'^(?P<desc>[^\[]+)(\s+\[(?P<unit>.+)\])?$', defn)
+        pattern = re.search(r'^(?P<desc>[^\[]+)(\s+\[(?P<unit>.*)\])?$', defn)
         if not pattern:
             return defn
         vardata = {'description': pattern.group('desc')}
@@ -175,9 +175,9 @@ class Coordinates(object):
     def __init__(self, coords=None, container=None):
 
         if container is not None:
-            if not (isinstance(container, Container) or isinstance(container, pd.DataFrame) or isinstance(container, pd.Series)):
+            if not isinstance(container, (Container, pd.DataFrame, pd.Series)):
                 raise TypeError(
-                    '__init__ data argument must be a metacsv or pandas DataFrame or Series')
+                    '__init__ container argument must be a metacsv or pandas DataFrame or Series')
 
         self._container = container
         self.__set__(coords)
@@ -241,6 +241,8 @@ class Coordinates(object):
         return not self.__eq__(other)
 
     def __getitem__(self, key):
+        if self._coords is None:
+            raise KeyError('Coordinate not yet defined')
         return self._coords[key]
 
     def __len__(self):
