@@ -18,7 +18,15 @@ class _BaseProperty(object):
     repr_order = []
 
     def __init__(self, data=None, container=None):
-        self.__set__(data)
+        if data is None:
+            self._data = None
+        elif isinstance(data, _BaseProperty):
+            self._data = data._data
+        else:
+            if isinstance(data, dict) or isinstance(data, OrderedDict):
+                self._data = data
+            else:
+                raise TypeError
 
     def __repr__(self):
         return str(self)
@@ -39,31 +47,39 @@ class _BaseProperty(object):
                 yield k, v
 
     def pop(self, key, *default):
+        if len(default) > 1:
+            raise ValueError(
+                'pop() takes exactly 2 arguments ({} given)'.format(len(default) + 1))
+
         if self._data is not None:
             if len(default) == 0:
                 return self._data.pop(key)
-            elif len(default) == 1:
-                return self._data.pop(key, default[0])
             else:
-                raise ValueError(
-                    'pop() takes exactly 2 arguments ({} given)'.format(len(default) + 1))
-
+                return self._data.pop(key, default[0])
+                
         else:
-            raise KeyError('{} not yet assigned.'.format(self.property_type))
+            if len(default) == 1:
+                return default[0]
+
+            else:
+                raise KeyError(
+                    '{} not yet assigned.'.format(self.property_type))
 
     def get(self, key, *default):
+        if len(default) > 1:
+            raise ValueError(
+                'get() takes exactly 2 arguments ({} given)'.format(len(default) + 1))
+
         if self._data is not None:
             if len(default) == 0:
                 return self._data.get(key)
-            elif len(default) == 1:
-                return self._data.get(key, default[0])
             else:
-                raise ValueError(
-                    'get() takes exactly 2 arguments ({} given)'.format(len(default) + 1))
+                return self._data.get(key, default[0])
 
         else:
             if len(default) == 1:
                 return default[0]
+
             else:
                 raise KeyError(
                     '{} not yet assigned.'.format(self.property_type))
@@ -120,33 +136,12 @@ class _BaseProperty(object):
                 yield (k, v)
 
     def copy(self):
-        if self.data is not None:
+        if self._data is not None:
             return type(self)(self._data.copy(), container=None)
         else:
             return type(self)()
 
-    def __get__(self, data):
-        if not hasattr(self, '_data'):
-            self._data = None
 
-        if self._data is None:
-            return None
-
-        return self._data
-
-    def __set__(self, value):
-        if value is None:
-            self._data = None
-        elif isinstance(value, _BaseProperty):
-            self._data = value._data
-        else:
-            if isinstance(value, dict) or isinstance(value, OrderedDict):
-                self._data = value
-            else:
-                raise TypeError
-
-    def __del__(self):
-        del self._data
 
 
 class Attributes(_BaseProperty):
@@ -159,7 +154,7 @@ class Variables(_BaseProperty):
     @staticmethod
     def parse_string_var(defn):
         if not isinstance(defn, string_types):
-            return defn
+            raise TypeError('parse_string_var only accepts string arguments')
         pattern = re.search(r'^(?P<desc>[^\[]+)(\s+\[(?P<unit>.+)\])?$', defn)
         if not pattern:
             return defn

@@ -220,6 +220,29 @@ class MetacsvTestCase(unittest.TestCase):
 
         attrs = metacsv.core.internals.Attributes()
         self.assertEqual(attrs, None)
+        self.assertFalse('author' in attrs.copy())
+
+        with self.assertRaises(KeyError):
+            del attrs['author']
+
+        with self.assertRaises(KeyError):
+            err = attrs['author']
+
+        with self.assertRaises(KeyError):
+            err = attrs.get('author')
+
+        self.assertEqual(attrs.get('author', None), None)
+
+        with self.assertRaises(ValueError):
+            err = attrs.get('author', 1, 2)
+
+        self.assertEqual(attrs.pop('author', None), None)
+
+        with self.assertRaises(KeyError):
+            err = attrs.pop('author')
+
+        with self.assertRaises(ValueError):
+            err = attrs.pop('author', 1, 2)
 
         self.assertEqual(attrs, None)
         self.assertEqual(attrs.__repr__(), '<Empty Attributes>')
@@ -233,6 +256,9 @@ class MetacsvTestCase(unittest.TestCase):
         df.attrs.update(attrs)
         df.attrs.update({'project': 'metacsv'})
 
+        with self.assertRaises(TypeError):
+            df.attrs.update(1)
+
         self.assertNotEqual(df.attrs, attrs)
         del df.attrs['project']
         self.assertEqual(df.attrs, attrs)
@@ -244,7 +270,24 @@ class MetacsvTestCase(unittest.TestCase):
         self.assertEqual(df.attrs.pop('contact', 'nope'), 'nope')
         self.assertNotEqual(df.attrs, attrs)
 
+        attrs['author'] = 'My Name'
+        df.variables['column1'] = attrs
+        self.assertEqual(df.variables['column1']['author'], 'My Name')
+
+        var = df.variables.copy()
+        self.assertEqual(df.variables, var)
+
+        with self.assertRaises(TypeError):
+            var.parse_string_var(['unit'])
+
+        self.assertTrue('description' in var.parse_string_var('variable name [unit]'))
+        
+        with self.assertRaises(TypeError):
+            df.variables = []
+
         del df.variables
+
+
 
         # Test round trip
         df2 = metacsv.read_csv(
@@ -255,6 +298,18 @@ class MetacsvTestCase(unittest.TestCase):
         df2.index.names = ['index']
 
         self.assertTrue((df == df2).all().all())
+
+    def test_parse_vars(self):
+        df = metacsv.read_csv(
+            os.path.join(self.testdata_prefix, 'test8.csv'), 
+            parse_vars=True, 
+            index_col=[0,1,2],
+            coords={'ind1':None, 'ind2':None, 'ind3':['ind2']})
+
+        self.assertTrue(df.hasattr(df.variables['col1'], 'description'))
+        self.assertEqual(df.variables['col1']['description'], 'The first column')
+        self.assertEqual(df.variables['col2']['unit'], 'digits')
+
 
     def test_parse_vars(self):
 

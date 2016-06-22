@@ -243,7 +243,7 @@ will be updated with the arguments to this function
     1  0.541712  0.835804  0.326078  0.179103
     2  0.332869  0.435573  0.904612  0.823884
     
-    >>> metacsv.to_csv(df, 'mycsv.csv', attrs={'author': 'my name'})
+    >>> metacsv.to_csv(df, 'mycsv.csv', attrs={'author': 'my name', 'date': '2016-01-01'})
     >>> 
     >>> df2 = metacsv.read_csv('mycsv.csv', index_col=[0])
     >>> df2
@@ -442,6 +442,7 @@ and ``year`` are orthoganal:
 
 .. code-block:: python
 
+    >>> df.to_xarray()
     <xarray.Dataset>
     Dimensions:  (region: 2, year: 2)
     Coordinates:
@@ -463,15 +464,6 @@ conversion method:
 
     doc = io.StringIO('''
     ---
-    author: A Person
-    date:   2000-01-01
-    variables:
-        pop:
-          name: Population
-          unit: millions
-        gdp:
-          name: Product
-          unit: 2005 $Bn
     coords:
         region:
         regname: 'region'
@@ -485,7 +477,7 @@ conversion method:
     CAN,Canada,North America,2011,34.3,1276.7
     ''')
     
-    >>> metacsv.to_xarray(doc, attrs={'note': additional attribute'})
+    >>> metacsv.to_xarray(doc)
     <xarray.Dataset>
     Dimensions:    (region: 2, year: 2)
     Coordinates:
@@ -496,10 +488,6 @@ conversion method:
     Data variables:
         pop        (region, year) float64 309.3 311.7 34.0 34.3
         gdp        (region, year) float64 1.36e+04 1.382e+04 1.24e+03 1.277e+03
-    Attributes:
-        date: 2000-01-01
-        note: additional attribute
-        author: A Person
 
 Note that the resulting ``Dataset`` is not indexed by the cartesian product of 
 all four coordinates, but only by the base coordinates, indicated by the ``*``. 
