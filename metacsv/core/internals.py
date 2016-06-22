@@ -614,14 +614,14 @@ class Container(object):
 
         return args, kwargs, special
 
-    def __getitem__(self, key):
-      if key == 'attrs':
-        return self.attrs
-      if key == 'coords':
-        return self.coords
-      if key == 'variables':
-        return self.variables
-      return self.pandas_parent.__getitem__(self, key)
+    # def __getitem__(self, key):
+    #   if key == 'attrs':
+    #     return self.attrs
+    #   if key == 'coords':
+    #     return self.coords
+    #   if key == 'variables':
+    #     return self.variables
+    #   return self.pandas_parent.__getitem__(self, key)
 
     # Container formatting
 
