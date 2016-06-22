@@ -73,11 +73,18 @@ def _verify_assertions(container, assertions=None):
     if not has_iteritems(assertions):
         raise TypeError('assertions must be ')
     
-    for par in ['attrs', 'coords', 'variables']:
-        if par in assertions:
-            _verify_deep_assertion(assertions[par], container.__getitem__(par))
+    if 'attrs' in assertions:
+        _verify_deep_assertion(assertions['attrs'], container.attrs)
+
+    if 'coords' in assertions:
+        _verify_deep_assertion(assertions['coords'], container.coords)
+
+    if 'variables' in assertions:
+        _verify_deep_assertion(assertions['variables'], container.variables)
 
     for kw, arg in iteritems(assertions):
+        if kw in ['attrs','coords','variables']:
+            continue
         _verify_deep_assertion(arg, container.attrs[kw])
 
     return container

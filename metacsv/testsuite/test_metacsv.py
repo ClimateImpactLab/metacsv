@@ -436,6 +436,17 @@ class MetacsvTestCase(unittest.TestCase):
         ds = metacsv.to_xarray(tmpfile)
         self.assertEqual(ds.col1.attrs['unit'], 'digits')
 
+    def test_assertions(self):
+        fp = os.path.join(self.testdata_prefix, 'test7.csv')
+
+        df = metacsv.read_csv(fp, parse_vars=True, 
+            assertions={'attrs': {'version': 'test5.2016-05-01.01'}})
+
+        df = metacsv.read_csv(fp, parse_vars=True, 
+            assertions={'attrs': {'version': lambda x: x>'test5.2016-05-01.00'}})
+
+        df = metacsv.read_csv(fp, parse_vars=True, 
+            assertions={'variables': {'col2': {'unit': 'digits'}}})
 
     def tearDown(self):
         if os.path.isdir(self.test_tmp_prefix):
