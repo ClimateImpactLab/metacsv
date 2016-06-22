@@ -161,11 +161,11 @@ Container:
 xarray/netCDF
 ~~~~~~~~~~~~~~~
 
-``xarray``__ provides a pandas-like interface to operating on indexed ``ndarray`` 
-data. It is modeled on the ``netCDF`` data storage format used frequently in 
-climate science, but is useful for many applications with higher-order data.
+`xArray <http://xarray.pydata.org/>`_ provides a pandas-like interface to 
+operating on indexed ``ndarray`` data. It is modeled on the ``netCDF`` data 
+storage format used frequently in climate science, but is useful for many 
+applications with higher-order data.
 
-.. __: http://xarray.pydata.org/
 
 
 .. code-block:: python
@@ -214,9 +214,9 @@ Pickling works just like pandas.
 Others
 ~~~~~~~~~
 
-Currently, MetaCSV only supports conversion back to CSV and to 
-netCDF through the ``xarray`` module. However, feel free to suggest 
-additional features and to contribute your own!
+Currently, MetaCSV only supports conversion to CSV and to netCDF through the 
+``xarray`` module. However, feel free to suggest additional features and to 
+contribute your own!
 
 
 
@@ -228,12 +228,13 @@ container or a CSV filepath into any other type in this group.
 
 * to_csv
 
-```to_csv`` allows you to write any container or csv file to a metacsv-formatted 
+``to_csv`` allows you to write any container or csv file to a metacsv-formatted 
 csv file. Keyword arguments ``attrs``, ``coords``, and ``variables`` will be 
 attached to the data before it is written. Any conflicts in these attributes 
 will be updated with the arguments to this function
 
-.. code-block::python
+.. code-block:: python
+
     >>> import pandas as pd, numpy as np, xarray as xr, metacsv
     >>> df = pd.DataFrame(np.random.random((3,4)), columns=list('abcd'))
     >>> df
@@ -315,7 +316,7 @@ MetaCSV containers, variables are displayed as a separate set of attributes. On
 conversion to ``xarray``, these attributes are assigned to variable-specific 
 ``attrs``:
 
-.. code-block::python
+.. code-block:: python
 
     >>> ds = df.to_xarray()
     >>> ds
@@ -331,7 +332,7 @@ conversion to ``xarray``, these attributes are assigned to variable-specific
     Attributes:
         date: 2000-01-01
         author: A Person
-
+    
     >>> ds.pop
     <xarray.DataArray 'pop' (index: 4)>
     array([ 309.3,  311.7,   34. ,   34.3])
@@ -343,10 +344,11 @@ conversion to ``xarray``, these attributes are assigned to variable-specific
 
 Note that at present, variables are not persistent across slicing operations.
 
-Variables have a special ``read_csv`` argument that allows parsing of one-line 
-variable definitions:
+**parse_vars**
 
-.. code-block::python
+Variables have a special argument to ``read_csv``: ``parse_vars`` allows parsing of one-line variable definitions in the format ``var: description [unit]``:
+
+.. code-block:: python
 
     >>> doc = io.StringIO('''
     ---
@@ -389,7 +391,7 @@ pandas-like features of ``metacsv``, you do not really need coordinates.
 That said, specifying the ``coords`` attribute in a csv results in automatic
 index handling:
 
-.. code-block::python
+.. code-block:: python
 
     >>> doc = io.StringIO('''
     ---
@@ -438,7 +440,7 @@ Coordinates become especially useful, however, when moving to ``xarray`` objects
 or ``netCDF`` files. The ``DataFrame`` above will have no trouble, as ``region`` 
 and ``year`` are orthoganal:
 
-.. code-block::python
+.. code-block:: python
 
     <xarray.Dataset>
     Dimensions:  (region: 2, year: 2)
@@ -457,7 +459,8 @@ cannot be thought of as orthogonal. In this case, you can specify ``coords`` as
 a dict-like attribute either in the CSV header or as an argument to the 
 conversion method:
 
-.. code-block::python
+.. code-block:: python
+
     doc = io.StringIO('''
     ---
     author: A Person
