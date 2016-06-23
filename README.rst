@@ -243,7 +243,7 @@ will be updated with the arguments to this function
     1  0.541712  0.835804  0.326078  0.179103
     2  0.332869  0.435573  0.904612  0.823884
     
-    >>> metacsv.to_csv(df, 'mycsv.csv', attrs={'author': 'my name', 'date': '2016-01-01'})
+    >>> metacsv.to_csv(df, 'mycsv.csv', attrs={'author': 'my name', 'date': '2015-12-31'})
     >>> 
     >>> df2 = metacsv.read_csv('mycsv.csv', index_col=[0])
     >>> df2
@@ -254,7 +254,7 @@ will be updated with the arguments to this function
     2  0.332869  0.435573  0.904612  0.823884
     
     Attributes
-        date:      2016-01-01
+        date:      2015-12-31
         author:    my name
     
     >>> metacsv.to_csv(df2, 'mycsv.csv', attrs={'author': 'new name'})
@@ -267,7 +267,7 @@ will be updated with the arguments to this function
     2  0.332869  0.435573  0.904612  0.823884
     
     Attributes
-        date:      2016-01-01
+        date:      2015-12-31
         author:    new name
 
 * to_xarray
