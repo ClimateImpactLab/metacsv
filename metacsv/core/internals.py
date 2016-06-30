@@ -238,6 +238,10 @@ class Coordinates(object):
             for k, v in self._coords.items():
                 yield (k, v)
 
+    def iteritems(self):
+        for k, v in self.items():
+            yield k, v
+
     def __eq__(self, other):
         if isinstance(other, Coordinates):
             return (self._coords == other._coords) and (self._base_coords == other._base_coords)
@@ -257,6 +261,13 @@ class Coordinates(object):
         if self._coords is None:
             return 0
         return len(self._coords)
+
+    def __lenth_hint__(self):
+        if self._coords is None:
+            return 0
+        if hasattr(self._coords, '__length_hint__'):
+            return self._coords.__lenth_hint__()
+        return self.__len__()
 
     def _repr_coord(self, coord, base=False, maxlen=50):
         if self._container is None:
@@ -290,6 +301,8 @@ class Coordinates(object):
         return coordstr
 
     def copy(self):
+        if self._coords is None:
+            return type(self)()
         return type(self)(self._coords.copy(), container=None)
 
     @property
@@ -299,7 +312,7 @@ class Coordinates(object):
     @staticmethod
     def parse_coords_definition(coords=None):
         ''' Validate coords to test for cyclic graph '''
-        if coords is None:
+        if coords == None:
             return None, None, None
 
         if isinstance(coords, string_types):
@@ -589,7 +602,8 @@ class Container(object):
             if hasattr(data, 'copy'):
                 data = data.copy()
             parsed = func(data)
-            p_data.update(parsed)
+            if parsed != None:
+                p_data.update(parsed)
 
         def strip_property(prop, func=lambda x: x):
             p_data = {}

@@ -23,7 +23,7 @@ class Series(Container, pd.Series):
     def copy(self):
         return Series(
             self.pandas_parent.copy(self), 
-            coords=self.coords.copy, 
+            coords=self.coords.copy(), 
             attrs=self.attrs.copy(), 
             variables=self.variables.copy())
 
@@ -53,7 +53,7 @@ class DataFrame(Container, pd.DataFrame):
     def copy(self):
         return DataFrame(
             self.pandas_parent.copy(self), 
-            coords=self.coords.copy, 
+            coords=self.coords.copy(), 
             attrs=self.attrs.copy(), 
             variables=self.variables.copy())
 
@@ -87,7 +87,7 @@ class Panel(Container, pd.Panel):
     def copy(self):
         return Panel(
             self.pandas_parent.copy(self), 
-            coords=self.coords.copy, 
+            coords=self.coords.copy(), 
             attrs=self.attrs.copy(), 
             variables=self.variables.copy())
 

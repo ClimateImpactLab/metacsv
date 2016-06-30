@@ -139,6 +139,8 @@ class MetacsvTestCase(unittest.TestCase):
             stdout=subprocess.PIPE)
 
         out, err = p.communicate()
+        if len(err.strip()) != 0:
+            print(err.strip().decode(locale.getpreferredencoding()))
         self.assertEqual(len(err.strip()), 0)
 
         df = metacsv.read_csv(testfile)
