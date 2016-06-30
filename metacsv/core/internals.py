@@ -130,6 +130,11 @@ class _BaseProperty(object):
             return False
         return key in self._data
 
+    def __len__(self):
+        if self._data is None:
+            return 0
+        return len(self._data)
+
     def items(self):
         if self._data is not None:
             for k, v in self._data.items():

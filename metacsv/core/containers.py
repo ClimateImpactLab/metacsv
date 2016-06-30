@@ -20,6 +20,13 @@ class Series(Container, pd.Series):
     pandas_parent = pd.Series
     _metadata = ['_coords', '_attrs', '_variables']
 
+    def copy(self):
+        return Series(
+            self.pandas_parent.copy(self), 
+            coords=self.coords.copy, 
+            attrs=self.attrs.copy(), 
+            variables=self.variables.copy())
+
     @property
     def _constructor(self):
         return Series
@@ -42,6 +49,13 @@ class DataFrame(Container, pd.DataFrame):
 
     pandas_parent = pd.DataFrame
     _metadata = ['_coords', '_attrs', '_variables']
+
+    def copy(self):
+        return DataFrame(
+            self.pandas_parent.copy(self), 
+            coords=self.coords.copy, 
+            attrs=self.attrs.copy(), 
+            variables=self.variables.copy())
 
     @property
     def _constructor(self):
@@ -69,6 +83,13 @@ class Panel(Container, pd.Panel):
 
     pandas_parent = pd.Panel
     _metadata = ['_coords', '_attrs', '_variables']
+
+    def copy(self):
+        return Panel(
+            self.pandas_parent.copy(self), 
+            coords=self.coords.copy, 
+            attrs=self.attrs.copy(), 
+            variables=self.variables.copy())
 
     @property
     def _constructor(self):

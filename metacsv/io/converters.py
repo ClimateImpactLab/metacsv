@@ -10,7 +10,7 @@ import numpy as np
 import xarray as xr
 from collections import OrderedDict
 from .to_xarray import metacsv_series_to_dataarray, metacsv_series_to_dataset, metacsv_dataframe_to_dataset, metacsv_dataframe_to_dataarray
-from .to_csv import metacsv_to_csv
+from .to_csv import metacsv_to_csv, _header_to_file_object
 from .parsers import read_csv
 from ..core.containers import Series, DataFrame, Panel
 from .._compat import string_types, stream_types, BytesIO, StringIO
@@ -270,6 +270,24 @@ def to_csv(container, fp, attrs=None, coords=None, variables=None, *args, **kwar
     >>> metacsv.to_csv(pd.DataFrame(np.random.rand((3,4))), attrs={'author': 'my name'})
     '''
 
-    container = _coerce_to_metacsv(container)
+    container = _coerce_to_metacsv(container).copy()
     _parse_args(container, attrs, coords, variables)
     metacsv_to_csv(container, fp, *args, **kwargs)
+
+
+def to_fgh(fp, container=None, attrs=None, coords=None, variables=None):
+        
+    if container is not None:
+        container = _coerce_to_metacsv(container).copy()
+        _parse_args(container, attrs, coords, variables)
+        attrs = container.attrs
+        coords = container.coords
+        variables = container.variables
+
+    if isinstance(fp, string_types):
+        with open(fp, 'w+') as fp2:
+            _header_to_file_object(fp2, attrs=attrs, coords=coords, variables=variables)
+    else:
+        _header_to_file_object(fp, attrs=attrs, coords=coords, variables=variables)
+            
+

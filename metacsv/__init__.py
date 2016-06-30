@@ -23,6 +23,7 @@ from .io.converters import (
     to_dataarray,
     to_xarray,
     to_pandas,
-    to_csv)
+    to_csv,
+    to_fgh)
 
 from .scripts import *
