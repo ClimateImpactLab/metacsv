@@ -13,6 +13,7 @@ from .to_xarray import metacsv_series_to_dataarray, metacsv_series_to_dataset, m
 from .to_csv import metacsv_to_csv, _header_to_file_object
 from .parsers import read_csv
 from ..core.containers import Series, DataFrame, Panel
+from ..core.internals import Coordinates, Variables, Attributes
 from .._compat import string_types, stream_types, BytesIO, StringIO
 
 
@@ -283,6 +284,16 @@ def to_fgh(fp, container=None, attrs=None, coords=None, variables=None):
         attrs = container.attrs
         coords = container.coords
         variables = container.variables
+
+    else:
+        if not isinstance(attrs, Attributes):
+            attrs = Attributes(attrs)
+            
+        if not isinstance(coords, Coordinates):
+            coords = Coordinates(coords)
+
+        if not isinstance(variables, Variables):
+            variables = Variables(variables)
 
     if isinstance(fp, string_types):
         with open(fp, 'w+') as fp2:

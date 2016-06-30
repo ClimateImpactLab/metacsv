@@ -103,10 +103,10 @@ def read_csv(string_or_buffer, header_file=None, parse_vars=False, assertions=No
 
     if isinstance(header_file, string_types):
         with open(header_file, 'r') as hf:
-            header = yaml.load(hf.read())
+            header = ordered_load(hf.read())
 
     elif header_file is not None:
-        header = yaml.load(hf.read())
+        header = ordered_load(hf.read())
 
     if isinstance(string_or_buffer, string_types):
         with open(string_or_buffer, 'r') as fp:

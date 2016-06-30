@@ -9,7 +9,7 @@ from collections import OrderedDict
 from pandas.core.base import FrozenList
 
 from .exceptions import GraphIsCyclicError
-from .._compat import string_types, has_iterkeys, iterkeys
+from .._compat import string_types, has_iterkeys, iterkeys, has_iteritems, iteritems
 from ..io import to_xarray, to_csv, to_pandas
 
 
@@ -32,12 +32,13 @@ class _BaseProperty(object):
         return str(self)
 
     def __str__(self):
+        truncate = lambda s: '\n'.join([l if len(l) < 80 else l[:75] + '...' for l in s.split('\n')])
         if self._data is not None and len(self._data) > 0:
             repr_str = '' if len(self._data) == 0 else self.property_type
             for props, prop_data in self._data.items():
-                repr_str += '\n    {: <10} {}'.format(
+                repr_str += '\n    {: <15} {}'.format(
                     str(props) + ':', prop_data)
-            return repr_str
+            return truncate(repr_str)
         else:
             return '<Empty {}>'.format(self.property_type)
 
@@ -115,6 +116,15 @@ class _BaseProperty(object):
             raise KeyError('{} not yet assigned.'.format(self.property_type))
         del self._data[key]
 
+    def __getattr__(self, key):
+        if key in self.__dict__:
+            return self.__dict__[key]
+        if '_data' in self.__dict__:
+            if self.__dict__['_data'] != None:
+                if key in self.__dict__['_data']:
+                    return self.__dict__['_data'][key]
+        raise AttributeError("'{}' object has no attribute '{}'".format(self.property_type, key))
+
     def __eq__(self, other):
         if hasattr(other, '_data'):
             return self._data == other._data
@@ -171,6 +181,18 @@ class Variables(_BaseProperty):
         if unit:
             vardata['unit'] = unit
         return vardata
+
+    def __str__(self):
+        truncate = lambda s: '\n'.join([l if len(l) < 80 else l[:75] + '...' for l in s.split('\n')])
+        if self._data is not None and len(self._data) > 0:
+            repr_str = '' if len(self._data) == 0 else self.property_type
+            for props, prop_data in self._data.items():
+                item_str = '\n    {: <10} {}'.format(
+                    str(props) + ':', (prop_data if not has_iteritems(prop_data) else '\n' + '\n'.join([' '*8 + '{: <15} {}'.format(k, v) for k, v in iteritems(prop_data)])))
+                repr_str += item_str
+            return truncate(repr_str)
+        else:
+            return '<Empty {}>'.format(self.property_type)
 
 
 class Coordinates(object):
