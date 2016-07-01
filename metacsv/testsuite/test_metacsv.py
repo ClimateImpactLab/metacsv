@@ -23,6 +23,7 @@ import metacsv
 from . import unittest
 from . import helpers
 
+from .._compat import text_type
 
 class VersionError(ValueError):
     pass
@@ -374,6 +375,7 @@ class MetacsvTestCase(unittest.TestCase):
     def test_converters(self):
 
         tmpfile = os.path.join(self.test_tmp_prefix, 'test_write_1.csv')
+        tmpnc = os.path.join(self.test_tmp_prefix, 'test_write_1.nc')
 
         df = pd.DataFrame(np.random.random((3,4)), columns=list('abcd'))
         df.index.names = ['ind']
@@ -438,6 +440,12 @@ class MetacsvTestCase(unittest.TestCase):
         ds = metacsv.to_xarray(tmpfile)
         self.assertEqual(ds.col1.attrs['unit'], 'digits')
 
+
+        metacsv.to_netcdf(tmpfile, tmpnc)
+        with xr.open_dataset(tmpnc) as ds:
+            self.assertEqual(ds.col1.attrs['unit'], 'digits')
+
+
     def test_assertions(self):
         fp = os.path.join(self.testdata_prefix, 'test7.csv')
 
@@ -449,6 +457,23 @@ class MetacsvTestCase(unittest.TestCase):
 
         df = metacsv.read_csv(fp, parse_vars=True, 
             assertions={'variables': {'col2': {'unit': 'digits'}}})
+
+    def test_header_writer(self):
+        fp = os.path.join(self.testdata_prefix, 'test9.csv')
+
+        attrs = {'author': 'test author', 'contact': 'my.email@isp.net'}
+        coords = {'ind1': None, 'ind2': None, 'ind3': 'ind2'}
+        variables = {'col1': dict(description='my first column'), 'col2': dict(description='my second column')}
+
+        tmpheader = os.path.join(self.test_tmp_prefix, 'test_header.header')
+        metacsv.to_header(tmpheader, attrs=attrs, coords=coords, variables=variables)
+
+        df = metacsv.read_csv(fp, header_file=tmpheader)
+
+        self.assertEqual(df.attrs, attrs)
+        self.assertEqual(df.coords, coords)
+        self.assertEqual(df.variables, variables)
+
 
     def tearDown(self):
         if os.path.isdir(self.test_tmp_prefix):

@@ -10,17 +10,17 @@ import numpy as np
 import xarray as xr
 from collections import OrderedDict
 from .to_xarray import metacsv_series_to_dataarray, metacsv_series_to_dataset, metacsv_dataframe_to_dataset, metacsv_dataframe_to_dataarray
-from .to_csv import metacsv_to_csv, _header_to_file_object
+from .to_csv import metacsv_to_csv, metacsv_to_header, _header_to_file_object
 from .parsers import read_csv
 from ..core.containers import Series, DataFrame, Panel
 from ..core.internals import Coordinates, Variables, Attributes
 from .._compat import string_types, stream_types, BytesIO, StringIO
 
 
-def _coerce_to_metacsv(container):
+def _coerce_to_metacsv(container, *args, **kwargs):
     if not isinstance(container, (Series, DataFrame, Panel)):
         if isinstance(container, (string_types, stream_types)):
-            container = read_csv(container)
+            container = read_csv(container, *args, **kwargs)
         elif isinstance(container, pd.Series):
             container = Series(container)
         elif isinstance(container, pd.DataFrame):
@@ -58,24 +58,30 @@ def _parse_args(container, attrs, coords, variables):
             container.variables.update(variables)
 
 
-def to_dataset(container, attrs=None, coords=None, variables=None):
+def to_dataset(container, attrs=None, coords=None, variables=None, *args, **kwargs):
     '''
     Convert a CSV, Series, DataFrame, Panel, DataArray, or Dataset to an xArray.Dataset
 
     Args:
-        container (object): A pandas or metacsv Series, DataFrame, or Panel, an xarray DataArray or Dataset, or a filepath to a csv or netcdf file.
+        container (object): A pandas or metacsv Series, DataFrame, or Panel, an 
+          xarray DataArray or Dataset, or a filepath to a csv or netcdf file.
 
     Kwargs:
         attrs (dict-like): Container attributes
         coords (dict-like): Container coordinates
         variables (dict-like): Variable-specific attributes
 
+    *args, **kwargs passed to metacsv.read_csv if container is a string
+
     Note:
-        If a Series is passed, the variable will be named 'data'. to_dataset is not yet implemented for Panel data.
+        If a Series is passed, the variable will be named 'data'. to_dataset is 
+        not yet implemented for Panel data.
 
     Example:
 
-    >>> metacsv.to_dataset(pd.DataFrame(np.random.rand((3,4))), attrs={'author': 'my name'})
+    >>> metacsv.to_dataset(
+    ... pd.DataFrame(np.random.rand((3,4))), 
+    ... attrs={'author': 'my name'})
     <xarray.Dataset>
     Dimensions:  (index: 3)
     Coordinates:
@@ -89,7 +95,7 @@ def to_dataset(container, attrs=None, coords=None, variables=None):
         author: my name
     '''
 
-    container = _coerce_to_metacsv(container)
+    container = _coerce_to_metacsv(container, *args, **kwargs)
     _parse_args(container, attrs, coords, variables)
 
     if len(container.shape) == 1:
@@ -101,24 +107,30 @@ def to_dataset(container, attrs=None, coords=None, variables=None):
             'to_dataarray not yet implemented for Panel data')
 
 
-def to_dataarray(container, attrs=None, coords=None, variables=None):
+def to_dataarray(container, attrs=None, coords=None, variables=None, *args, **kwargs):
     '''
     Convert a CSV, Series, DataFrame, Panel, DataArray, or Dataset to an xArray.DataArray
 
     Args:
-        container (object): A pandas or metacsv Series, DataFrame, or Panel, an xarray DataArray or Dataset, or a filepath to a csv or netcdf file.
+        container (object): A pandas or metacsv Series, DataFrame, or Panel, an 
+          xarray DataArray or Dataset, or a filepath to a csv or netcdf file.
 
     Kwargs:
         attrs (dict-like): Container attributes
         coords (dict-like): Container coordinates
         variables (dict-like): Variable-specific attributes
 
+    *args, **kwargs passed to metacsv.read_csv if container is a string
+
     Note:
-        If a DataFrame is passed, columns will be stacked and treated as coordinates. to_dataset is not yet implemented for Panel data.
+        If a DataFrame is passed, columns will be stacked and treated as 
+        coordinates. to_dataset is not yet implemented for Panel data.
 
     Example:
 
-    >>> metacsv.to_dataarray(pd.DataFrame(np.random.rand((3,4))), attrs={'author': 'my name'})
+    >>> metacsv.to_dataarray(
+    ... pd.DataFrame(np.random.rand((3,4))), 
+    ... attrs={'author': 'my name'})
     <xarray.DataArray (index: 3, coldim_0: 4)>
     array([[ 0.51152619,  0.34670179,  0.81301656,  0.15533132],
            [ 0.96679786,  0.99511175,  0.46737635,  0.30923316],
@@ -130,7 +142,7 @@ def to_dataarray(container, attrs=None, coords=None, variables=None):
         author: my name
     '''
 
-    container = _coerce_to_metacsv(container)
+    container = _coerce_to_metacsv(container, *args, **kwargs)
     _parse_args(container, attrs, coords, variables)
 
     if len(container.shape) == 1:
@@ -142,25 +154,30 @@ def to_dataarray(container, attrs=None, coords=None, variables=None):
             'to_dataarray not yet implemented for Panel data')
 
 
-def to_xarray(container, attrs=None, coords=None, variables=None):
+def to_xarray(container, attrs=None, coords=None, variables=None, *args, **kwargs):
     '''
     Convert a Series to an xarray.DataArray and a CSV or DataFrame to an xArray.Dataset
 
     Args:
-        container (object): A pandas or metacsv Series, DataFrame, or Panel, an xarray DataArray or Dataset, or a filepath to a csv or netcdf file.
+        container (object): A pandas or metacsv Series, DataFrame, or Panel, an 
+          xarray DataArray or Dataset, or a filepath to a csv or netcdf file.
 
     Kwargs:
         attrs (dict-like): Container attributes
         coords (dict-like): Container coordinates
         variables (dict-like): Variable-specific attributes
 
+    *args, **kwargs passed to metacsv.read_csv if container is a string
+
     Note:
         to_dataset is not yet implemented for Panel data.
 
     Example:
 
-    >>> df = metacsv.DataFrame(np.random.random((3,4)), columns=['col'+str(i) for i in range(4)])
-    >>> df.index = pd.MultiIndex.from_tuples([('a','X'),('b','Y'),('c','Z')], names=['abc','xyz'])
+    >>> df = metacsv.DataFrame(
+    ... np.random.random((3,4)), columns=['col'+str(i) for i in range(4)])
+    >>> df.index = pd.MultiIndex.from_tuples([('a','X'),('b','Y'),('c','Z')], 
+    ... names=['abc','xyz'])
     >>> df.attrs={'author': 'my name'}
     >>> df.coords = {'abc': None, 'xyz': ['abc']}
     >>> df
@@ -192,7 +209,7 @@ def to_xarray(container, attrs=None, coords=None, variables=None):
         author: my name
     '''
 
-    container = _coerce_to_metacsv(container)
+    container = _coerce_to_metacsv(container, *args, **kwargs)
     _parse_args(container, attrs, coords, variables)
 
     if len(container.shape) == 1:
@@ -204,24 +221,21 @@ def to_xarray(container, attrs=None, coords=None, variables=None):
             'to_dataarray not yet implemented for Panel data')
 
 
-def to_pandas(container):
+def to_pandas(container, *args, **kwargs):
     '''
     Write a CSV, Series, DataFrame, Panel, DataArray, or Dataset to a metacsv-formatted csv
 
     Args:
-        container (object): A pandas or metacsv Series, DataFrame, or Panel, an xarray DataArray or Dataset, or a filepath to a csv or netcdf file.
-        fp (str): Path to which to write the metacsv-formatted CSV
-        *args: Additional arguments passed to pandas.to_csv
+        container (object): A pandas or metacsv Series, DataFrame, or Panel, an 
+          xarray DataArray or Dataset, or a filepath to a csv or netcdf file.
 
     Kwargs:
-        attrs (dict-like): Container attributes
-        coords (dict-like): Container coordinates
-        variables (dict-like): Variable-specific attributes
-        **kwargs: Keyword arguments passed to pandas.to_csv
+        **kwargs: Keyword arguments passed to metacsv.to_csv
 
     Example:
 
-    >>> df = metacsv.DataFrame(np.random.random((3,4)), columns=['col'+str(i) for i in range(4)])
+    >>> df = metacsv.DataFrame(np.random.random((3,4)), columns=['col'+str(i) 
+    for i in range(4)])
     >>> df.index = pd.MultiIndex.from_tuples([('a','X'),('b','Y'),('c','Z')], names=['abc','xyz'])
     >>> df.attrs={'author': 'my name'}
     >>> df.coords = {'abc': None, 'xyz': ['abc']}
@@ -248,15 +262,64 @@ def to_pandas(container):
     '''
 
     if hasattr(container, 'pandas_parent'):
-        return container.pandas_parent(container)
+        return container.pandas_parent(container, *args, **kwargs)
+    else:
+        raise NotImplementedError('to_pandas only implemented for metacsv containers')
+
+    # In the future, allow coersion from, say, xarray objects or netcdf files
+    # container = _coerce_to_metacsv(container)
 
 
-def to_csv(container, fp, attrs=None, coords=None, variables=None, *args, **kwargs):
+def to_netcdf(container, fp, attrs=None, coords=None, variables=None, *args, **kwargs):
+    '''
+    Convert a CSV, Series, DataFrame, Panel, DataArray, or Dataset to a NetCDF file
+
+    Args:
+        container (object): A pandas or metacsv Series, DataFrame, or Panel, an 
+          xarray DataArray or Dataset, or a filepath to a csv or netcdf file.
+        fp (string or buffer): The filepath or file object to be written
+
+    Kwargs:
+        attrs (dict-like): Container attributes
+        coords (dict-like): Container coordinates
+        variables (dict-like): Variable-specific attributes
+
+    *args, **kwargs passed to metacsv.read_csv if container is a string
+
+    Note:
+        If a Series is passed, the variable will be named 'data'. to_dataset is n
+        ot yet implemented for Panel data.
+
+    Example:
+
+    >>> metacsv.to_netcdf(
+    ... pd.DataFrame(np.random.rand((3,4))), 
+    ... 'test.nc', 
+    ... attrs={'author': 'my name'})
+    >>> xr.open_dataset('test.nc')
+    <xarray.Dataset>
+    Dimensions:  (index: 3)
+    Coordinates:
+      * index    (index) int64 0 1 2
+    Data variables:
+        0        (index) float64 0.0413 0.9774 0.5508
+        1        (index) float64 0.7497 0.1899 0.3258
+        2        (index) float64 0.6271 0.2384 0.7894
+        3        (index) float64 0.252 0.3001 0.02566
+    Attributes:
+        author: my name
+    '''
+
+    to_dataset(container, attrs=attrs, coords=coords, variables=variables, *args, **kwargs).to_netcdf(fp)
+
+
+def to_csv(container, fp, attrs=None, coords=None, variables=None, header_file=None, *args, **kwargs):
     '''
     Write a CSV, Series, DataFrame, Panel, DataArray, or Dataset to a metacsv-formatted csv
 
     Args:
-        container (object): A pandas or metacsv Series, DataFrame, or Panel, an xarray DataArray or Dataset, or a filepath to a csv or netcdf file.
+        container (object): A pandas or metacsv Series, DataFrame, or Panel, an 
+          xarray DataArray or Dataset, or a filepath to a csv or netcdf file.
         fp (str): Path to which to write the metacsv-formatted CSV
         *args: Additional arguments passed to pandas.to_csv
 
@@ -264,22 +327,44 @@ def to_csv(container, fp, attrs=None, coords=None, variables=None, *args, **kwar
         attrs (dict-like): Container attributes
         coords (dict-like): Container coordinates
         variables (dict-like): Variable-specific attributes
+        header_file (str or buffer): A separate metacsv-formatted header file
         **kwargs: Keyword arguments passed to pandas.to_csv
 
     Example:
 
-    >>> metacsv.to_csv(pd.DataFrame(np.random.rand((3,4))), attrs={'author': 'my name'})
+    >>> metacsv.to_csv(
+    ... pd.DataFrame(np.random.rand((3,4))), 
+    ... attrs={'author': 'my name'})
     '''
 
-    container = _coerce_to_metacsv(container).copy()
+    container = _coerce_to_metacsv(container, header_file=header_file).copy()
     _parse_args(container, attrs, coords, variables)
     metacsv_to_csv(container, fp, *args, **kwargs)
 
 
-def to_fgh(fp, container=None, attrs=None, coords=None, variables=None):
-        
+def to_header(fp, container=None, attrs=None, coords=None, variables=None, *args, **kwargs):
+    '''
+    Write metacsv attributes directly to a metacsv-formatted header file
+
+    Args:
+        fp (str): Path to which to write the metacsv-formatted header file
+
+    Kwargs:
+        container (object): A pandas or metacsv Series, DataFrame, or Panel, an 
+          xarray DataArray or Dataset, or a filepath to a csv or netcdf file.
+        attrs (dict-like): Container attributes
+        coords (dict-like): Container coordinates
+        variables (dict-like): Variable-specific attributes
+
+    *args, **kwargs passed to metacsv.read_csv if container is a string
+
+    Example:
+
+    >>> metacsv.to_header('mycsv.header', attrs={'author': 'me'}, coords='index')
+    '''
+
     if container is not None:
-        container = _coerce_to_metacsv(container).copy()
+        container = _coerce_to_metacsv(container, *args, **kwargs).copy()
         _parse_args(container, attrs, coords, variables)
         attrs = container.attrs
         coords = container.coords
@@ -288,17 +373,13 @@ def to_fgh(fp, container=None, attrs=None, coords=None, variables=None):
     else:
         if not isinstance(attrs, Attributes):
             attrs = Attributes(attrs)
-            
+
         if not isinstance(coords, Coordinates):
             coords = Coordinates(coords)
 
         if not isinstance(variables, Variables):
             variables = Variables(variables)
 
-    if isinstance(fp, string_types):
-        with open(fp, 'w+') as fp2:
-            _header_to_file_object(fp2, attrs=attrs, coords=coords, variables=variables)
-    else:
-        _header_to_file_object(fp, attrs=attrs, coords=coords, variables=variables)
+    metacsv_to_header(fp, attrs=attrs, coords=coords, variables=variables)
             
 

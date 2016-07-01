@@ -4,6 +4,7 @@ from __future__ import absolute_import, division, print_function, \
 
 import pandas as pd
 import re
+from collections import OrderedDict
 from .yaml_tools import ordered_load
 from .._compat import string_types, has_iteritems, iteritems
 from ..core.internals import Container, Variables
@@ -32,7 +33,7 @@ def _parse_headered_data(fp, *args, **kwargs):
 
     if not find_yaml_start(nextline):
         fp.seek(loc)
-        return {}, pd.read_csv(fp, *args, **kwargs)
+        return OrderedDict(), pd.read_csv(fp, *args, **kwargs)
 
     yaml_text = ''
     this_line = ''
@@ -99,7 +100,7 @@ def read_csv(string_or_buffer, header_file=None, parse_vars=False, assertions=No
     engine = kwargs.pop('engine', 'python')
     kwargs['engine'] = engine
 
-    header = {}
+    header = OrderedDict()
 
     if isinstance(header_file, string_types):
         with open(header_file, 'r') as hf:

@@ -22,8 +22,9 @@ from .io.converters import (
     to_dataset,
     to_dataarray,
     to_xarray,
+    to_netcdf,
     to_pandas,
     to_csv,
-    to_fgh)
+    to_header)
 
 from .scripts import *

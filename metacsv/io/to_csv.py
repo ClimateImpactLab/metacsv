@@ -26,11 +26,28 @@ def _header_to_file_object(fp, attrs=None, coords=None, variables=None):
 def _container_to_csv_object(container, fp, *args, **kwargs):
     container.pandas_parent.to_csv(container, fp, *args, **kwargs)
 
-def metacsv_to_csv(container, fp, *args, **kwargs):
+def metacsv_to_csv(container, fp, header_file=None, *args, **kwargs):
+    separate_header = False
+
+    if (header_file is not None) and (header_file != fp):
+        separate_header = True
+    
+    if separate_header:
+        metacsv_to_header(header_file, attrs=container.attrs, coords=container.coords, variables=container.variables)
+
     if isinstance(fp, string_types):
         with open(fp, 'w+') as fp2:
-            _header_to_file_object(fp2, attrs=container.attrs, coords=container.coords, variables=container.variables)
+            if not separate_header:
+                _header_to_file_object(fp2, attrs=container.attrs, coords=container.coords, variables=container.variables)
             _container_to_csv_object(container, fp2, *args, **kwargs)
     else:
-        _header_to_file_object(fp, attrs=container.attrs, coords=container.coords, variables=container.variables)
+        if not separate_header:
+            _header_to_file_object(fp, attrs=container.attrs, coords=container.coords, variables=container.variables)
         _container_to_csv_object(container, fp, *args, **kwargs)
+
+def metacsv_to_header(fp, attrs=None, coords=None, variables=None):
+    if isinstance(fp, string_types):
+        with open(fp, 'w+') as fp2:
+            _header_to_file_object(fp2, attrs=attrs, coords=coords, variables=variables)
+    else:
+        _header_to_file_object(fp, attrs=attrs, coords=coords, variables=variables)

@@ -10,12 +10,17 @@ import argparse
 import os
 
 
-def to_netcdf(readfile, writefile=None, *args, **kwargs):
+def _to_netcdf(fp, writefile=None, *args, **kwargs):
     if writefile is None:
         writefile = os.path.splitext(readfile)[0] + '.nc'
 
-    metacsv.read_csv(readfile, *args, **
-                     kwargs).to_xarray().to_netcdf(writefile)
+    metacsv.to_netcdf(fp, writefile, *args, **kwargs)
+
+def _to_csv(fp, writefile=None, *args, **kwargs):
+    if writefile is None:
+        writefile = os.path.splitext(readfile)[0] + '.csv'
+
+    metacsv.to_csv(fp, writefile, *args, **kwargs)
 
 
 def get_parser():
@@ -37,10 +42,10 @@ def main():
     args = parser.parse_args()
 
     if args.action.lower() == 'netcdf':
-        to_netcdf(args.readfile, args.writefile, header_file=args.header)
+        _to_netcdf(args.readfile, args.writefile, header_file=args.header)
 
     elif args.action.lower() == 'csv':
-        to_csv(args.readfile, args.writefile, header_file=args.header)
+        _to_csv(args.readfile, args.writefile, header_file=args.header)
 
     else:
         parser.print_help()

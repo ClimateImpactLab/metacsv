@@ -226,6 +226,8 @@ Conversion to other types on the fly
 Special conversion utilities allow you to convert any metacsv, pandas, or xarray 
 container or a CSV filepath into any other type in this group.
 
+All of these conversion utilities are also methods on metacsv containers.
+
 * to_csv
 
 ``to_csv`` allows you to write any container or csv file to a metacsv-formatted 
@@ -270,6 +272,48 @@ will be updated with the arguments to this function
         date:      2015-12-31
         author:    new name
 
+* to_header
+
+``to_header`` allows you to write the special attributes directly to a 
+metacsv-formatted header file. The special attributes may be individually 
+specified or taken from a metacsv container. The ``header_file`` argument to 
+both ``read_csv`` and ``to_csv`` allow the creation of special header files 
+which allow you to separate the metacsv-formatted header from the data if 
+desired.
+
+For example, say you have a table to read into pandas
+
+.. code-block:: python
+
+    >>> import metacsv, pandas as pd
+    >>> pd.DataFrame(
+        [['x',1,2,3],['y',4,5,6],['z',7,8,9]], columns=['index','a','b','c']).to_csv('mycsv.csv', index=None)
+    >>> metacsv.read_csv('mycsv.csv')
+    <metacsv.core.containers.DataFrame (3, 4)>
+      index  a  b  c
+    0     x  1  2  3
+    1     y  4  5  6
+    2     z  7  8  9
+
+A separate header file can be created and used which can then be read in with the data:
+
+.. code-block:: python
+
+    >>> metacsv.to_header('mycsv.header', attrs={'author': 'me'}, coords='index')
+    >>> metacsv.read_csv('mycsv.csv', header_file='mycsv.header')
+    <metacsv.core.containers.DataFrame (3, 3)>
+           a  b  c
+    index
+    x      1  2  3
+    y      4  5  6
+    z      7  8  9
+
+    Coordinates
+      * index      (index) object x, y, z
+    Attributes
+        author:         me
+
+
 * to_xarray
 
 ``to_xarray`` returns any container or csv file as an xarray container. Table 
@@ -300,6 +344,27 @@ in these attributes will be updated with the arguments to this function.
 ``to_pandas`` strips special attributes and returns an ordinary ``Series`` or 
 ``DataFrame`` object.
 
+* to_netcdf
+
+``to_netcdf`` first converts a container or csv file to an ``xarray.Dataset`` 
+using the ``to_dataset`` function, then writes the dataset to file with the
+``xarray`` ``ds.to_netcdf`` method.
+
+.. code-block:: python
+
+    >>> metacsv.to_netcdf('mycsv.csv', 'mycsv.nc', header_file='mycsv.header')
+    >>> import xarray as xr
+    >>> xr.open_dataset('mycsv.nc')
+    <xarray.Dataset>
+    Dimensions:  (index: 3)
+    Coordinates:
+      * index    (index) |S1 'x' 'y' 'z'
+    Data variables:
+        a        (index) int64 1 4 7
+        b        (index) int64 2 5 8
+        c        (index) int64 3 6 9
+    Attributes:
+        author: me
 
 Special attributes
 -----------------------------------------------
