@@ -90,7 +90,97 @@ def _verify_assertions(container, assertions=None):
 
     return container
 
-def read_csv(string_or_buffer, header_file=None, parse_vars=False, assertions=None, *args, **kwargs):
+def read_csv(fp, header_file=None, parse_vars=False, assertions=None, *args, **kwargs):
+    """
+    Read a csv or metacsv-formatted csv into a metacsv.DataFrame
+
+    Args:
+        fp (str or buffer): csv or metacsv-formatted filepath or buffer to read
+
+    Kwargs:
+        header_file (str or buffer): optional supplemental yaml header file
+        parse_vars (bool): parse compact-style variable definitions (see example)
+        assertions (dict-like): dictionary of values to assert in file header
+
+    *args, **kwargs passed to pandas.read_csv
+
+    Example:
+
+        >>> import metacsv, numpy as np, 
+        >>> import StringIO as io # import io for python 3
+        >>> doc = io.StringIO('''
+        ---
+        author: A Person
+        date:   2000-01-01
+        variables:
+            pop:
+              name: Population
+              unit: millions
+            gdp:
+              name: Product
+              unit: 2005 $Bn
+        ...
+        region,year,pop,gdp
+        USA,2010,309.3,13599.3
+        USA,2011,311.7,13817.0
+        CAN,2010,34.0,1240.0
+        CAN,2011,34.3,1276.7
+        ''')
+
+        >>> df = metacsv.read_csv(doc, index_col=[0,1])
+        >>> df
+        <metacsv.core.containers.DataFrame (4, 2)>
+                       pop      gdp
+        region year
+        USA    2010  309.3  13599.3
+               2011  311.7  13817.0
+        CAN    2010   34.0   1240.0
+               2011   34.3   1276.7
+        
+        Variables
+            gdp:       OrderedDict([('name', 'Product'), ('unit', '2005 $Bn')])
+            pop:       OrderedDict([('name', 'Population'), ('unit', 'millions')])
+        Attributes
+            date:      2000-01-01
+            author:    A Person
+
+    **parse_vars**
+
+    The read-csv argument ``parse_vars`` allows parsing of one-line variable definitions in the format ``var: description [unit]``:
+
+    Example:
+
+        >>> doc = io.StringIO('''
+        ---
+        author: A Person
+        date:   2000-01-01
+        variables:
+            pop: Population [millions]
+            gdp: Product [2005 $Bn]
+        ...
+        region,year,pop,gdp
+        USA,2010,309.3,13599.3
+        USA,2011,311.7,13817.0
+        CAN,2010,34.0,1240.0
+        CAN,2011,34.3,1276.7
+        ''')
+        
+        >>> metacsv.read_csv(doc, index_col=0, parse_vars=True)
+        <metacsv.core.containers.DataFrame (4, 3)>
+                year    pop      gdp
+        region
+        USA     2010  309.3  13599.3
+        USA     2011  311.7  13817.0
+        CAN     2010   34.0   1240.0
+        CAN     2011   34.3   1276.7
+        
+        Variables
+            gdp:       {u'description': 'Product', u'unit': '2005 $Bn'}
+            pop:       {u'description': 'Population', u'unit': 'millions'}
+        Attributes
+            date:      2000-01-01
+            author:    A Person
+    """
 
     kwargs = dict(kwargs)
 
@@ -109,12 +199,12 @@ def read_csv(string_or_buffer, header_file=None, parse_vars=False, assertions=No
     elif header_file is not None:
         header = ordered_load(hf.read())
 
-    if isinstance(string_or_buffer, string_types):
-        with open(string_or_buffer, 'r') as fp:
+    if isinstance(fp, string_types):
+        with open(fp, 'r') as fp:
             _header, data = _parse_headered_data(fp, *args, **kwargs)
 
     else:
-        _header, data = _parse_headered_data(string_or_buffer, *args, **kwargs)
+        _header, data = _parse_headered_data(fp, *args, **kwargs)
 
     header.update(_header)
 
@@ -138,5 +228,17 @@ def read_csv(string_or_buffer, header_file=None, parse_vars=False, assertions=No
         return _verify_assertions(df, assertions)
 
 
-def read_pickle(string_or_buffer, assertions=None):
-    return _verify_assertions(pd.read_pickle(string_or_buffer), assertions)
+def read_pickle(fp, assertions=None, *args, **kwargs):
+    """
+    Read a pandas or metacsv pickle file into a metacsv container
+
+    Args:
+        fp (str or buffer): ffilepath or buffer to read
+
+    Kwargs:
+        assertions (dict-like): dictionary of values to assert in file header
+
+    *args, **kwargs passed to pandas.read_pickle
+    """
+
+    return _verify_assertions(pd.read_pickle(fp, *args, **kwargs), assertions)

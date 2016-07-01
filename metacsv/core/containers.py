@@ -15,6 +15,13 @@ from .internals import Attributes, Container, Coordinates, Variables
 class Series(Container, pd.Series):
     '''
     metacsv.Series, inherrited from pandas.Series
+
+    Kwargs:
+        attrs (dict-like): Attributes of this container
+        coords (list or dict-like): Coordinate dependencies
+        variables (dict-like): Variable-specific attributes
+
+    *args, **kwargs are passed to pandas.Series.__init__
     '''
 
     pandas_parent = pd.Series
@@ -45,6 +52,13 @@ class Series(Container, pd.Series):
 class DataFrame(Container, pd.DataFrame):
     '''
     metacsv.DataFrame, inherrited from pandas.DataFrame
+
+    Kwargs:
+        attrs (dict-like): Attributes of this container
+        coords (list or dict-like): Coordinate dependencies
+        variables (dict-like): Variable-specific attributes
+
+    *args, **kwargs are passed to pandas.DataFrame.__init__
     '''
 
     pandas_parent = pd.DataFrame
@@ -79,6 +93,16 @@ class DataFrame(Container, pd.DataFrame):
 class Panel(Container, pd.Panel):
     '''
     metacsv.Panel, inherrited from pandas.Panel
+
+    Kwargs:
+        attrs (dict-like): Attributes of this container
+        coords (list or dict-like): Coordinate dependencies
+        variables (dict-like): Variable-specific attributes
+
+    *args, **kwargs are passed to pandas.Panel.__init__
+    
+    Note:
+        metacsv.Panel is not fully implemented
     '''
 
     pandas_parent = pd.Panel
