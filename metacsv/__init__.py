@@ -12,7 +12,13 @@ Tools for documentation-aware data reading, writing, and analysis
 from __future__ import absolute_import, division, print_function, \
     with_statement, unicode_literals
 
-from .__about__ import *
+from .__about__ import (
+    __title__,
+    __package_name__,
+    __description__,
+    __version__,
+    __license__,
+    __copyright__)
 
 from .core import *
 
