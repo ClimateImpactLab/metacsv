@@ -94,6 +94,7 @@ def read_csv(string_or_buffer, header_file=None, parse_vars=False, assertions=No
     kwargs = dict(kwargs)
 
     squeeze = kwargs.get('squeeze', False)
+    args, kwargs, special = Container.strip_special_attributes(args, kwargs)
 
     # set defaults
     engine = kwargs.pop('engine', 'python')
@@ -117,8 +118,10 @@ def read_csv(string_or_buffer, header_file=None, parse_vars=False, assertions=No
 
     header.update(_header)
 
-    kwargs.update({'attrs': header})
-    args, kwargs, special = Container.strip_special_attributes(args, kwargs)
+    if 'attrs' in special:
+        special['attrs'].update(header)
+    else:
+        special['attrs'] = header
 
     if parse_vars:
         if 'variables' in special:

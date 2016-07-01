@@ -342,7 +342,12 @@ class MetacsvTestCase(unittest.TestCase):
 
     def test_attr_updating(self):
 
-        df = metacsv.read_csv(os.path.join(self.testdata_prefix, 'test6.csv'))
+        df = metacsv.read_csv(
+            os.path.join(self.testdata_prefix, 'test6.csv'), 
+            attrs={'author': 'my name'})
+
+        self.assertEqual(df.attrs['author'], 'my name')
+
         df.coords.update({'ind3': ['s2'], 's2': None})
         coords = df.coords
 
