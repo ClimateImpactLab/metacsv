@@ -12,6 +12,8 @@ Tools for documentation-aware data reading, writing, and analysis
 from __future__ import absolute_import, division, print_function, \
     with_statement, unicode_literals
 
+from .__about__ import *
+
 from .core import *
 
 from .io.parsers import (

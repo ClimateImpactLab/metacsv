@@ -42,7 +42,7 @@ interpreted by the csv reader. The yaml data can have arbitrary complexity.
     >>> doc = io.StringIO('''
     ---
     author: A Person
-    date:   2000-01-01
+    date:   2000-12-31
     variables:
         pop:
           name: Population
@@ -82,7 +82,7 @@ Read MetaCSV-formatted data into python using pandas-like syntax:
         gdp:       OrderedDict([('name', 'Product'), ('unit', '2005 $Bn')])
         pop:       OrderedDict([('name', 'Population'), ('unit', 'millions')])
     Attributes
-        date:      2000-01-01
+        date:      2000-12-31
         author:    A Person
 
 These properties can be transferred from one data container to another:
@@ -111,7 +111,7 @@ These properties can be transferred from one data container to another:
     dtype: float64
 
     Attributes
-        date:      2000-01-01
+        date:      2000-12-31
         author:    A Person
     
 
@@ -181,7 +181,7 @@ applications with higher-order data.
         pop      (region, year) float64 309.3 311.7 34.0 34.3
         gdp      (region, year) float64 1.36e+04 1.382e+04 1.24e+03 1.277e+03
     Attributes:
-        date: 2000-01-01
+        date: 2000-12-31
         author: A Person
     >>> ds.to_netcdf('my_netcdf_data.nc')
 
@@ -206,7 +206,7 @@ Pickling works just like pandas.
         gdp:       OrderedDict([('name', 'Product'), ('unit', '2005 $Bn')])
         pop:       OrderedDict([('name', 'Population'), ('unit', 'millions')])
     Attributes
-        date:      2000-01-01
+        date:      2000-12-31
         author:    A Person
 
 
@@ -395,7 +395,7 @@ conversion to ``xarray``, these attributes are assigned to variable-specific
         pop      (index) float64 309.3 311.7 34.0 34.3
         gdp      (index) float64 1.36e+04 1.382e+04 1.24e+03 1.277e+03
     Attributes:
-        date: 2000-01-01
+        date: 2000-12-31
         author: A Person
     
     >>> ds.pop
@@ -418,7 +418,7 @@ Variables have a special argument to ``read_csv``: ``parse_vars`` allows parsing
     >>> doc = io.StringIO('''
     ---
     author: A Person
-    date:   2000-01-01
+    date:   2000-12-31
     variables:
         pop: Population [millions]
         gdp: Product [2005 $Bn]
@@ -443,7 +443,7 @@ Variables have a special argument to ``read_csv``: ``parse_vars`` allows parsing
         gdp:       {u'description': 'Product', u'unit': '2005 $Bn'}
         pop:       {u'description': 'Population', u'unit': 'millions'}
     Attributes
-        date:      2000-01-01
+        date:      2000-12-31
         author:    A Person
 
 Coordinates
@@ -461,7 +461,7 @@ index handling:
     >>> doc = io.StringIO('''
     ---
     author: A Person
-    date:   2000-01-01
+    date:   2000-12-31
     variables:
         pop:
           name: Population
@@ -497,7 +497,7 @@ index handling:
         gdp:       OrderedDict([('name', 'Product'), ('unit', '2005 $Bn')])
         pop:       OrderedDict([('name', 'Population'), ('unit', 'millions')])
     Attributes
-        date:      2000-01-01
+        date:      2000-12-31
         author:    A Person
 
 
@@ -517,7 +517,7 @@ and ``year`` are orthoganal:
         pop      (region, year) float64 309.3 311.7 34.0 34.3
         gdp      (region, year) float64 1.36e+04 1.382e+04 1.24e+03 1.277e+03
     Attributes:
-        date: 2000-01-01
+        date: 2000-12-31
         author: A Person
 
 This becomes more complicated when columns in the index are not independent and 
