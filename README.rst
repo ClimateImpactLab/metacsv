@@ -3,15 +3,23 @@ MetaCSV
 =======
 
 
-.. image:: https://travis-ci.org/delgadom/metacsv.svg?branch=master
+.. image:: https://img.shields.io/travis/delgadom/metacsv/master.svg?style=flat-square
     :target: https://travis-ci.org/delgadom/metacsv
 
-.. image:: https://badge.fury.io/py/metacsv.svg
-    :target: https://badge.fury.io/py/metacsv
+.. image:: https://img.shields.io/pypi/v/metacsv.svg?style=flat-square
+    :target: https://pypi.python.org/pypi/MetaCSV
 
-.. image:: https://coveralls.io/repos/github/delgadom/metacsv/badge.svg?branch=master 
+.. image:: https://img.shields.io/coveralls/delgadom/metacsv/master.svg?style=flat-square
     :target: https://coveralls.io/github/delgadom/metacsv?branch=master
 
+.. image:: https://img.shields.io/pypi/pyversions/metacsv.svg?style=flat-square
+    :target: https://pypi.python.org/pypi/MetaCSV
+
+.. image:: https://anaconda.org/delgadom/metacsv/badges/version.svg
+    :target: https://anaconda.org/delgadom/metacsv
+
+.. image:: https://anaconda.org/delgadom/metacsv/badges/downloads.svg
+    :target: https://anaconda.org/delgadom/metacsv
 
 ``metacsv`` - Tools for documentation-aware data reading, writing, and analysis
 
