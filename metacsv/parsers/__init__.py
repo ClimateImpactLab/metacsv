@@ -1,1 +1,0 @@
-from metacsv.parsers.header import read_csv

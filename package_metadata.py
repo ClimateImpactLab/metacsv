@@ -25,7 +25,8 @@ class Package_Metadata(dict):
         if mo:
             return mo.group(1)
         else:
-            raise RuntimeError("Unable to find version string in %s." % (package_file,))
+            raise RuntimeError(
+                "Unable to find version string in %s." % (package_file,))
 
     def refresh(self, attributes):
 

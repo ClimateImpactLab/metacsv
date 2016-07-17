@@ -3,6 +3,8 @@ dependencies:
   - python=3.4
   - bottleneck
   - pytest
+  - h5py
+  - netcdf4
   - pandas
   - xarray>0.7
   - pyyaml

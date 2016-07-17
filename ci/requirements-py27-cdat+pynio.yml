@@ -8,6 +8,8 @@ dependencies:
   - dask
   - pytest
   - numpy
+  - h5py
+  - netcdf4
   - pandas>=0.15.0
   - pynio
   - scipy

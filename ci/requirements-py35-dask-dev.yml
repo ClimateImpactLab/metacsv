@@ -3,6 +3,8 @@ dependencies:
   - python=3.5
   - cython
   - pytest
+  - h5py
+  - netcdf4
   - numpy
   - pandas
   - scipy

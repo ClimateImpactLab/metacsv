@@ -15,14 +15,17 @@ if PY2:
     text_to_native = lambda s, enc: s.encode(enc)
 
     has_iterkeys = lambda d: hasattr(d, 'iterkeys')
+    has_iteritems = lambda d: hasattr(d, 'iteritems')
     iterkeys = lambda d: d.iterkeys()
     itervalues = lambda d: d.itervalues()
     iteritems = lambda d: d.iteritems()
 
-    from cStringIO import StringIO as BytesIO
+    from cStringIO import StringIO as BytesIO, InputType
     from StringIO import StringIO
     import cPickle as pickle
     import ConfigParser as configparser
+
+    stream_types = (StringIO, InputType)
 
     from itertools import izip, imap
     range_type = xrange
@@ -47,6 +50,7 @@ else:
     text_to_native = lambda s, enc: s
 
     has_iterkeys = lambda d: hasattr(d, 'keys')
+    has_iteritems = lambda d: hasattr(d, 'items')
     iterkeys = lambda d: iter(d.keys())
     itervalues = lambda d: iter(d.values())
     iteritems = lambda d: iter(d.items())
@@ -54,6 +58,8 @@ else:
     from io import StringIO, BytesIO
     import pickle
     import configparser
+
+    stream_types = (StringIO, BytesIO)
 
     izip = zip
     imap = map
