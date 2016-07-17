@@ -3,8 +3,8 @@ MetaCSV
 =======
 
 
-.. image:: https://travis-ci.org/delgadom/metacsv.svg?branch=master
-    :target: https://travis-ci.org/delgadom/metacsv
+.. image:: https://travis-ci.org/ClimateImpactLab/metacsv.svg?branch=master
+    :target: https://travis-ci.org/ClimateImpactLab/metacsv
 
 .. image:: https://badge.fury.io/py/metacsv.svg
     :target: https://badge.fury.io/py/metacsv
