@@ -18,6 +18,9 @@ import shutil
 import json
 import subprocess
 import locale
+import hashlib
+
+from collections import OrderedDict
 
 import metacsv
 from . import unittest
@@ -374,8 +377,8 @@ class MetacsvTestCase(unittest.TestCase):
 
     def test_converters(self):
 
-        tmpfile = os.path.join(self.test_tmp_prefix, 'test_write_1.csv')
-        tmpnc = os.path.join(self.test_tmp_prefix, 'test_write_1.nc')
+        tmpfile = os.path.join(self.test_tmp_prefix, 'test_write_2.csv')
+        tmpnc = os.path.join(self.test_tmp_prefix, 'test_write_2.nc')
 
         df = pd.DataFrame(np.random.random((3,4)), columns=list('abcd'))
         df.index.names = ['ind']
@@ -444,6 +447,37 @@ class MetacsvTestCase(unittest.TestCase):
         metacsv.to_netcdf(tmpfile, tmpnc)
         with xr.open_dataset(tmpnc) as ds:
             self.assertEqual(ds.col1.attrs['unit'], 'digits')
+
+    def test_to_csv(self):
+
+        get_hash = lambda fp: hashlib.sha256(open(fp, 'rb').read()).digest()
+
+        tmpfile1 = os.path.join(self.test_tmp_prefix, 'test_write_a.csv')
+        tmpfile2 = os.path.join(self.test_tmp_prefix, 'test_write_b.csv')
+
+        df = metacsv.read_csv(os.path.join(self.testdata_prefix, 'test1.csv'))
+        df.attrs = OrderedDict(df.attrs)
+
+        df.to_csv(tmpfile1)
+        metacsv.to_csv(df, tmpfile2)
+
+        self.assertEqual(get_hash(tmpfile1), get_hash(tmpfile2))
+
+        df.to_csv(tmpfile1, attrs={'author': 'New Person'})
+        metacsv.to_csv(df, tmpfile2, attrs={'author': 'New Person'})
+
+        get_auth = lambda fp: metacsv.read_csv(fp).attrs.get('author', None)
+
+        self.assertEqual(get_auth(tmpfile1), get_auth(tmpfile2))
+        self.assertEqual(get_auth(tmpfile1), 'New Person')
+
+        df.to_csv(tmpfile1, attrs={'author 2': 'Another Person'})
+        metacsv.to_csv(df, tmpfile2, attrs={'author 2': 'Another Person'})
+
+        get_auth2 = lambda fp: metacsv.read_csv(fp).attrs.get('author 2', None)
+
+        self.assertEqual(get_auth2(tmpfile1), get_auth2(tmpfile2))
+        self.assertEqual(get_auth2(tmpfile1), 'Another Person')
 
 
     def test_assertions(self):
