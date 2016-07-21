@@ -426,7 +426,10 @@ class Coordinates(object):
 
     def update(self, coords=None):  # This needs some testing!!
 
+        use_self = False
+
         if coords is None:
+            use_self = True
             coords = self._coords
 
         if coords is None:
@@ -434,9 +437,14 @@ class Coordinates(object):
                 raise ValueError(
                     'Cannot update coordinates from data unless assigned to a container')
 
+            self._prune()
             coords, base_coords, base_dependencies = self._get_coords_from_data()
+        else:
+            previous_num_coords = len(coords)
+            self._prune()
+            if previous_num_coords != len(coords):
+                coords, base_coords, base_dependencies = self._get_coords_from_data()
 
-        self._prune()
 
         if (not hasattr(self, '_coords')) or self._coords is None:
             _coords = OrderedDict()
@@ -488,10 +496,18 @@ class Coordinates(object):
         if container is None:
             return
 
+        previous_num_coords = len(coords)
+
         available_coords = self._get_available_coords(container)
         for c in coords:
             if c not in available_coords:
                 coords.pop(c)
+
+        if len(coords) != previous_num_coords:
+            if coords is self._coords:
+                self._coords = None
+                self._base_coords = None
+                self._base_dependencies = None
 
         return coords
 
@@ -539,14 +555,14 @@ class Container(object):
     def coords(self):
         '''Coordinates property of a metacsv Container'''
         if not hasattr(self, '_coords'):
-            self._coords = Coordinates()
+            self._coords = Coordinates({}, container=self)
 
         return self._coords
 
     @coords.setter
     def coords(self, value):
         if value is None:
-            self._coords = Coordinates()
+            self._coords = Coordinates(container=self)
         else:
             self._coords = Coordinates(value, container=self)
 
@@ -557,7 +573,7 @@ class Container(object):
     @property
     def base_coords(self):
         if not hasattr(self, '_coords'):
-            self.coords = Coordinates()
+            self.coords = Coordinates(container=self)
 
         if self.coords == None:
             return None
@@ -568,7 +584,7 @@ class Container(object):
 
     @property
     def attrs(self):
-        '''Coordinates property of a metacsv Container'''
+        '''Attributes property of a metacsv Container'''
         if not hasattr(self, '_attrs'):
             self._attrs = Attributes()
 
@@ -589,7 +605,7 @@ class Container(object):
 
     @property
     def variables(self):
-        '''Coordinates property of a metacsv Container'''
+        '''Variables property of a metacsv Container'''
         if not hasattr(self, '_variables'):
             self._variables = Variables()
 
@@ -703,7 +719,7 @@ class Container(object):
         '''
         to_csv.metacsv_to_csv(self, fp, header_file=None, *args, **kwargs)
 
-    def to_header(self, fp):
+    def to_header(self, fp, *args, **kwargs):
         '''
         Write attributes directly to a metacsv-formatted header file
 
@@ -717,7 +733,7 @@ class Container(object):
         >>> df.to_header('mycsv.header')
         '''
 
-        to_csv.metacsv_to_header(fp, attrs=self.attrs, coords=self.coords, variables=self.variables)
+        to_csv.metacsv_to_header(fp, attrs=self.attrs, coords=self.coords, variables=self.variables, *args, **kwargs)
 
     def to_pandas(self):
         '''

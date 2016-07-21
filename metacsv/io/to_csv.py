@@ -1,6 +1,7 @@
 
 from collections import OrderedDict
 from .yaml_tools import ordered_dump
+from .tools import _parse_args
 from .._compat import string_types, has_iterkeys, iterkeys, text_type, text_to_native
 
 
@@ -27,23 +28,25 @@ def _container_to_csv_object(container, fp, *args, **kwargs):
     encoding = kwargs.pop('encoding', 'utf-8')
     container.pandas_parent.to_csv(container, fp, *args, encoding=encoding, **kwargs)
 
-def metacsv_to_csv(container, fp, header_file=None, *args, **kwargs):
+def metacsv_to_csv(container, fp, attrs=None, coords=None, variables=None, header_file=None, *args, **kwargs):
     separate_header = False
+
+    attrs, coords, variables = _parse_args(container, attrs, coords, variables, inplace=False)
 
     if (header_file is not None) and (header_file != fp):
         separate_header = True
     
     if separate_header:
-        metacsv_to_header(header_file, attrs=container.attrs, coords=container.coords, variables=container.variables)
+        metacsv_to_header(header_file, attrs=attrs, coords=coords, variables=variables)
 
     if isinstance(fp, string_types):
         with open(text_type(fp), 'w+') as fp2:
             if not separate_header:
-                _header_to_file_object(fp2, attrs=container.attrs, coords=container.coords, variables=container.variables)
+                _header_to_file_object(fp2, attrs=attrs, coords=coords, variables=variables)
             _container_to_csv_object(container, fp2, *args, **kwargs)
     else:
         if not separate_header:
-            _header_to_file_object(fp, attrs=container.attrs, coords=container.coords, variables=container.variables)
+            _header_to_file_object(fp, attrs=attrs, coords=coords, variables=variables)
         _container_to_csv_object(container, fp, *args, **kwargs)
 
 def metacsv_to_header(fp, attrs=None, coords=None, variables=None):

@@ -1,5 +1,5 @@
 '''
-Utilities for converting between metacsv-compatible data formats
+Public methods for converting between metacsv-compatible data formats
 '''
 
 from __future__ import absolute_import, division, print_function, \
@@ -12,9 +12,12 @@ from collections import OrderedDict
 from .to_xarray import metacsv_series_to_dataarray, metacsv_series_to_dataset, metacsv_dataframe_to_dataset, metacsv_dataframe_to_dataarray
 from .to_csv import metacsv_to_csv, metacsv_to_header, _header_to_file_object
 from .parsers import read_csv
+from .tools import _parse_args
 from ..core.containers import Series, DataFrame, Panel
 from ..core.internals import Coordinates, Variables, Attributes
 from .._compat import string_types, stream_types, BytesIO, StringIO
+
+
 
 
 def _coerce_to_metacsv(container, *args, **kwargs):
@@ -34,28 +37,6 @@ def _coerce_to_metacsv(container, *args, **kwargs):
                 'Unknown data type. Must be a Series, DataFrame, or Panel')
 
     return container
-
-
-def _parse_args(container, attrs, coords, variables):
-
-    if attrs is not None:
-        if hasattr(container, 'attrs') and container.attrs == None:
-            container.attrs = attrs
-        else:
-            container.attrs.update(attrs)
-
-    if coords is not None:
-        if hasattr(container, 'coords') and container.coords == None:
-            container.add_coords()
-            container.coords = coords
-        else:
-            container.coords.update(coords)
-
-    if variables is not None:
-        if hasattr(container, 'variables') and container.variables == None:
-            container.variables = variables
-        else:
-            container.variables.update(variables)
 
 
 def to_dataset(container, attrs=None, coords=None, variables=None, *args, **kwargs):
@@ -96,7 +77,7 @@ def to_dataset(container, attrs=None, coords=None, variables=None, *args, **kwar
     '''
 
     container = _coerce_to_metacsv(container, *args, **kwargs)
-    _parse_args(container, attrs, coords, variables)
+    _parse_args(container, attrs, coords, variables, inplace=True)
 
     if len(container.shape) == 1:
         return metacsv_series_to_dataset(container)
@@ -143,7 +124,7 @@ def to_dataarray(container, attrs=None, coords=None, variables=None, *args, **kw
     '''
 
     container = _coerce_to_metacsv(container, *args, **kwargs)
-    _parse_args(container, attrs, coords, variables)
+    _parse_args(container, attrs, coords, variables, inplace=True)
 
     if len(container.shape) == 1:
         return metacsv_series_to_dataarray(container)
@@ -210,7 +191,7 @@ def to_xarray(container, attrs=None, coords=None, variables=None, *args, **kwarg
     '''
 
     container = _coerce_to_metacsv(container, *args, **kwargs)
-    _parse_args(container, attrs, coords, variables)
+    _parse_args(container, attrs, coords, variables, inplace=True)
 
     if len(container.shape) == 1:
         return to_dataarray(container)
@@ -338,7 +319,7 @@ def to_csv(container, fp, attrs=None, coords=None, variables=None, header_file=N
     '''
 
     container = _coerce_to_metacsv(container, header_file=header_file).copy()
-    _parse_args(container, attrs, coords, variables)
+    _parse_args(container, attrs, coords, variables, inplace=True)
     metacsv_to_csv(container, fp, *args, **kwargs)
 
 
@@ -365,7 +346,7 @@ def to_header(fp, container=None, attrs=None, coords=None, variables=None, *args
 
     if container is not None:
         container = _coerce_to_metacsv(container, *args, **kwargs).copy()
-        _parse_args(container, attrs, coords, variables)
+        _parse_args(container, attrs, coords, variables, inplace=True)
         attrs = container.attrs
         coords = container.coords
         variables = container.variables
