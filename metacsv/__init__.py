@@ -23,6 +23,7 @@ from .__about__ import (
 from .core import *
 
 from .io.parsers import (
+    read_header,
     read_csv,
     read_pickle)
 
