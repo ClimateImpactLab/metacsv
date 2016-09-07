@@ -617,35 +617,6 @@ Feature Requests
 * Eventually? add xml, SQL, other structured syntax language conversions
 
 
-
-
-==============  ==========================================================
-Python support  Python 2.7, >= 3.3
-Source          https://github.com/delgadom/metacsv
-Docs            http://metacsv.rtfd.org
-Changelog       http://metacsv.readthedocs.org/en/latest/history.html
-API             http://metacsv.readthedocs.org/en/latest/api.html
-Issues          https://github.com/delgadom/metacsv/issues
-Travis          http://travis-ci.org/delgadom/metacsv
-Test coverage   https://coveralls.io/r/delgadom/metacsv
-pypi            https://pypi.python.org/pypi/metacsv
-Ohloh           https://www.ohloh.net/p/metacsv
-License         `BSD`_.
-git repo        .. code-block:: bash
-
-                    $ git clone https://github.com/delgadom/metacsv.git
-install dev     .. code-block:: bash
-
-                    $ git clone https://github.com/delgadom/metacsv.git metacsv
-                    $ cd ./metacsv
-                    $ virtualenv .env
-                    $ source .env/bin/activate
-                    $ pip install -e .
-tests           .. code-block:: bash
-
-                    $ python setup.py test
-==============  ==========================================================
-
 .. _BSD: http://opensource.org/licenses/BSD-3-Clause
 .. _Documentation: http://metacsv.readthedocs.org/en/latest/
 .. _API: http://metacsv.readthedocs.org/en/latest/api.html
