@@ -1,17 +1,12 @@
 .. _api:
 
-===
-API
-===
+===========
+MetaCSV API
+===========
 
-.. automodule:: metacsv
-    :members:
 
-    .. autoclass:: Series
-        :members:
 
-    .. autoclass:: DataFrame
-        :members:
+.. toctree::
+   :maxdepth: 4
 
-    .. autoclass:: Panel
-        :members:
+   metacsv
