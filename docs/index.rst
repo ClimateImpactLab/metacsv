@@ -19,7 +19,7 @@ Contents:
    roadmap
    history
 
-.. include:: ../README.rst
+.. include:: ../overview.rst
     :start-line: 23
 
 Indices and tables
