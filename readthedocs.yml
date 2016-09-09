@@ -1,0 +1,5 @@
+onda:
+    file: docs/requirements.yml
+python:
+   version: 2
+   setup_py_install: true
