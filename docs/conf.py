@@ -23,21 +23,21 @@ import sphinx_rtd_theme
 sys.path.insert(0, os.path.abspath('../'))
 
 # Get the project root dir, which is the parent dir of this
-cwd = os.getcwd()
-project_root = os.path.dirname(cwd)
+# cwd = os.getcwd()
+# project_root = os.path.dirname(cwd)
 
-# Insert the project root dir as the first element in the PYTHONPATH.
-# This lets us ensure that the source package is imported, and that its
-# version is used.
-sys.path.insert(0, project_root)
+# # Insert the project root dir as the first element in the PYTHONPATH.
+# # This lets us ensure that the source package is imported, and that its
+# # version is used.
+# sys.path.insert(0, project_root)
 
-# package data
-about = {}
-with open("../metacsv/__about__.py") as fp:
-    exec(fp.read(), about)
+# # package data
+# about = {}
+# with open("../metacsv/__about__.py") as fp:
+#     exec(fp.read(), about)
 
 
-import metacsv
+# import metacsv
 
 # -- General configuration -----------------------------------------------
 
