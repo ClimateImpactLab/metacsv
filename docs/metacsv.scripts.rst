@@ -1,11 +1,17 @@
-metacsv.scripts package
-=======================
+MetaCSV Script Utilities
+========================
 
-Submodules
-----------
 
-.. toctree::
+.. automodule:: metacsv.scripts.convert
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
-   metacsv.scripts.convert
-   metacsv.scripts.version
+
+.. automodule:: metacsv.scripts.version
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 

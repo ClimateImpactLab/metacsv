@@ -1,5 +1,5 @@
-metacsv.scripts.convert module
-==============================
+metacsv.scripts.convert 
+=======================
 
 .. automodule:: metacsv.scripts.convert
     :members:

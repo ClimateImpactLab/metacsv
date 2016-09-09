@@ -6,12 +6,14 @@ API
 
 .. automodule:: metacsv
     :members:
+    :undoc-members:
 
-    .. autoclass:: Series
-        :members:
+.. autoclass:: Series
+    :members:
 
-    .. autoclass:: DataFrame
-        :members:
+.. autoclass:: DataFrame
+    :members:
 
-    .. autoclass:: Panel
-        :members:
+.. autoclass:: Panel
+    :members:
+ 

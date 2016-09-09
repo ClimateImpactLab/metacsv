@@ -1,5 +1,5 @@
-metacsv.scripts.version module
-==============================
+metacsv.scripts.version 
+=======================
 
 .. automodule:: metacsv.scripts.version
     :members:

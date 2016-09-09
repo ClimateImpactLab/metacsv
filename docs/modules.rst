@@ -1,7 +1,9 @@
-metacsv
-=======
+
+
 
 .. toctree::
-   :maxdepth: 4
 
-   metacsv
+    metacsv.core
+    metacsv.io
+    metacsv.scripts
+    metacsv.testsuite

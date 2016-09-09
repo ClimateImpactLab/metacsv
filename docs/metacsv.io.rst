@@ -1,15 +1,12 @@
-metacsv.io package
-==================
+MetaCSV IO Utilities
+====================
 
-Submodules
-----------
 
 .. toctree::
 
-   metacsv.io.converters
-   metacsv.io.parsers
-   metacsv.io.to_csv
-   metacsv.io.to_xarray
-   metacsv.io.yaml_tools
+    metacsv.io.parsers
+    metacsv.io.converters
+
+
 
 

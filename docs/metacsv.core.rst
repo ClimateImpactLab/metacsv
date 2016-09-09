@@ -1,12 +1,18 @@
-metacsv.core package
+metaCSV Core Utitlities
 ====================
 
-Submodules
-----------
 
-.. toctree::
+.. automodule:: metacsv
+    :members:
 
-   metacsv.core.containers
-   metacsv.core.exceptions
-   metacsv.core.internals
+.. autoclass:: Series
+    :members:
+
+.. autoclass:: DataFrame
+    :members:
+
+.. autoclass:: Panel
+    :members:
+
+
 
