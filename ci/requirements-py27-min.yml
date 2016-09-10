@@ -4,7 +4,7 @@ dependencies:
   - pytest
   - h5py
   - netcdf4
-  - numpy==1.9.3
+  - numpy
   - pandas==0.15.0
   - xarray>0.7
   - pyyaml
