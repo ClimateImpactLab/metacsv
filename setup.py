@@ -37,7 +37,7 @@ if sys.argv[-1] == 'info':
         print('%s: %s' % (k, v))
     sys.exit()
 
-readme = open('README.rst').read()
+readme = open('overview.rst').read()
 history = open('CHANGES').read().replace('.. :changelog:', '')
 
 setup(
