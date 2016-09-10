@@ -198,7 +198,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = '%sdoc' % about['__title__']
+htmlhelp_basename = 'MetaCSV'
 
 
 # -- Options for LaTeX output --------------------------------------------
@@ -217,8 +217,8 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ('index', '{0}.tex'.format(about['__package_name__']), '{0} Documentation'.format(about['__title__']),
-     about['__author__'], 'manual'),
+    ('index', 'MetaCSV.tex', u'MetaCSV Documentation',
+     u'MetaCSV Developers', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -247,8 +247,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', about['__package_name__'], '{0} Documentation'.format(about['__title__']),
-     about['__author__'], 1),
+    ('index', 'MetaCSV', u'MetaCSV Documentation',
+     [u'MetaCSV Developers'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -261,8 +261,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', '{0}'.format(about['__package_name__']), '{0} Documentation'.format(about['__title__']),
-     about['__author__'], about['__package_name__'], about['__description__'], 'Miscellaneous'),
+  ('index', 'MetaCSV', u'MetaCSV Documentation',
+   u'MetaCSV Developers', 'MetaCSV', 'One line description of project.',
+   'Miscellaneous'),
 ]
 
 # Documents to append as an appendix to all manuals.
