@@ -1,4 +1,4 @@
-
+'Get the version number from a MetaCSV-formatted CSV file'
 
 from __future__ import (
     absolute_import,
@@ -20,7 +20,7 @@ def get_version(readfile):
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        'Get the version number from a MetaCSV-formatted CSV file')
+        __doc__)
     parser.add_argument('readfile', help='Input CSV file to read')
 
     return parser
