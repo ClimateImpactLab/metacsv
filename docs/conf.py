@@ -65,9 +65,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'openest'
-copyright = u'2016, Author'
-author = u'Author'
+project = u'MetaCSV'
+copyright = u'2016, Michael Delgado'
+author = u'Michael Delgado'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
