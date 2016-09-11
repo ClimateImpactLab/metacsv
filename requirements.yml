@@ -1,3 +1,4 @@
+#this requirements.yml file is intended for the RTD build. 
 name: metacsv-docs
 dependencies:
   - python=2.7
