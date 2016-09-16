@@ -25,7 +25,7 @@ MetaCSV
 
 See the full documentation at ReadTheDocs_ 
 
-.. _ReadTheDocs: http://cli-metacsv.rtfd.io
+.. _ReadTheDocs: http://metacsv.rtfd.io
 
 Overview
 =========
