@@ -1,13 +1,3 @@
-name: metacsv-docs
-dependencies:
-  - python=2.7
-  - pytest
-  - h5py
-  - netcdf4
-  - numpy==1.9.3
-  - pandas==0.15.0
-  - xarray>0.7
-  - pyyaml
-  - pip:
-    - coveralls
-    - pytest-cov
+-r ../requirements.txt
+changelog
+sphinx

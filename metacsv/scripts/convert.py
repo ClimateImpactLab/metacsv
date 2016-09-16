@@ -1,3 +1,4 @@
+'Convert MetaCSV-compliant files to other file types'
 
 from __future__ import (
     absolute_import,
@@ -25,7 +26,7 @@ def _to_csv(fp, writefile=None, *args, **kwargs):
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        'Convert MetaCSV-compliant files to other file types')
+        __doc__)
     parser.add_argument(
         'action', help='type of file to be written (netcdf, csv)')
     parser.add_argument('readfile', help='Input CSV file to read')

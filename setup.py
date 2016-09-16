@@ -16,7 +16,7 @@ with open("metacsv/__about__.py") as fp:
 
 
 install_reqs = [
-    'pandas>=0.17',
+    'pandas==0.17',
     'numpy>=1.10',
     'xarray>=0.7',
     'pyyaml',
@@ -37,7 +37,7 @@ if sys.argv[-1] == 'info':
         print('%s: %s' % (k, v))
     sys.exit()
 
-readme = open('README.rst').read()
+readme = open('overview.rst').read()
 history = open('CHANGES').read().replace('.. :changelog:', '')
 
 setup(

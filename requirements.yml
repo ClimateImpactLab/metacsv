@@ -1,0 +1,16 @@
+#this requirements.yml file is intended for the RTD build. 
+name: metacsv-docs
+dependencies:
+  - python=2.7
+  - pytest
+  - h5py
+  - netcdf4
+  - numpy=1.10
+  - pandas=0.17.0
+  - numpydoc=0.5
+  - xarray>0.7
+  - pyyaml
+  - sphinx=1.3.1
+  - pip:
+    - coveralls
+    - pytest-cov
