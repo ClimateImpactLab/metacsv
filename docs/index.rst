@@ -13,7 +13,7 @@ Contents:
 
    installation
    usage
-   api
+   metacsv
    contributing
    authors
    roadmap

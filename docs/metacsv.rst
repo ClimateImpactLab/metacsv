@@ -1,4 +1,4 @@
-metaCSV
+metacsv package
 ===============
 
 Subpackages
@@ -11,4 +11,10 @@ Subpackages
     metacsv.scripts
     metacsv.testsuite
 
+Module contents
+---------------
 
+.. automodule:: metacsv
+    :members:
+    :undoc-members:
+    :show-inheritance:

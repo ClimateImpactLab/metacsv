@@ -4,21 +4,18 @@ Changelog
 
 Here you can find the recent changes to MetaCSV..
 
-.. changelog::
-    :version: dev
-    :released: Ongoing
+version dev
+-----------
 
-    .. change::
-        :tags:  docs
+released Ongoing
 
-        Updated CHANGES.
+Updated CHANGES.
 
-.. changelog::
-    :version: 0.0.1
-    :released: 2016-05-04
 
-    .. change::
-        :tags: project
+version 0.0.1
+-------------
 
-        First release on PyPi.
+released 2016-05-04
+
+First release on PyPi.
 

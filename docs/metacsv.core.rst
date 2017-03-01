@@ -1,18 +1,38 @@
-metaCSV Core Utitlities
+metacsv.core package
 ====================
 
+Submodules
+----------
 
-.. automodule:: metacsv
+metacsv.core.containers module
+------------------------------
+
+.. automodule:: metacsv.core.containers
     :members:
+    :undoc-members:
+    :show-inheritance:
 
-.. autoclass:: Series
+metacsv.core.exceptions module
+------------------------------
+
+.. automodule:: metacsv.core.exceptions
     :members:
+    :undoc-members:
+    :show-inheritance:
 
-.. autoclass:: DataFrame
+metacsv.core.internals module
+-----------------------------
+
+.. automodule:: metacsv.core.internals
     :members:
+    :undoc-members:
+    :show-inheritance:
 
-.. autoclass:: Panel
+
+Module contents
+---------------
+
+.. automodule:: metacsv.core
     :members:
-
-
-
+    :undoc-members:
+    :show-inheritance:
