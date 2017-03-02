@@ -23,18 +23,18 @@ import sphinx_rtd_theme
 sys.path.insert(0, os.path.abspath('../'))
 
 # Get the project root dir, which is the parent dir of this
-# cwd = os.getcwd()
-# project_root = os.path.dirname(cwd)
+cwd = os.getcwd()
+project_root = os.path.dirname(cwd)
 
-# # Insert the project root dir as the first element in the PYTHONPATH.
-# # This lets us ensure that the source package is imported, and that its
-# # version is used.
-# sys.path.insert(0, project_root)
+# Insert the project root dir as the first element in the PYTHONPATH.
+# This lets us ensure that the source package is imported, and that its
+# version is used.
+sys.path.insert(0, project_root)
 
-# # package data
-# about = {}
-# with open("../metacsv/__about__.py") as fp:
-#     exec(fp.read(), about)
+# package data
+about = {}
+with open("../metacsv/__about__.py") as fp:
+    exec(fp.read(), about)
 
 
 # import metacsv
@@ -49,7 +49,9 @@ sys.path.insert(0, os.path.abspath('../'))
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
-    'sphinx.ext.todo'
+    'sphinx.ext.todo',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.intersphinx'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -152,7 +154,7 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+# html_static_path = ['_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -276,8 +278,11 @@ texinfo_documents = [
 #texinfo_no_detailmenu = False
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'http://docs.python.org/': None,
-                       'pip': ('http://sphinx.readthedocs.org/en/latest/', None)}
+intersphinx_mapping = {
+    'http://docs.python.org/': None,
+   'pip': ('http://sphinx.readthedocs.org/en/latest/', None),
+   'xarray': ('http://xarray.pydata.org/en/stable/', None),
+   'pandas': ('http://pandas.pydata.org/pandas-docs/stable/', None)}
 
 # section names - optional
 changelog_sections = ["general", "rendering", "tests", "docs"]

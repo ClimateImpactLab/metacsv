@@ -112,30 +112,34 @@ def read_header(fp, header_file=None, parse_vars=False, assertions=None, *args, 
         >>> import metacsv
         >>> import StringIO as io # import io for python 3
         >>> doc = io.StringIO('''
-        ---
-        author: A Person
-        date:   2000-01-01
-        variables:
-            pop:
-              name: Population
-              unit: millions
-            gdp:
-              name: Product
-              unit: 2005 $Bn
-        ...
-        other data, not csv-formatted
-        ''')
+        ... ---
+        ... author: A Person
+        ... date:   2000-01-01
+        ... variables:
+        ...     pop:
+        ...       name: Population
+        ...       unit: millions
+        ...     gdp:
+        ...       name: Product
+        ...       unit: 2005 $Bn
+        ... ...
+        ... other data, not csv-formatted
+        ... ''')
 
         >>> attrs, coords, variables = metacsv.read_header(doc, index_col=[0,1])
-        >>> variables
+        >>> variables # doctest: +NORMALIZE_WHITESPACE
         Variables
-            gdp:       OrderedDict([('name', 'Product'), ('unit', '2005 $Bn')])
-            pop:       OrderedDict([('name', 'Population'), ('unit', 'millions')])
+            gdp:
+                name            Product
+                unit            2005 $Bn
+            pop:
+                name            Population
+                unit            millions
 
-        >>> attrs
+        >>> attrs # doctest: +NORMALIZE_WHITESPACE
         Attributes
-            date:      2000-01-01
-            author:    A Person
+            author:         A Person
+            date:           2000-01-01
 
         >>> coords
         <Empty Coordinates>
@@ -147,25 +151,29 @@ def read_header(fp, header_file=None, parse_vars=False, assertions=None, *args, 
     Example:
 
         >>> doc = io.StringIO('''
-        ---
-        author: A Person
-        date:   2000-01-01
-        variables:
-            pop: Population [millions]
-            gdp: Product [2005 $Bn]
-        ...
-        region,year,pop,gdp
-        USA,2010,309.3,13599.3
-        USA,2011,311.7,13817.0
-        CAN,2010,34.0,1240.0
-        CAN,2011,34.3,1276.7
-        ''')
+        ... ---
+        ... author: A Person
+        ... date:   2000-01-01
+        ... variables:
+        ...     pop: Population [millions]
+        ...     gdp: Product [2005 $Bn]
+        ... ...
+        ... region,year,pop,gdp
+        ... USA,2010,309.3,13599.3
+        ... USA,2011,311.7,13817.0
+        ... CAN,2010,34.0,1240.0
+        ... CAN,2011,34.3,1276.7
+        ... ''')
         
-        >>> attrs, variables, coords = metacsv.read_header(doc, parse_vars=True)
-        >>> variables
+        >>> attrs, coords, variables = metacsv.read_header(doc, parse_vars=True)
+        >>> variables # doctest: +NORMALIZE_WHITESPACE
         Variables
-            gdp:       {u'description': 'Product', u'unit': '2005 $Bn'}
-            pop:       {u'description': 'Population', u'unit': 'millions'}
+            gdp:
+                description     Product
+                unit            2005 $Bn
+            pop:
+                description     Population
+                unit            millions
     """
 
     kwargs = dict(kwargs)
@@ -221,29 +229,29 @@ def read_csv(fp, header_file=None, parse_vars=False, assertions=None, *args, **k
 
     Example:
 
-        >>> import metacsv, numpy as np, 
+        >>> import metacsv, numpy as np
         >>> import StringIO as io # import io for python 3
         >>> doc = io.StringIO('''
-        ---
-        author: A Person
-        date:   2000-01-01
-        variables:
-            pop:
-              name: Population
-              unit: millions
-            gdp:
-              name: Product
-              unit: 2005 $Bn
-        ...
-        region,year,pop,gdp
-        USA,2010,309.3,13599.3
-        USA,2011,311.7,13817.0
-        CAN,2010,34.0,1240.0
-        CAN,2011,34.3,1276.7
-        ''')
+        ... ---
+        ... author: A Person
+        ... date:   2000-01-01
+        ... variables:
+        ...     pop:
+        ...       name: Population
+        ...       unit: millions
+        ...     gdp:
+        ...       name: Product
+        ...       unit: 2005 $Bn
+        ... ...
+        ... region,year,pop,gdp
+        ... USA,2010,309.3,13599.3
+        ... USA,2011,311.7,13817.0
+        ... CAN,2010,34.0,1240.0
+        ... CAN,2011,34.3,1276.7
+        ... ''')
 
         >>> df = metacsv.read_csv(doc, index_col=[0,1])
-        >>> df
+        >>> df # doctest: +NORMALIZE_WHITESPACE
         <metacsv.core.containers.DataFrame (4, 2)>
                        pop      gdp
         region year
@@ -251,13 +259,17 @@ def read_csv(fp, header_file=None, parse_vars=False, assertions=None, *args, **k
                2011  311.7  13817.0
         CAN    2010   34.0   1240.0
                2011   34.3   1276.7
-        
+        <BLANKLINE>
         Variables
-            gdp:       OrderedDict([('name', 'Product'), ('unit', '2005 $Bn')])
-            pop:       OrderedDict([('name', 'Population'), ('unit', 'millions')])
+            gdp:
+                name            Product
+                unit            2005 $Bn
+            pop:
+                name            Population
+                unit            millions
         Attributes
-            date:      2000-01-01
-            author:    A Person
+            author:         A Person
+            date:           2000-01-01
 
     **parse_vars**
 
@@ -266,21 +278,21 @@ def read_csv(fp, header_file=None, parse_vars=False, assertions=None, *args, **k
     Example:
 
         >>> doc = io.StringIO('''
-        ---
-        author: A Person
-        date:   2000-01-01
-        variables:
-            pop: Population [millions]
-            gdp: Product [2005 $Bn]
-        ...
-        region,year,pop,gdp
-        USA,2010,309.3,13599.3
-        USA,2011,311.7,13817.0
-        CAN,2010,34.0,1240.0
-        CAN,2011,34.3,1276.7
-        ''')
+        ... ---
+        ... author: A Person
+        ... date:   2000-01-01
+        ... variables:
+        ...     pop: Population [millions]
+        ...     gdp: Product [2005 $Bn]
+        ... ...
+        ... region,year,pop,gdp
+        ... USA,2010,309.3,13599.3
+        ... USA,2011,311.7,13817.0
+        ... CAN,2010,34.0,1240.0
+        ... CAN,2011,34.3,1276.7
+        ... ''')
         
-        >>> metacsv.read_csv(doc, index_col=0, parse_vars=True)
+        >>> metacsv.read_csv(doc, index_col=0, parse_vars=True) # doctest: +NORMALIZE_WHITESPACE
         <metacsv.core.containers.DataFrame (4, 3)>
                 year    pop      gdp
         region
@@ -288,13 +300,17 @@ def read_csv(fp, header_file=None, parse_vars=False, assertions=None, *args, **k
         USA     2011  311.7  13817.0
         CAN     2010   34.0   1240.0
         CAN     2011   34.3   1276.7
-        
+        <BLANKLINE>
         Variables
-            gdp:       {u'description': 'Product', u'unit': '2005 $Bn'}
-            pop:       {u'description': 'Population', u'unit': 'millions'}
+            gdp:
+                description     Product
+                unit            2005 $Bn
+            pop:
+                description     Population
+                unit            millions
         Attributes
-            date:      2000-01-01
-            author:    A Person
+            author:         A Person
+            date:           2000-01-01
     """
 
     kwargs = dict(kwargs)

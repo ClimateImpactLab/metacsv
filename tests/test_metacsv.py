@@ -20,18 +20,19 @@ import subprocess
 import locale
 
 import metacsv
-from . import unittest
-from . import helpers
+from metacsv._compat import text_type
 
-from .._compat import text_type
+from . import helpers
+import unittest
+
 
 class VersionError(ValueError):
     pass
 
 
 class MetacsvTestCase(unittest.TestCase):
-    testdata_prefix = 'metacsv/testsuite/test_data'
-    test_tmp_prefix = 'metacsv/testsuite/tmp'
+    testdata_prefix = 'tests/test_data'
+    test_tmp_prefix = 'tests/tmp'
 
     def setUp(self):
         if not os.path.isdir(self.test_tmp_prefix):

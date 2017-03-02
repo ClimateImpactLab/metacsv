@@ -7,7 +7,7 @@ from __future__ import (
     unicode_literals
 )
 
-from .._compat import text_type, string_types, PY2, reraise
+from metacsv._compat import text_type, string_types, PY2, reraise
 
 try:
     import unittest2 as unittest

@@ -4,10 +4,22 @@ metacsv.testsuite package
 Submodules
 ----------
 
-.. toctree::
+metacsv.testsuite.helpers module
+--------------------------------
 
-   metacsv.testsuite.helpers
-   metacsv.testsuite.test_metacsv
+.. automodule:: metacsv.testsuite.helpers
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+metacsv.testsuite.test_metacsv module
+-------------------------------------
+
+.. automodule:: metacsv.testsuite.test_metacsv
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

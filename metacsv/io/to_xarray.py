@@ -14,17 +14,20 @@ xr = None
 def _import_xarray():
     global xr
     if xr is None:
-        try:
-            import xarray as xr
-        except ImportError:
-            raise ImportError(
-                'Cannot send to xarray - xarray library not found. See http://xarray.pydata.org/')
+        import xarray as xr
 
 
 def _check_series_unique(series):
     def check_unique(group):
-        assert len(group.drop_duplicates()) == 1, "Data not uniquely indexed for base coords: ({})".format(
-            group.name if isinstance(group.name, string_types) else ','.join(group.name))
+        try:
+            name = group.name if isinstance(group.name, string_types) else ','.join(group.name)
+        except TypeError:
+            name = group.name
+
+        msg = "Data not uniquely indexed for base coords: ({})".format(name)
+
+        if len(group.drop_duplicates()) != 1:
+            raise ValueError(msg)
 
     if len(series.index.names) > 1:
         series.groupby(level=series.index.names).apply(check_unique)
@@ -158,13 +161,23 @@ def metacsv_dataframe_to_dataarray(dataframe, names=None, attrs=None):
     if xr is None:
         _import_xarray()
 
+    dataframe = dataframe.copy()
+
     if attrs is None:
         attrs = dataframe.attrs
 
     coords = dataframe.coords.copy()
 
-    dataframe.columns.names = [str(c) if not pd.isnull(c) else 'coldim_{}'.format(
-        i) for i, c in enumerate(dataframe.columns.names)]
+    dataframe.index.names = [
+        str(ind) if not pd.isnull(ind) else 'ind_{}'.format(i)
+            for i, ind in enumerate(dataframe.index.names)]
+
+    if dataframe.coords == None:
+        coords.update({c: None for c in dataframe.index.names})
+
+    dataframe.columns.names = [
+        str(c) if not pd.isnull(c) else 'coldim_{}'.format(i)
+            for i, c in enumerate(dataframe.columns.names)]
 
     colnames = dataframe.columns.names
     series = dataframe._constructor_sliced(dataframe.stack(colnames))
