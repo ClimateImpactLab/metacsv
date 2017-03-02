@@ -67,9 +67,9 @@ install:
 
 script:
   - if [[ "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then
-      pytest metacsv;
+      pytest metacsv tests --doctest-modules;
     else
-      pytest metacsv --cov=metacsv --cov-report term-missing;
+      pytest metacsv tests --doctest-modules --cov=metacsv --cov-report term-missing;
     fi
 
 after_success:
