@@ -22,14 +22,20 @@ install_reqs = [
     'pyyaml',
     'netCDF4']
 
-tests_reqs = install_reqs + ['pytest >= 2.7.1']
+tests_reqs = install_reqs + [
+    'pytest >= 2.7.1',
+    'pytest-runner']
+
+extras = {
+    'test': tests_reqs
+}
 
 if sys.version_info < (2, 7):
     install_reqs += ['argparse']
     tests_reqs += ['unittest2']
 
 if sys.argv[-1] == 'publish':
-    os.system('python setup.py sdist upload')
+    os.system('python setup.py sdist bdist_wheel upload')
     sys.exit()
 
 if sys.argv[-1] == 'info':
@@ -38,7 +44,7 @@ if sys.argv[-1] == 'info':
     sys.exit()
 
 readme = open('README.rst').read()
-history = open('CHANGES').read().replace('.. :changelog:', '')
+history = open('CHANGES').read()
 
 setup(
     name=about['__title__'],
@@ -48,7 +54,14 @@ setup(
     author=about['__author__'],
     author_email=about['__email__'],
     url='https://github.com/delgadom/metacsv',
-    packages=find_packages(exclude=['docs']),
+    packages=find_packages(
+        exclude=[
+            '*.tests',
+            '*.tests.*',
+            'tests.*',
+            'tests',
+            'docs',
+            'examples']),
     include_package_data=True,
     install_requires=install_reqs,
     tests_require=tests_reqs,
@@ -67,5 +80,7 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5'
     ],
-    test_suite='metacsv.testsuite',
+    test_suite='tests',
+    setup_requires=['pytest-runner'],
+    extras_require=extras
 )

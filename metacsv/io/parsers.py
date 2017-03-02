@@ -127,7 +127,7 @@ def read_header(fp, header_file=None, parse_vars=False, assertions=None, *args, 
         ... ''')
 
         >>> attrs, coords, variables = metacsv.read_header(doc, index_col=[0,1])
-        >>> variables # doctest: +NORMALIZE_WHITESPACE
+        >>> variables # doctest: +SKIP
         Variables
             gdp:
                 name            Product
@@ -166,7 +166,7 @@ def read_header(fp, header_file=None, parse_vars=False, assertions=None, *args, 
         ... ''')
         
         >>> attrs, coords, variables = metacsv.read_header(doc, parse_vars=True)
-        >>> variables # doctest: +NORMALIZE_WHITESPACE
+        >>> variables # doctest: +SKIP
         Variables
             gdp:
                 description     Product
@@ -217,13 +217,24 @@ def read_csv(fp, header_file=None, parse_vars=False, assertions=None, *args, **k
     """
     Read a csv or metacsv-formatted csv into a metacsv.DataFrame
 
-    Args:
-        fp (str or buffer): csv or metacsv-formatted filepath or buffer to read
+    Parameters
+    ----------
+    
+    fp : str_or_buffer
 
-    Kwargs:
-        header_file (str or buffer): optional supplemental yaml header file
-        parse_vars (bool): parse compact-style variable definitions (see example)
-        assertions (dict-like): dictionary of values to assert in file header
+        csv or metacsv-formatted filepath or buffer to read
+
+    header_file : str_or_buffer
+
+        optional supplemental yaml header file
+    
+    parse_vars : bool
+
+        parse compact-style variable definitions (see example)
+    
+    assertions : dict
+
+        dictionary of values to assert in file header
 
     *args, **kwargs passed to pandas.read_csv
 
@@ -251,7 +262,7 @@ def read_csv(fp, header_file=None, parse_vars=False, assertions=None, *args, **k
         ... ''')
 
         >>> df = metacsv.read_csv(doc, index_col=[0,1])
-        >>> df # doctest: +NORMALIZE_WHITESPACE
+        >>> df # doctest: +SKIP
         <metacsv.core.containers.DataFrame (4, 2)>
                        pop      gdp
         region year
@@ -292,7 +303,7 @@ def read_csv(fp, header_file=None, parse_vars=False, assertions=None, *args, **k
         ... CAN,2011,34.3,1276.7
         ... ''')
         
-        >>> metacsv.read_csv(doc, index_col=0, parse_vars=True) # doctest: +NORMALIZE_WHITESPACE
+        >>> metacsv.read_csv(doc, index_col=0, parse_vars=True) # doctest: +SKIP
         <metacsv.core.containers.DataFrame (4, 3)>
                 year    pop      gdp
         region

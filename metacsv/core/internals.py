@@ -643,40 +643,16 @@ class Container(object):
     @staticmethod
     def strip_special_attributes(args, kwargs):
 
-        attrs = kwargs.pop('attrs', {}).copy()
-
-        def update_property(p_data, data, func=lambda x: x):
-            if hasattr(data, 'copy'):
-                data = data.copy()
-            parsed = func(data)
-            if parsed != None:
-                p_data.update(parsed)
-
-        def strip_property(prop, func=lambda x: x):
-            p_data = {}
-
-            update_property(p_data, attrs.pop(prop, {}), func)
-            update_property(p_data, kwargs.pop(prop, {}), func)
-
-            if len(p_data) == 0:
-                p_data = None
-
-            return p_data
-
-        coords = strip_property(
-            'coords', lambda x: Coordinates.parse_coords_definition(x)[0])
-        variables = strip_property('variables')
-
         special = {}
+        
+        special['attrs'] = kwargs.pop('attrs', {})
 
-        if (coords is not None) and (len(coords) > 0):
-            special['coords'] = coords
+        for metavar in ['coords', 'variables']:
+            special[metavar] = kwargs.pop(metavar, special['attrs'].pop(metavar, {}))
 
-        if (variables is not None) and (len(variables) > 0):
-            special['variables'] = variables
-
-        if (attrs is not None) and (len(attrs) > 0):
-            special['attrs'] = attrs
+        for metavar in ['attrs', 'coords', 'variables']:
+            if hasattr(special[metavar], 'copy'):
+                special[metavar] = special[metavar].copy()
 
         return args, kwargs, special
 

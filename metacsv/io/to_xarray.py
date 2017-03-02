@@ -29,6 +29,8 @@ def _check_series_unique(series):
         if len(group.drop_duplicates()) != 1:
             raise ValueError(msg)
 
+        return group
+
     if len(series.index.names) > 1:
         series.groupby(level=series.index.names).apply(check_unique)
     else:
