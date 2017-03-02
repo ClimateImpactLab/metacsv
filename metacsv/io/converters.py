@@ -9,12 +9,22 @@ import pandas as pd
 import numpy as np
 import xarray as xr
 from collections import OrderedDict
-from .to_xarray import metacsv_series_to_dataarray, metacsv_series_to_dataset, metacsv_dataframe_to_dataset, metacsv_dataframe_to_dataarray
-from .to_csv import metacsv_to_csv, metacsv_to_header, _header_to_file_object
-from .parsers import read_csv
-from ..core.containers import Series, DataFrame, Panel
-from ..core.internals import Coordinates, Variables, Attributes
-from .._compat import string_types, stream_types, BytesIO, StringIO
+
+from metacsv.io.to_xarray import (
+    metacsv_series_to_dataarray,
+    metacsv_series_to_dataset,
+    metacsv_dataframe_to_dataset,
+    metacsv_dataframe_to_dataarray)
+
+from metacsv.io.to_csv import (
+    metacsv_to_csv,
+    metacsv_to_header,
+    _header_to_file_object)
+
+from metacsv.io.parsers import read_csv
+from metacsv.core.containers import Series, DataFrame, Panel
+from metacsv.core.internals import Coordinates, Variables, Attributes
+from metacsv._compat import string_types, stream_types, BytesIO, StringIO
 
 
 def _coerce_to_metacsv(container, *args, **kwargs):
@@ -105,18 +115,21 @@ def to_dataset(container, attrs=None, coords=None, variables=None, *args, **kwar
 
     .. code-block:: python
 
-        >>> metacsv.to_dataset(
-        ... pd.DataFrame(np.random.rand((3,4))), 
-        ... attrs={'author': 'my name'})
+        >>> np.random.seed(1)
+        >>>
+        >>> to_dataset(
+        ...     pd.DataFrame(np.random.random((3,4))), 
+        ...     attrs={'author': 'my name'})
+        ...
         <xarray.Dataset>
         Dimensions:  (index: 3)
         Coordinates:
           * index    (index) int64 0 1 2
         Data variables:
-            0        (index) float64 0.0413 0.9774 0.5508
-            1        (index) float64 0.7497 0.1899 0.3258
-            2        (index) float64 0.6271 0.2384 0.7894
-            3        (index) float64 0.252 0.3001 0.02566
+            0        (index) float64 0.417 0.1468 0.3968
+            1        (index) float64 0.7203 0.09234 0.5388
+            2        (index) float64 0.0001144 0.1863 0.4192
+            3        (index) float64 0.3023 0.3456 0.6852
         Attributes:
             author: my name
 
@@ -179,15 +192,20 @@ def to_dataarray(container, attrs=None, coords=None, variables=None, *args, **kw
 
     .. code-block:: python
 
-        >>> metacsv.to_dataarray(
-        ... pd.DataFrame(np.random.rand((3,4))), 
-        ... attrs={'author': 'my name'})
-        <xarray.DataArray (index: 3, coldim_0: 4)>
-        array([[ 0.51152619,  0.34670179,  0.81301656,  0.15533132],
-               [ 0.96679786,  0.99511175,  0.46737635,  0.30923316],
-               [ 0.21081805,  0.3382857 ,  0.21866735,  0.21965021]])
+        >>> np.random.seed(1)
+        >>> to_dataarray(
+        ...     pd.DataFrame(np.random.random((3,4)), index=list('ABC')), 
+        ...     attrs={'author': 'my name'})  # doctest: +SKIP
+        ...
+        <xarray.DataArray (ind_0: 3, coldim_0: 4)>
+        array([[  4.17022005e-01,   7.20324493e-01,   1.14374817e-04,
+                  3.02332573e-01],
+               [  1.46755891e-01,   9.23385948e-02,   1.86260211e-01,
+                  3.45560727e-01],
+               [  3.96767474e-01,   5.38816734e-01,   4.19194514e-01,
+                  6.85219500e-01]])
         Coordinates:
-          * index     (index) int64 0 1 2
+          * ind_0     (ind_0) object 'A' 'B' 'C'
           * coldim_0  (coldim_0) int64 0 1 2 3
         Attributes:
             author: my name
@@ -250,37 +268,42 @@ def to_xarray(container, attrs=None, coords=None, variables=None, *args, **kwarg
 
     .. code-block:: python
 
+        >>> import metacsv
+        >>> import numpy as np, pandas as pd
+        >>>
+        >>> np.random.seed(1)
+        >>> 
         >>> df = metacsv.DataFrame(
         ... np.random.random((3,4)), columns=['col'+str(i) for i in range(4)])
         >>> df.index = pd.MultiIndex.from_tuples([('a','X'),('b','Y'),('c','Z')], 
         ... names=['abc','xyz'])
         >>> df.attrs={'author': 'my name'}
         >>> df.coords = {'abc': None, 'xyz': ['abc']}
-        >>> df
+        >>> df # doctest: +NORMALIZE_WHITESPACE
         <metacsv.core.containers.DataFrame (3, 4)>
                      col0      col1      col2      col3
         abc xyz
-        a   X    0.328389  0.598790  0.299902  0.265052
-        b   Y    0.720712  0.617109  0.331346  0.558522
-        c   Z    0.954494  0.143843  0.058968  0.069010
-
+        a   X    0.417022  0.720324  0.000114  0.302333
+        b   Y    0.146756  0.092339  0.186260  0.345561
+        c   Z    0.396767  0.538817  0.419195  0.685220
+        <BLANKLINE>
         Coordinates
           * abc        (abc) object a, b, c
             xyz        (abc) object X, Y, Z
         Attributes
-            author:    my name
+            author:         my name
 
-        >>> metacsv.to_xarray(df)
+        >>> to_xarray(df) # doctest: +SKIP
         <xarray.Dataset>
         Dimensions:  (abc: 3)
         Coordinates:
           * abc      (abc) object 'a' 'b' 'c'
             xyz      (abc) object 'X' 'Y' 'Z'
         Data variables:
-            col0     (abc) float64 0.9078 0.5208 0.8503
-            col1     (abc) float64 0.2021 0.8819 0.6013
-            col2     (abc) float64 0.01293 0.5816 0.4621
-            col3     (abc) float64 0.5058 0.1137 0.1425
+            col0     (abc) float64 0.417 0.1468 0.3968
+            col1     (abc) float64 0.7203 0.09234 0.5388
+            col2     (abc) float64 0.0001144 0.1863 0.4192
+            col3     (abc) float64 0.3023 0.3456 0.6852
         Attributes:
             author: my name
     '''
@@ -323,6 +346,12 @@ def to_pandas(container, *args, **kwargs):
 
     .. code-block:: python
 
+
+        >>> import metacsv
+        >>> import numpy as np, pandas as pd
+        >>>
+        >>> np.random.seed(1)
+        >>> 
         >>> df = metacsv.DataFrame(
         ...     np.random.random((3,4)),
         ...     columns=['col'+str(i) for i in range(4)])
@@ -346,7 +375,7 @@ def to_pandas(container, *args, **kwargs):
         Attributes
             author:    my name
 
-        >>> metacsv.to_pandas(df) # doctest: +SKIP
+        >>> to_pandas(df) # doctest: +SKIP
                      col0      col1      col2      col3
         abc xyz
         a   X    0.328389  0.598790  0.299902  0.265052
@@ -404,20 +433,23 @@ def to_netcdf(container, fp, attrs=None, coords=None, variables=None, *args, **k
 
     .. code-block:: python
 
-        >>> metacsv.to_netcdf(
-        ... pd.DataFrame(np.random.rand((3,4))), 
-        ... 'test.nc', 
-        ... attrs={'author': 'my name'})
+        >>> np.random.seed(1)
+        >>>
+        >>> to_netcdf(
+        ...     pd.DataFrame(np.random.random((3,4)), columns=list('ABCD')), 
+        ...     'test.nc', 
+        ...     attrs={'author': 'my name'})
+        ...
         >>> xr.open_dataset('test.nc')
         <xarray.Dataset>
         Dimensions:  (index: 3)
         Coordinates:
           * index    (index) int64 0 1 2
         Data variables:
-            0        (index) float64 0.0413 0.9774 0.5508
-            1        (index) float64 0.7497 0.1899 0.3258
-            2        (index) float64 0.6271 0.2384 0.7894
-            3        (index) float64 0.252 0.3001 0.02566
+            A        (index) float64 0.417 0.1468 0.3968
+            B        (index) float64 0.7203 0.09234 0.5388
+            C        (index) float64 0.0001144 0.1863 0.4192
+            D        (index) float64 0.3023 0.3456 0.6852
         Attributes:
             author: my name
     '''
@@ -487,7 +519,7 @@ def to_csv(container, fp, attrs=None, coords=None, variables=None, header_file=N
         ...     index=index,
         ...     columns=list('ABCD'))
         ...
-        >>> metacsv.to_csv(
+        >>> to_csv(
         ...     df,
         ...     fp='my-metacsv-data.csv',
         ...     attrs={'author': 'my name'},
@@ -499,11 +531,11 @@ def to_csv(container, fp, attrs=None, coords=None, variables=None, header_file=N
 
     ... code-block:: python
 
-        >>> metacsv.to_xarray('my-metacsv-data.csv')
+        >>> to_xarray('my-metacsv-data.csv')
         <xarray.Dataset>
         Dimensions:  (alpha: 2, beta: 2)
         Coordinates:
-          * alpha    (alpha) object 'A' 'B'
+          * alpha    (alpha) object 'X' 'Y'
           * beta     (beta) int64 1 2
         Data variables:
             A        (alpha, beta) float64 0.417 0.1468 0.3968 nan
@@ -569,7 +601,7 @@ def to_header(fp, container=None, attrs=None, coords=None, variables=None, *args
 
     .. code-block:: python
 
-        >>> metacsv.to_header('mycsv.header', attrs={'author': 'me'}, coords='index')
+        >>> to_header('mycsv.header', attrs={'author': 'me'}, coords='index')
 
     '''
 

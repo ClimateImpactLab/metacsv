@@ -11,7 +11,7 @@ import sys
 
 from contextlib import contextmanager
 
-from .._compat import StringIO
+from metacsv._compat import StringIO
 
 
 def add_to_path(path):

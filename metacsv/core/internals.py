@@ -162,8 +162,6 @@ class _BaseProperty(object):
             return type(self)()
 
 
-
-
 class Attributes(_BaseProperty):
     property_type = 'Attributes'
 
@@ -513,19 +511,35 @@ class Coordinates(object):
 
 
 class Container(object):
+    '''
+    Base class for metacsv Container objects
+
+    Parameters
+    ----------
+
+    coords : dict
+
+        Container coordinates
+    
+    variables : dict
+
+        Variable-specific attributes
+
+    attrs : dict
+
+        Container attributes
+
+    Returns
+    -------
+
+    container : object
+
+        a :py:class:`~metacsv.Series`, :py:class:`~metacsv.DataFrame`, or
+        :py:class:`~metacsv.Panel` object
+
+    '''
 
     def __init__(self, coords=None, variables=None, attrs=None, *args, **kwargs):
-        '''
-        Initialization method for Container objects
-
-        :param argumentName: an example argument.
-        :type argumentName: string
-        :param anOptionalArg: an optional argument.
-        :type anOptionalArg: string
-        :returns: New instance of :class:`Container`
-        :rtype: Container
-
-        '''
 
         self.coords = coords
         self.attrs = attrs
@@ -689,17 +703,39 @@ class Container(object):
         '''
         Write to a metacsv-formatted csv
 
-        Args:
-            fp (str): Path to which to write the metacsv-formatted CSV
+        Parameters
+        ----------
 
-        Kwargs:
-            header_file (str or buffer): A separate metacsv-formatted header file
+        fp : str
+
+            Path to which to write the metacsv-formatted CSV
+
+        header_file : str_or_buffer
+
+            A separate metacsv-formatted header file
         
-        *args, **kwargs passed to pandas.to_csv
+        *args :
+        
+            passed to pandas.to_csv
+        
+        **kwargs :
+        
+            passed to pandas.to_csv
 
-        Example:
+        Example
+        -------
 
-        >>> metacsv.to_csv(pd.DataFrame(np.random.rand((3,4))), attrs={'author': 'my name'})
+        .. code-block:: python
+
+            >>> from metacsv import DataFrame
+            >>> import numpy as np
+            >>> np.random.seed(1)
+            >>>
+            >>> DataFrame(
+            ...     pd.DataFrame(np.random.random((3,4))), 
+            ...     attrs={'author': 'my name'}
+            ...     ).to_csv('my-metacsv-data.csv')
+
         '''
         to_csv.metacsv_to_csv(self, fp, header_file=None, *args, **kwargs)
 
@@ -707,14 +743,25 @@ class Container(object):
         '''
         Write attributes directly to a metacsv-formatted header file
 
-        Args:
-            fp (str): Path to which to write the metacsv-formatted header file
+        fp : str
 
-        Example:
+            Path to which to write the metacsv-formatted header file
 
-        >>> df = metacsv.DataFrame(np.random.random((3,4)), columns=['col'+str(i) for i in range(4)])
-        >>> df.attrs={'author': 'my name'}
-        >>> df.to_header('mycsv.header')
+        Example
+        -------
+
+        .. code-block:: python
+
+            >>> from metacsv import DataFrame
+            >>> import numpy as np
+            >>> np.random.seed(1)
+            >>>
+            >>> df = DataFrame(
+            ...     np.random.random((3,4)),
+            ...     columns=['col'+str(i) for i in range(4)])
+            ...
+            >>> df.attrs={'author': 'my name'}
+            >>> df.to_header('mycsv.header')
         '''
 
         to_csv.metacsv_to_header(fp, attrs=self.attrs, coords=self.coords, variables=self.variables)
@@ -723,32 +770,46 @@ class Container(object):
         '''
         Strip metacsv special attributes and return as a pandas Series, DataFrame, or Panel
 
-        Example:
+        Example
+        -------
 
-        >>> df = metacsv.DataFrame(np.random.random((3,4)), columns=['col'+str(i) for i in range(4)])
-        >>> df.index = pd.MultiIndex.from_tuples([('a','X'),('b','Y'),('c','Z')], names=['abc','xyz'])
-        >>> df.attrs={'author': 'my name'}
-        >>> df.coords = {'abc': None, 'xyz': ['abc']}
-        >>> df
-        <metacsv.core.containers.DataFrame (3, 4)>
-                     col0      col1      col2      col3
-        abc xyz
-        a   X    0.328389  0.598790  0.299902  0.265052
-        b   Y    0.720712  0.617109  0.331346  0.558522
-        c   Z    0.954494  0.143843  0.058968  0.069010
+        .. code-block:: python
 
-        Coordinates
-          * abc        (abc) object a, b, c
-            xyz        (abc) object X, Y, Z
-        Attributes
-            author:    my name
+            >>> from metacsv import DataFrame
+            >>> import numpy as np, pandas as pd
+            >>> np.random.seed(1)
+            >>>
+            >>> df = DataFrame(
+            ...     np.random.random((3,4)),
+            ...     columns=['col'+str(i) for i in range(4)])
+            ...
+            >>> df.index = pd.MultiIndex.from_tuples(
+            ...     [('a','X'),('b','Y'),('c','Z')],
+            ...     names=['abc','xyz'])
+            ...
+            >>> df.attrs={'author': 'my name'}
+            >>> df.coords = {'abc': None, 'xyz': ['abc']}
+            >>> df # doctest: +NORMALIZE_WHITESPACE
+            <metacsv.core.containers.DataFrame (3, 4)>
+                         col0      col1      col2      col3
+            abc xyz
+            a   X    0.417022  0.720324  0.000114  0.302333
+            b   Y    0.146756  0.092339  0.186260  0.345561
+            c   Z    0.396767  0.538817  0.419195  0.685220
+            <BLANKLINE>
+            Coordinates
+              * abc        (abc) object a, b, c
+                xyz        (abc) object X, Y, Z
+            Attributes
+                author:         my name
 
-        >>> df.to_pandas()
-                     col0      col1      col2      col3
-        abc xyz
-        a   X    0.328389  0.598790  0.299902  0.265052
-        b   Y    0.720712  0.617109  0.331346  0.558522
-        c   Z    0.954494  0.143843  0.058968  0.069010
+            >>> df.to_pandas() # doctest: +NORMALIZE_WHITESPACE
+                         col0      col1      col2      col3
+            abc xyz
+            a   X    0.417022  0.720324  0.000114  0.302333
+            b   Y    0.146756  0.092339  0.186260  0.345561
+            c   Z    0.396767  0.538817  0.419195  0.685220
+
         '''
 
         return self.pandas_parent(self)
@@ -757,42 +818,50 @@ class Container(object):
         '''
         Convert to an xArray.Dataset
 
-        Note:
+        .. note ::
+
             to_dataset is not yet implemented for Panel data.
 
-        Example:
+        Example
+        -------
 
-        >>> df = metacsv.DataFrame(np.random.random((3,4)), columns=['col'+str(i) for i in range(4)])
-        >>> df.index = pd.MultiIndex.from_tuples([('a','X'),('b','Y'),('c','Z')], names=['abc','xyz'])
-        >>> df.attrs={'author': 'my name'}
-        >>> df.coords = {'abc': None, 'xyz': ['abc']}
-        >>> df
-        <metacsv.core.containers.DataFrame (3, 4)>
-                     col0      col1      col2      col3
-        abc xyz
-        a   X    0.328389  0.598790  0.299902  0.265052
-        b   Y    0.720712  0.617109  0.331346  0.558522
-        c   Z    0.954494  0.143843  0.058968  0.069010
+        .. code-block:: python
 
-        Coordinates
-          * abc        (abc) object a, b, c
-            xyz        (abc) object X, Y, Z
-        Attributes
-            author:    my name
+            >>> from metacsv import DataFrame
+            >>> import numpy as np
+            >>> np.random.seed(1)
+            >>>
+            >>> df = DataFrame(np.random.random((3,4)), columns=['col'+str(i) for i in range(4)])
+            >>> df.index = pd.MultiIndex.from_tuples([('a','X'),('b','Y'),('c','Z')], names=['abc','xyz'])
+            >>> df.attrs={'author': 'my name'}
+            >>> df.coords = {'abc': None, 'xyz': ['abc']}
+            >>> df # doctest: +NORMALIZE_WHITESPACE
+            <metacsv.core.containers.DataFrame (3, 4)>
+                         col0      col1      col2      col3
+            abc xyz
+            a   X    0.417022  0.720324  0.000114  0.302333
+            b   Y    0.146756  0.092339  0.186260  0.345561
+            c   Z    0.396767  0.538817  0.419195  0.685220
+            <BLANKLINE>
+            Coordinates
+              * abc        (abc) object a, b, c
+                xyz        (abc) object X, Y, Z
+            Attributes
+                author:         my name
 
-        >>> df.to_xarray()
-        <xarray.Dataset>
-        Dimensions:  (abc: 3)
-        Coordinates:
-          * abc      (abc) object 'a' 'b' 'c'
-            xyz      (abc) object 'X' 'Y' 'Z'
-        Data variables:
-            col0     (abc) float64 0.9078 0.5208 0.8503
-            col1     (abc) float64 0.2021 0.8819 0.6013
-            col2     (abc) float64 0.01293 0.5816 0.4621
-            col3     (abc) float64 0.5058 0.1137 0.1425
-        Attributes:
-            author: my name
+            >>> df.to_xarray() # doctest: +SKIP
+            <xarray.Dataset>
+            Dimensions:  (abc: 3)
+            Coordinates:
+              * abc      (abc) object 'a' 'b' 'c'
+                xyz      (abc) object 'X' 'Y' 'Z'
+            Data variables:
+                col0     (abc) float64 0.417 0.1468 0.3968
+                col1     (abc) float64 0.7203 0.09234 0.5388
+                col2     (abc) float64 0.0001144 0.1863 0.4192
+                col3     (abc) float64 0.3023 0.3456 0.6852
+            Attributes:
+                author: my name
         '''
 
         if len(self.shape) == 1:
@@ -807,27 +876,44 @@ class Container(object):
         '''
         Convert to an xArray.DataArray
 
-        Note:
-            If a DataFrame is passed, columns will be stacked and treated as coordinates. to_dataset is not yet implemented for Panel data.
+        .. note ::
 
-        Example:
+            If a DataFrame is passed, columns will be stacked and treated as
+            coordinates. ``to_dataset`` is not yet implemented for Panel data.
 
-        >>> df = metacsv.DataFrame(np.random.rand((3,4)), attrs={'author': 'my name'})
-        >>> df.to_dataarray()
-        <xarray.DataArray (index: 3, coldim_0: 4)>
-        array([[ 0.51152619,  0.34670179,  0.81301656,  0.15533132],
-               [ 0.96679786,  0.99511175,  0.46737635,  0.30923316],
-               [ 0.21081805,  0.3382857 ,  0.21866735,  0.21965021]])
-        Coordinates:
-          * index     (index) int64 0 1 2
-          * coldim_0  (coldim_0) int64 0 1 2 3
-        Attributes:
-            author: my name
+        Example
+        -------
+
+        .. code-block:: python
+
+            >>> from metacsv import DataFrame
+            >>> import numpy as np
+            >>> np.random.seed(1)
+            >>>
+            >>> df = DataFrame(
+            ...     np.random.random((3,4)),
+            ...     index=list('ABC'),
+            ...     attrs={'author': 'my name'})
+            ...
+            >>> df.to_dataarray() # doctest: +SKIP
+            <xarray.DataArray (ind_0: 3, coldim_0: 4)>
+            array([[  4.17022005e-01,   7.20324493e-01,   1.14374817e-04,
+                      3.02332573e-01],
+                   [  1.46755891e-01,   9.23385948e-02,   1.86260211e-01,
+                      3.45560727e-01],
+                   [  3.96767474e-01,   5.38816734e-01,   4.19194514e-01,
+                      6.85219500e-01]])
+            Coordinates:
+              * ind_0     (ind_0) object 'A' 'B' 'C'
+              * coldim_0  (coldim_0) int64 0 1 2 3
+            Attributes:
+                author: my name
+
         '''
         if len(self.shape) == 1:
             return to_xarray.metacsv_series_to_dataarray(self)
         elif len(self.shape) == 2:
-            return to_xarray.metacsv_dataframe_to_dataset(self)
+            return to_xarray.metacsv_dataframe_to_dataarray(self)
         elif len(self.shape) > 2:
             raise NotImplementedError(
                 'to_dataarray not yet implemented for Panel data')
@@ -836,24 +922,37 @@ class Container(object):
         '''
         Convert to an xArray.Dataset
 
-        Note:
-            If a Series is passed, the variable will be named 'data'. to_dataset is not yet implemented for Panel data.
+        .. note ::
 
-        Example:
+            If a Series is passed, the variable will be named 'data'.
+            ``to_netcdf`` is not yet implemented for Panel data.
 
-        >>> df = metacsv.DataFrame(np.random.rand((3,4)), attrs={'author': 'my name'})
-        >>> df.to_dataset()
-        <xarray.Dataset>
-        Dimensions:  (index: 3)
-        Coordinates:
-          * index    (index) int64 0 1 2
-        Data variables:
-            0        (index) float64 0.0413 0.9774 0.5508
-            1        (index) float64 0.7497 0.1899 0.3258
-            2        (index) float64 0.6271 0.2384 0.7894
-            3        (index) float64 0.252 0.3001 0.02566
-        Attributes:
-            author: my name
+        Example
+        -------
+
+        .. code-block:: python
+
+            >>> from metacsv import DataFrame
+            >>> import numpy as np
+            >>> np.random.seed(1)
+            >>>
+            >>> df = DataFrame(
+            ...     np.random.random((3,4)),
+            ...     attrs={'author': 'my name'})
+            ...     
+            >>> df.to_dataset()
+            <xarray.Dataset>
+            Dimensions:  (index: 3)
+            Coordinates:
+              * index    (index) int64 0 1 2
+            Data variables:
+                0        (index) float64 0.417 0.1468 0.3968
+                1        (index) float64 0.7203 0.09234 0.5388
+                2        (index) float64 0.0001144 0.1863 0.4192
+                3        (index) float64 0.3023 0.3456 0.6852
+            Attributes:
+                author: my name
+
         '''
         if len(self.shape) == 1:
             return to_xarray.metacsv_series_to_dataset(self)
@@ -867,28 +966,50 @@ class Container(object):
         '''
         Convert to a NetCDF file
 
-        Args:
-            fp (string or buffer): The filepath or file object to be written
+        .. note ::
 
-        Note:
-            If a Series is passed, the variable will be named 'data'. to_netcdf is not yet implemented for Panel data.
+            If a Series is passed, the variable will be named 'data'.
+            ``to_netcdf`` is not yet implemented for Panel data.
 
-        Example:
+        Parameters
+        ----------
 
-        >>> df = metacsv.DataFrame(np.random.rand((3,4)), attrs={'author': 'my name'})
-        >>> df.to_netcdf('test.nc')
-        >>> xr.open_dataset('test.nc')
-        <xarray.Dataset>
-        Dimensions:  (index: 3)
-        Coordinates:
-          * index    (index) int64 0 1 2
-        Data variables:
-            0        (index) float64 0.0413 0.9774 0.5508
-            1        (index) float64 0.7497 0.1899 0.3258
-            2        (index) float64 0.6271 0.2384 0.7894
-            3        (index) float64 0.252 0.3001 0.02566
-        Attributes:
-            author: my name
+        fp : string_or_buffer
+
+            The filepath or file object to be written
+
+        Example
+        -------
+
+        .. code-block:: python
+
+            >>> from metacsv import DataFrame
+            >>> import numpy as np
+            >>> np.random.seed(1)
+            >>>
+            >>> df = DataFrame(
+            ...     np.random.random((3,4)),
+            ...     columns=list('ABCD'),
+            ...     attrs={'author': 'my name'})
+            ...     
+            >>> df.to_netcdf('test.nc')
+
+        .. code-block:: python
+            
+            >>> import xarray as xr
+            >>> xr.open_dataset('test.nc')
+            <xarray.Dataset>
+            Dimensions:  (index: 3)
+            Coordinates:
+              * index    (index) int64 0 1 2
+            Data variables:
+                A        (index) float64 0.417 0.1468 0.3968
+                B        (index) float64 0.7203 0.09234 0.5388
+                C        (index) float64 0.0001144 0.1863 0.4192
+                D        (index) float64 0.3023 0.3456 0.6852
+            Attributes:
+                author: my name
+        
         '''
 
         self.to_dataset().to_netcdf(fp)
