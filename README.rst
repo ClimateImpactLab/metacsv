@@ -20,6 +20,9 @@ MetaCSV
 
 .. image:: https://anaconda.org/delgadom/metacsv/badges/downloads.svg
     :target: https://anaconda.org/delgadom/metacsv
+.. image:: https://badges.gitter.im/metacsv/Lobby.svg
+    :alt: Join the chat at https://gitter.im/metacsv/Lobby
+    :target: https://gitter.im/metacsv/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
 ``metacsv`` - Tools for documentation-aware data reading, writing, and analysis
 
