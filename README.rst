@@ -45,26 +45,26 @@ interpreted by the csv reader. The yaml data can have arbitrary complexity.
 
 .. code-block:: python
 
-    >>> import metacsv, numpy as np, 
+    >>> import metacsv, numpy as np
     >>> import StringIO as io # import io for python 3
     >>> doc = io.StringIO('''
-    ---
-    author: A Person
-    date:   2000-12-31
-    variables:
-        pop:
-          name: Population
-          unit: millions
-        gdp:
-          name: Product
-          unit: 2005 $Bn
-    ...
-    region,year,pop,gdp
-    USA,2010,309.3,13599.3
-    USA,2011,311.7,13817.0
-    CAN,2010,34.0,1240.0
-    CAN,2011,34.3,1276.7
-    ''')
+    ... ---
+    ... author: A Person
+    ... date:   2000-12-31
+    ... variables:
+    ...     pop:
+    ...       name: Population
+    ...       unit: millions
+    ...     gdp:
+    ...       name: Product
+    ...       unit: 2005 $Bn
+    ... ...
+    ... region,year,pop,gdp
+    ... USA,2010,309.3,13599.3
+    ... USA,2011,311.7,13817.0
+    ... CAN,2010,34.0,1240.0
+    ... CAN,2011,34.3,1276.7
+    ... ''')
 
 
 
@@ -77,7 +77,7 @@ Read MetaCSV-formatted data into python using pandas-like syntax:
 .. code-block:: python
 
     >>> df = metacsv.read_csv(doc, index_col=[0,1])
-    >>> df
+    >>> df   # doctest: +NORMALIZE_WHITESPACE
     <metacsv.core.containers.DataFrame (4, 2)>
                    pop      gdp
     region year
@@ -85,42 +85,47 @@ Read MetaCSV-formatted data into python using pandas-like syntax:
            2011  311.7  13817.0
     CAN    2010   34.0   1240.0
            2011   34.3   1276.7
-    
+    <BLANKLINE>
     Variables
-        gdp:       OrderedDict([('name', 'Product'), ('unit', '2005 $Bn')])
-        pop:       OrderedDict([('name', 'Population'), ('unit', 'millions')])
+        gdp:
+            name            Product
+            unit            2005 $Bn
+        pop:
+            name            Population
+            unit            millions
     Attributes
-        date:      2000-12-31
-        author:    A Person
+        author:        A Person
+        date:          2000-12-31
 
 These properties can be transferred from one data container to another:
 
 .. code-block:: python
 
+    >>> np.random.seed(1)
     >>> s = metacsv.Series(np.random.random(6))
     >>> s
-    <metacsv.core.containers.Series (6,)>
-    0    0.881924
-    1    0.556330
-    2    0.554700
-    3    0.221284
-    4    0.970801
-    5    0.946414
+    <metacsv.core.containers.Series (6L,)>
+    0    0.417022
+    1    0.720324
+    2    0.000114
+    3    0.302333
+    4    0.146756
+    5    0.092339
     dtype: float64
     >>> s.attrs = df.attrs
     >>> s
-    <metacsv.core.containers.Series (6,)>
-    0    0.881924
-    1    0.556330
-    2    0.554700
-    3    0.221284
-    4    0.970801
-    5    0.946414
+    <metacsv.core.containers.Series (6L,)>
+    0    0.417022
+    1    0.720324
+    2    0.000114
+    3    0.302333
+    4    0.146756
+    5    0.092339
     dtype: float64
-
+    <BLANKLINE>
     Attributes
-        date:      2000-12-31
-        author:    A Person
+        author:         A Person
+        date:           2000-12-31
     
 
 All MetaCSV attributes, including the ``attrs`` Attribute object, can be copied, 
@@ -156,7 +161,7 @@ Container:
 
 .. code-block:: python
 
-    >>> df.to_pandas()
+    >>> df.to_pandas()    # doctest: +NORMALIZE_WHITESPACE
                    pop      gdp
     region year
     USA    2010  309.3  13599.3
@@ -189,8 +194,9 @@ applications with higher-order data.
         pop      (region, year) float64 309.3 311.7 34.0 34.3
         gdp      (region, year) float64 1.36e+04 1.382e+04 1.24e+03 1.277e+03
     Attributes:
-        date: 2000-12-31
         author: A Person
+        date: 2000-12-31
+        new attribute: changed in python!
     >>> ds.to_netcdf('my_netcdf_data.nc')
 
 Pickling
@@ -214,8 +220,9 @@ Pickling works just like pandas.
         gdp:       OrderedDict([('name', 'Product'), ('unit', '2005 $Bn')])
         pop:       OrderedDict([('name', 'Population'), ('unit', 'millions')])
     Attributes
-        date:      2000-12-31
         author:    A Person
+        date:      2000-12-31
+        new attribute: changed in python!
 
 
 
@@ -264,8 +271,9 @@ will be updated with the arguments to this function
     2  0.332869  0.435573  0.904612  0.823884
     
     Attributes
-        date:      2015-12-31
         author:    my name
+        date:      2015-12-31
+        new attribute: changed in python!
     
     >>> metacsv.to_csv(df2, 'mycsv.csv', attrs={'author': 'new name'})
     >>> 
@@ -277,8 +285,9 @@ will be updated with the arguments to this function
     2  0.332869  0.435573  0.904612  0.823884
     
     Attributes
-        date:      2015-12-31
         author:    new name
+        date:      2015-12-31
+        new attribute: changed in python!
 
 * to_header
 
