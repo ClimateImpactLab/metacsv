@@ -18,11 +18,18 @@ with open("metacsv/__about__.py") as fp:
 install_reqs = [
     'pandas>=0.17',
     'numpy>=1.10',
-    'xarray>=0.7',
-    'pyyaml',
-    'netCDF4']
+    'pyyaml']
 
-tests_reqs = install_reqs + ['pytest >= 2.7.1']
+tests_reqs = install_reqs + [
+    'xarray>=0.7',
+    'netCDF4',
+    'pytest >= 2.7.1',
+    'pytest-runner >= 2.8.0',
+    'flake8 >= 3.0',
+    'tox >= 2.4',
+    'coverage >= 4.3.4',
+    'pytest >= 3.0.6',
+    'pytest_cov >= 2.4.0']
 
 if sys.version_info < (2, 7):
     install_reqs += ['argparse']
