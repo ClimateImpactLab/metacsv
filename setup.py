@@ -44,6 +44,12 @@ if sys.argv[-1] == 'info':
         print('%s: %s' % (k, v))
     sys.exit()
 
+extras_require = {
+    'xarray': [
+        'xarray>=0.7',
+        'netCDF4']
+}
+
 readme = open('README.rst').read()
 history = open('CHANGES').read().replace('.. :changelog:', '')
 
@@ -59,6 +65,7 @@ setup(
     include_package_data=True,
     install_requires=install_reqs,
     tests_require=tests_reqs,
+    extras_require=extras_require,
     license=about['__license__'],
     keywords=about['__title__'],
     zip_safe=False,
