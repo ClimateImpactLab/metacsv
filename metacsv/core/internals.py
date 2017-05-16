@@ -6,7 +6,11 @@ import pandas as pd
 import numpy as np
 import re
 from collections import OrderedDict
-from pandas.core.base import FrozenList
+
+try:
+    from pandas.core.base import FrozenList
+except ImportError:
+    FrozenList = list
 
 from .exceptions import GraphIsCyclicError
 from .._compat import string_types, has_iterkeys, iterkeys, has_iteritems, iteritems

@@ -7,7 +7,6 @@ import xarray as xr
 import yaml
 from .._compat import string_types
 from collections import OrderedDict
-from pandas.core.base import FrozenList
 
 from .internals import Attributes, Container, Coordinates, Variables
 
