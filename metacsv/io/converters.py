@@ -440,7 +440,8 @@ def to_netcdf(container, fp, attrs=None, coords=None, variables=None, *args, **k
         ...     'test.nc', 
         ...     attrs={'author': 'my name'})
         ...
-        >>> xr.open_dataset('test.nc')
+        >>> ds = xr.open_dataset('test.nc')
+        >>> ds
         <xarray.Dataset>
         Dimensions:  (index: 3)
         Coordinates:
@@ -452,6 +453,10 @@ def to_netcdf(container, fp, attrs=None, coords=None, variables=None, *args, **k
             D        (index) float64 0.3023 0.3456 0.6852
         Attributes:
             author: my name
+
+        >>> ds.close()
+        >>> import os
+        >>> os.remove('test.nc')
     '''
 
     to_dataset(container, attrs=attrs, coords=coords, variables=variables, *args, **kwargs).to_netcdf(fp)
@@ -545,6 +550,9 @@ def to_csv(container, fp, attrs=None, coords=None, variables=None, header_file=N
         Attributes:
             author: my name
 
+        >>> import os
+        >>> os.remove('my-metacsv-data.csv')
+
     '''
 
     container = _coerce_to_metacsv(container, header_file=header_file).copy()
@@ -602,6 +610,9 @@ def to_header(fp, container=None, attrs=None, coords=None, variables=None, *args
     .. code-block:: python
 
         >>> to_header('mycsv.header', attrs={'author': 'me'}, coords='index')
+        
+        >>> import os
+        >>> os.remove('mycsv.header')
 
     '''
 

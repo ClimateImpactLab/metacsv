@@ -1005,7 +1005,8 @@ class Container(object):
         .. code-block:: python
             
             >>> import xarray as xr
-            >>> xr.open_dataset('test.nc') # doctest: +NORMALIZE_WHITESPACE
+            >>> ds = xr.open_dataset('test.nc')
+            >>> ds # doctest: +NORMALIZE_WHITESPACE
             <xarray.Dataset>
             Dimensions:  (index: 3)
             Coordinates:
@@ -1018,6 +1019,7 @@ class Container(object):
             Attributes:
                 author:   my name
 
+            >>> ds.close()
             >>> import os
             >>> os.remove('test.nc')
         
