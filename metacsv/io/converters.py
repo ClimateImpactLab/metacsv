@@ -441,7 +441,7 @@ def to_netcdf(container, fp, attrs=None, coords=None, variables=None, *args, **k
         ...     attrs={'author': 'my name'})
         ...
         >>> ds = xr.open_dataset('test.nc')
-        >>> ds
+        >>> ds # doctest: +NORMALIZE_WHITESPACE
         <xarray.Dataset>
         Dimensions:  (index: 3)
         Coordinates:
@@ -537,7 +537,7 @@ def to_csv(container, fp, attrs=None, coords=None, variables=None, header_file=N
     ... code-block:: python
 
         >>> to_xarray('my-metacsv-data.csv').transpose('alpha', 'beta') \
-        ...   # doctest +NORMALIZE_WHITESPACE
+        ...   # doctest +NORMALIZE_WHITESPACE +ELLIPSIS
         <xarray.Dataset>
         Dimensions:  (alpha: 2, beta: 2)
         Coordinates: ...
