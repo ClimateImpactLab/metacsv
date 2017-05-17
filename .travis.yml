@@ -66,11 +66,7 @@ install:
   - python setup.py install
 
 script:
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then
-      pytest metacsv tests --doctest-modules;
-    else
-      pytest metacsv tests --doctest-modules --cov=metacsv --cov-report term-missing;
-    fi
+  - python -m pytest
 
 after_success:
 - coveralls

@@ -740,6 +740,9 @@ class Container(object):
             ...     attrs={'author': 'my name'}
             ...     ).to_csv('my-metacsv-data.csv')
 
+            >>> import os
+            >>> os.remove('my-metacsv-data.csv')
+
         '''
         to_csv.metacsv_to_csv(self, fp, header_file=None, *args, **kwargs)
 
@@ -766,6 +769,9 @@ class Container(object):
             ...
             >>> df.attrs={'author': 'my name'}
             >>> df.to_header('mycsv.header')
+            
+            >>> import os
+            >>> os.remove('mycsv.header')
         '''
 
         to_csv.metacsv_to_header(fp, attrs=self.attrs, coords=self.coords, variables=self.variables)
@@ -805,7 +811,7 @@ class Container(object):
               * abc        (abc) object a, b, c
                 xyz        (abc) object X, Y, Z
             Attributes
-                author:         my name
+                author:     my name
 
             >>> df.to_pandas() # doctest: +NORMALIZE_WHITESPACE
                          col0      col1      col2      col3
@@ -836,7 +842,8 @@ class Container(object):
             >>> np.random.seed(1)
             >>>
             >>> df = DataFrame(np.random.random((3,4)), columns=['col'+str(i) for i in range(4)])
-            >>> df.index = pd.MultiIndex.from_tuples([('a','X'),('b','Y'),('c','Z')], names=['abc','xyz'])
+            >>> df.index = pd.MultiIndex.from_tuples(
+            ...     list(zip(str('abc'), str('XYZ'))), names=['abc','xyz'])
             >>> df.attrs={'author': 'my name'}
             >>> df.coords = {'abc': None, 'xyz': ['abc']}
             >>> df # doctest: +NORMALIZE_WHITESPACE
@@ -851,9 +858,9 @@ class Container(object):
               * abc        (abc) object a, b, c
                 xyz        (abc) object X, Y, Z
             Attributes
-                author:         my name
+                author:     my name
 
-            >>> df.to_xarray() # doctest: +SKIP
+            >>> df.to_xarray()  # doctest: +NORMALIZE_WHITESPACE
             <xarray.Dataset>
             Dimensions:  (abc: 3)
             Coordinates:
@@ -865,7 +872,7 @@ class Container(object):
                 col2     (abc) float64 0.0001144 0.1863 0.4192
                 col3     (abc) float64 0.3023 0.3456 0.6852
             Attributes:
-                author: my name
+                author:   my name
         '''
 
         if len(self.shape) == 1:
@@ -896,22 +903,19 @@ class Container(object):
             >>>
             >>> df = DataFrame(
             ...     np.random.random((3,4)),
-            ...     index=list('ABC'),
+            ...     index=list(str('ABC')),
             ...     attrs={'author': 'my name'})
             ...
-            >>> df.to_dataarray() # doctest: +SKIP
+            >>> df.to_dataarray() # doctest: +NORMALIZE_WHITESPACE
             <xarray.DataArray (ind_0: 3, coldim_0: 4)>
-            array([[  4.17022005e-01,   7.20324493e-01,   1.14374817e-04,
-                      3.02332573e-01],
-                   [  1.46755891e-01,   9.23385948e-02,   1.86260211e-01,
-                      3.45560727e-01],
-                   [  3.96767474e-01,   5.38816734e-01,   4.19194514e-01,
-                      6.85219500e-01]])
+            array([[ 4.170220e-01, 7.203245e-01, 1.143748e-04, 3.023326e-01],
+                   [ 1.467559e-01, 9.233859e-02, 1.862602e-01, 3.455607e-01],
+                   [ 3.967675e-01, 5.388167e-01, 4.191945e-01, 6.852195e-01]])
             Coordinates:
               * ind_0     (ind_0) object 'A' 'B' 'C'
               * coldim_0  (coldim_0) int64 0 1 2 3
             Attributes:
-                author: my name
+                author:    my name
 
         '''
         if len(self.shape) == 1:
@@ -944,7 +948,7 @@ class Container(object):
             ...     np.random.random((3,4)),
             ...     attrs={'author': 'my name'})
             ...     
-            >>> df.to_dataset()
+            >>> df.to_dataset() # doctest: +NORMALIZE_WHITESPACE
             <xarray.Dataset>
             Dimensions:  (index: 3)
             Coordinates:
@@ -955,7 +959,7 @@ class Container(object):
                 2        (index) float64 0.0001144 0.1863 0.4192
                 3        (index) float64 0.3023 0.3456 0.6852
             Attributes:
-                author: my name
+                author:   my name
 
         '''
         if len(self.shape) == 1:
@@ -993,7 +997,7 @@ class Container(object):
             >>>
             >>> df = DataFrame(
             ...     np.random.random((3,4)),
-            ...     columns=list('ABCD'),
+            ...     columns=list(str('ABCD')),
             ...     attrs={'author': 'my name'})
             ...     
             >>> df.to_netcdf('test.nc')
@@ -1001,7 +1005,7 @@ class Container(object):
         .. code-block:: python
             
             >>> import xarray as xr
-            >>> xr.open_dataset('test.nc')
+            >>> xr.open_dataset('test.nc') # doctest: +NORMALIZE_WHITESPACE
             <xarray.Dataset>
             Dimensions:  (index: 3)
             Coordinates:
@@ -1012,7 +1016,10 @@ class Container(object):
                 C        (index) float64 0.0001144 0.1863 0.4192
                 D        (index) float64 0.3023 0.3456 0.6852
             Attributes:
-                author: my name
+                author:   my name
+
+            >>> import os
+            >>> os.remove('test.nc')
         
         '''
 

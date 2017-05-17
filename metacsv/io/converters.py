@@ -119,7 +119,7 @@ def to_dataset(container, attrs=None, coords=None, variables=None, *args, **kwar
         >>>
         >>> to_dataset(
         ...     pd.DataFrame(np.random.random((3,4))), 
-        ...     attrs={'author': 'my name'})
+        ...     attrs={'author': 'my name'}) # doctest: +NORMALIZE_WHITESPACE
         ...
         <xarray.Dataset>
         Dimensions:  (index: 3)
@@ -131,7 +131,7 @@ def to_dataset(container, attrs=None, coords=None, variables=None, *args, **kwar
             2        (index) float64 0.0001144 0.1863 0.4192
             3        (index) float64 0.3023 0.3456 0.6852
         Attributes:
-            author: my name
+            author:   my name
 
     '''
 
