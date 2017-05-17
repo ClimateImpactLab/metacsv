@@ -46,11 +46,11 @@ matrix:
   - python: 3.6
     env:
       - CONDA_ENV=py36-xarray-dev
+      - status=dev
   - python: 3.6
     env:
       - CONDA_ENV=py36-pandas-dev
       - status=dev
-
   allow_failures:
   - python: 3.6
     env:
@@ -59,6 +59,7 @@ matrix:
   - python: 3.6
     env:
       - CONDA_ENV=py36-xarray-dev
+      - status=dev
   - python: 3.6
     env:
       - CONDA_ENV=py36-min
