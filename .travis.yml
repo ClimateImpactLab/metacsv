@@ -64,15 +64,12 @@ matrix:
       - CONDA_ENV=py36-min
       - status=min
 
+services:
+  - docker
+
 before_install:
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget http://repo.continuum.io/miniconda/Miniconda-3.16.0-Linux-x86_64.sh -O miniconda.sh;
-    else
-      wget http://repo.continuum.io/miniconda/Miniconda3-3.16.0-Linux-x86_64.sh -O miniconda.sh;
-    fi
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:$PATH"
-  - hash -r
+  - docker pull continuumio/miniconda
+  - docker run -i -t continuumio/miniconda /bin/bash
   - conda config --set always_yes yes --set changeps1 no
   - conda config --add channels conda-forge
   - conda update -q conda
