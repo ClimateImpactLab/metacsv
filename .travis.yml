@@ -15,55 +15,57 @@ matrix:
   - python: 2.7
     env:
       - CONDA_ENV=py27-min
-      - status=min
+      - STATUS=min
   - python: 3.4
     env:
       - CONDA_ENV=py34-min
-      - status=min
+      - STATUS=min
   - python: 3.5
     env:
       - CONDA_ENV=py35-min
-      - status=min
+      - STATUS=min
   - python: 3.6
     env:
       - CONDA_ENV=py36-min
-      - status=min
+      - STATUS=min
   - python: 2.7
     env:
       - CONDA_ENV=py27
-      - status=latest
+      - STATUS=latest
   - python: 3.4
     env:
       - CONDA_ENV=py34
-      - status=latest
+      - STATUS=latest
   - python: 3.5
     env:
       - CONDA_ENV=py35
-      - status=latest
+      - STATUS=latest
   - python: 3.6
     env:
       - CONDA_ENV=py36
-      - status=latest
+      - STATUS=latest
   - python: 3.6
     env:
       - CONDA_ENV=py36-xarray-dev
+      - STATUS=dev
   - python: 3.6
     env:
       - CONDA_ENV=py36-pandas-dev
-      - status=dev
+      - STATUS=dev
 
   allow_failures:
   - python: 3.6
     env:
       - CONDA_ENV=py36-pandas-dev
-      - status=dev
+      - STATUS=dev
   - python: 3.6
     env:
       - CONDA_ENV=py36-xarray-dev
+      - STATUS=dev
   - python: 3.6
     env:
       - CONDA_ENV=py36-min
-      - status=min
+      - STATUS=min
 
 before_install:
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
@@ -80,8 +82,8 @@ before_install:
   - conda info -a
 
 install:
-  - if [[ "$status" == "latest" ]]; then
-      conda env create -n $CONDA_ENV python=$TRAVIS_PYTHON_VERSION;
+  - if [[ "$STATUS" == "latest" ]]; then
+      conda create -n $CONDA_ENV python=$TRAVIS_PYTHON_VERSION;
       conda install -n $CONDA_ENV --file ci/requirements-latest-conda.txt;
       source activate $CONDA_ENV;
       python -m pip install -r ci/requirements-latest.txt;

@@ -260,7 +260,7 @@ def read_csv(fp, header_file=None, parse_vars=False, assertions=None, *args, **k
         ... ''')
 
         >>> df = metacsv.read_csv(doc, index_col=[0,1])
-        >>> df # doctest: +skip
+        >>> df # doctest: +SKIP
         <metacsv.core.containers.DataFrame (4, 2)>
                        pop      gdp
         region year
