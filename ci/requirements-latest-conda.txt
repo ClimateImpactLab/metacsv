@@ -1,0 +1,6 @@
+pytest==3.0.7
+netcdf4==1.2.7
+numpy==1.11.0
+pandas==0.20.1
+xarray==0.9.5
+pyyaml==3.12

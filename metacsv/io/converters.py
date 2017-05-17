@@ -536,12 +536,12 @@ def to_csv(container, fp, attrs=None, coords=None, variables=None, header_file=N
 
     ... code-block:: python
 
-        >>> to_xarray('my-metacsv-data.csv').transpose('alpha', 'beta')
+        >>> to_xarray('my-metacsv-data.csv').transpose('alpha', 'beta') \
+        ...   # doctest +NORMALIZE_WHITESPACE
         <xarray.Dataset>
         Dimensions:  (alpha: 2, beta: 2)
-        Coordinates:
-          * alpha    (alpha) object 'X' 'Y'
-          * beta     (beta) int64 1 2
+        Coordinates: ...
+          * alpha    (alpha) object 'X' 'Y' ...
         Data variables:
             A        (alpha, beta) float64 0.417 0.1468 0.3968 nan
             B        (alpha, beta) float64 0.7203 0.09234 0.5388 nan

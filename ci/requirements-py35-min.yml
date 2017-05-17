@@ -1,9 +1,8 @@
-name: py27-min
+name: py35-min
 dependencies:
-  - python=2.7
-  - pytest
-  - h5py
+  - python=3.5
   - netcdf4
+  - pytest
   - numpy==1.9.3
   - pandas==0.15.0
   - xarray==0.7

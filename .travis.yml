@@ -12,25 +12,57 @@ matrix:
   fast_finish: true
   include:
   - python: 2.7
-    env: CONDA_ENV=py27-min
+    env:
+      - CONDA_ENV=py27-min
+      - status=min
   - python: 3.4
-    env: CONDA_ENV=py34
+    env:
+      - CONDA_ENV=py34-min
+      - status=min
   - python: 3.5
-    env: CONDA_ENV=py35
-    addons:
-      apt_packages:
-        - libhdf5-serial-dev
-        - netcdf-bin
-        - libnetcdf-dev
+    env:
+      - CONDA_ENV=py35-min
+      - status=min
+  - python: 3.6
+    env:
+      - CONDA_ENV=py36-min
+      - status=min
+  - python: 2.7
+    env:
+      - CONDA_ENV=py27
+      - status=latest
+  - python: 3.4
+    env:
+      - CONDA_ENV=py34
+      - status=latest
   - python: 3.5
-    env: CONDA_ENV=py35-dask-dev
-  - python: 3.5
-    env: CONDA_ENV=py35-pandas-dev
+    env:
+      - CONDA_ENV=py35
+      - status=latest
+  - python: 3.6
+    env:
+      - CONDA_ENV=py36
+      - status=latest
+  - python: 3.6
+    env:
+      - CONDA_ENV=py36-xarray-dev
+  - python: 3.6
+    env:
+      - CONDA_ENV=py36-pandas-dev
+      - status=dev
+
   allow_failures:
-  - python: 3.5
-    env: CONDA_ENV=py35-dask-dev
-  - python: 3.5
-    env: CONDA_ENV=py35-pandas-dev
+  - python: 3.6
+    env:
+      - CONDA_ENV=py36-pandas-dev
+      - status=dev
+  - python: 3.6
+    env:
+      - CONDA_ENV=py36-xarray-dev
+  - python: 3.6
+    env:
+      - CONDA_ENV=py36-min
+      - status=min
 
 before_install:
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
@@ -42,12 +74,20 @@ before_install:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
+  - conda config --add channels conda-forge
   - conda update -q conda
   - conda info -a
 
 install:
-  - conda env create --file ci/requirements-$CONDA_ENV.yml
-  - source activate test_env
+  - if [[ "$status" == "latest" ]]; then
+      conda env create -n $CONDA_ENV python=$TRAVIS_PYTHON_VERSION;
+      conda install -n $CONDA_ENV --file ci/requirements-latest-conda.txt;
+      source activate $CONDA_ENV;
+      python -m pip install -r ci/requirements-latest.txt;
+    else
+      conda env create --file ci/requirements-$CONDA_ENV.yml;
+    fi
+  - source activate $CONDA_ENV
   - python setup.py install
 
 script:
@@ -55,29 +95,3 @@ script:
 
 after_success:
 - coveralls
-
-# addons:
-#   apt:
-#     packages:
-#       - libblas-dev
-#       - liblapack-dev 
-#       - libatlas-base-dev
-#       - gfortran
-#       - python-dev
-#       - build-essential
-#       - python-numpy
-#       - python-scipy
-#       - python-pandas
-
-# python:
-#   - "3.5"
-#   - "3.4"
-#   - "3.3"
-#   - "2.7"
-#   - "pypy"
-
-# # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-# install: pip install -r requirements.txt
-
-# # command to run tests, e.g. python setup.py test
-# script: python setup.py test

@@ -131,8 +131,8 @@ def read_header(fp, header_file=None, parse_vars=False, assertions=None, *args, 
         ... ''')
 
         >>> attrs, coords, variables = metacsv.read_header(doc, index_col=[0,1])
-        >>> variables # doctest: +NORMALIZE_WHITESPACE
-        Variables
+        >>> variables # doctest: +SKIP
+        Variables ...
             gdp:
                 name            Product
                 unit            2005 $Bn
@@ -140,7 +140,7 @@ def read_header(fp, header_file=None, parse_vars=False, assertions=None, *args, 
                 name            Population
                 unit            millions
 
-        >>> attrs # doctest: +NORMALIZE_WHITESPACE
+        >>> attrs # doctest: +SKIP
         Attributes
             author:         A Person
             date:           2000-01-01
@@ -175,7 +175,7 @@ def read_header(fp, header_file=None, parse_vars=False, assertions=None, *args, 
         ... ''')
         
         >>> attrs, coords, variables = metacsv.read_header(doc, parse_vars=True)
-        >>> variables # doctest: +NORMALIZE_WHITESPACE
+        >>> variables # doctest: +SKIP
         Variables
             gdp:
                 description     Product
@@ -260,7 +260,7 @@ def read_csv(fp, header_file=None, parse_vars=False, assertions=None, *args, **k
         ... ''')
 
         >>> df = metacsv.read_csv(doc, index_col=[0,1])
-        >>> df # doctest: +NORMALIZE_WHITESPACE
+        >>> df # doctest: +skip
         <metacsv.core.containers.DataFrame (4, 2)>
                        pop      gdp
         region year
@@ -301,7 +301,7 @@ def read_csv(fp, header_file=None, parse_vars=False, assertions=None, *args, **k
         ... CAN,2011,34.3,1276.7
         ... ''')
         
-        >>> metacsv.read_csv(doc, index_col=0, parse_vars=True) # doctest: +NORMALIZE_WHITESPACE
+        >>> metacsv.read_csv(doc, index_col=0, parse_vars=True) # doctest: +SKIP
         <metacsv.core.containers.DataFrame (4, 3)>
                 year    pop      gdp
         region
