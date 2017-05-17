@@ -8,7 +8,6 @@ notifications:
   email: false
 
 dist: trusty
-# sudo: required
 
 matrix:
   fast_finish: true
@@ -48,11 +47,11 @@ matrix:
   - python: 3.6
     env:
       - CONDA_ENV=py36-xarray-dev
-      - status=dev
   - python: 3.6
     env:
       - CONDA_ENV=py36-pandas-dev
       - status=dev
+
   allow_failures:
   - python: 3.6
     env:
@@ -61,24 +60,26 @@ matrix:
   - python: 3.6
     env:
       - CONDA_ENV=py36-xarray-dev
-      - status=dev
   - python: 3.6
     env:
       - CONDA_ENV=py36-min
       - status=min
 
-services:
-  - docker
-
 before_install:
-  - docker pull continuumio/miniconda
-  - docker run -i -t continuumio/miniconda /bin/bash
-
-install:
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      wget http://repo.continuum.io/miniconda/Miniconda-3.16.0-Linux-x86_64.sh -O miniconda.sh;
+    else
+      wget http://repo.continuum.io/miniconda/Miniconda3-3.16.0-Linux-x86_64.sh -O miniconda.sh;
+    fi
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda config --add channels conda-forge
   - conda update -q conda
   - conda info -a
+
+install:
   - if [[ "$status" == "latest" ]]; then
       conda env create -n $CONDA_ENV python=$TRAVIS_PYTHON_VERSION;
       conda install -n $CONDA_ENV --file ci/requirements-latest-conda.txt;
