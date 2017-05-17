@@ -906,11 +906,11 @@ class Container(object):
             ...     index=list(str('ABC')),
             ...     attrs={'author': 'my name'})
             ...
-            >>> df.to_dataarray() # doctest: +NORMALIZE_WHITESPACE
+            >>> df.to_dataarray() # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
             <xarray.DataArray (ind_0: 3, coldim_0: 4)>
-            array([[ 4.170220e-01, 7.203245e-01, 1.143748e-04, 3.023326e-01],
-                   [ 1.467559e-01, 9.233859e-02, 1.862602e-01, 3.455607e-01],
-                   [ 3.967675e-01, 5.388167e-01, 4.191945e-01, 6.852195e-01]])
+            array([[ 4.17..., 7.20..., 1.14..., 3.02...],
+                   [ 1.46..., 9.23..., 1.86..., 3.45...],
+                   [ 3.96..., 5.38..., 4.19..., 6.85...]])
             Coordinates:
               * ind_0     (ind_0) object 'A' 'B' 'C'
               * coldim_0  (coldim_0) int64 0 1 2 3

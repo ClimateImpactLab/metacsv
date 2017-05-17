@@ -110,7 +110,11 @@ def read_header(fp, header_file=None, parse_vars=False, assertions=None, *args, 
     Example:
 
         >>> import metacsv
-        >>> import StringIO as io # import io for python 3
+        >>> try:
+        ...   import StringIO as io
+        ... except ImportError:
+        ...   import io
+        ...
         >>> doc = io.StringIO('''
         ... ---
         ... author: A Person
@@ -150,6 +154,11 @@ def read_header(fp, header_file=None, parse_vars=False, assertions=None, *args, 
 
     Example:
 
+        >>> try:
+        ...   import StringIO as io
+        ... except ImportError:
+        ...   import io
+        ...
         >>> doc = io.StringIO('''
         ... ---
         ... author: A Person

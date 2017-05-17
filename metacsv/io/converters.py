@@ -536,7 +536,7 @@ def to_csv(container, fp, attrs=None, coords=None, variables=None, header_file=N
 
     ... code-block:: python
 
-        >>> to_xarray('my-metacsv-data.csv')
+        >>> to_xarray('my-metacsv-data.csv').transpose('alpha', 'beta')
         <xarray.Dataset>
         Dimensions:  (alpha: 2, beta: 2)
         Coordinates:
