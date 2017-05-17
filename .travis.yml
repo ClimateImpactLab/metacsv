@@ -96,5 +96,14 @@ install:
 script:
   - python -m pytest
 
+cache: apt
+addons:
+  apt:
+    packages:
+    - libatlas-dev
+    - libatlas-base-dev
+    - liblapack-dev
+    - gfortran
+
 after_success:
 - coveralls
