@@ -20,7 +20,7 @@ install_reqs = [
 
 tests_reqs = install_reqs + [
     'xarray>=0.7',
-    'netCDF4>=1.2',
+    'netCDF4>=1.2.4',
     'pytest >= 2.7.1',
     'pytest-runner >= 2.8.0',
     'flake8 >= 3.0',
