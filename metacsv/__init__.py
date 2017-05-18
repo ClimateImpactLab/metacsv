@@ -35,5 +35,3 @@ from metacsv.io.converters import (
     to_pandas,
     to_csv,
     to_header)
-
-from metacsv.scripts import *
