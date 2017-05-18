@@ -6,7 +6,7 @@ dependencies:
   - numpy==1.10
   - pandas==0.18.0
   - xarray==0.7
-  - pyyaml==3.0
   - pip:
-    - coveralls==1.0
+    - pyyaml==3.12
+    - coveralls==1.1
     - pytest-cov==2.4.0
