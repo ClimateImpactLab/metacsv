@@ -16,11 +16,11 @@ with open("metacsv/__about__.py") as fp:
 install_reqs = [
     'pandas>=0.17',
     'numpy>=1.10',
-    'pyyaml']
+    'pyyaml>=3.0']
 
 tests_reqs = install_reqs + [
     'xarray>=0.7',
-    'netCDF4',
+    'netCDF4>=1.2',
     'pytest >= 2.7.1',
     'pytest-runner >= 2.8.0',
     'flake8 >= 3.0',
