@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import os
 import sys
@@ -18,11 +16,11 @@ with open("metacsv/__about__.py") as fp:
 install_reqs = [
     'pandas>=0.17',
     'numpy>=1.10',
-    'pyyaml']
+    'pyyaml>=3.0']
 
 tests_reqs = install_reqs + [
     'xarray>=0.7',
-    'netCDF4',
+    'netCDF4>=1.2.4',
     'pytest >= 2.7.1',
     'pytest-runner >= 2.8.0',
     'flake8 >= 3.0',
@@ -44,6 +42,12 @@ if sys.argv[-1] == 'info':
         print('%s: %s' % (k, v))
     sys.exit()
 
+extras_require = {
+    'xarray': [
+        'xarray>=0.7',
+        'netCDF4']
+}
+
 readme = open('README.rst').read()
 history = open('CHANGES').read().replace('.. :changelog:', '')
 
@@ -59,6 +63,7 @@ setup(
     include_package_data=True,
     install_requires=install_reqs,
     tests_require=tests_reqs,
+    extras_require=extras_require,
     license=about['__license__'],
     keywords=about['__title__'],
     zip_safe=False,
@@ -70,9 +75,8 @@ setup(
         "Programming Language :: Python :: 2",
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5'
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6'
     ],
     test_suite='metacsv.testsuite',
 )

@@ -3,13 +3,21 @@ from __future__ import absolute_import, division, print_function, \
 
 import pandas as pd
 import numpy as np
-import xarray as xr
 import yaml
+import warnings
 from .._compat import string_types
 from collections import OrderedDict
-from pandas.core.base import FrozenList
 
 from .internals import Attributes, Container, Coordinates, Variables
+
+with warnings.catch_warnings(record=True) as w:
+
+    import xarray as xr
+
+    if w:
+        msg = 'Unexpected warning: {}'.format(w[-1].message)
+        assert issubclass(w[-1].category, FutureWarning), msg
+        assert 'pandas.tslib' in str(w[-1].message), msg
 
 
 class Series(Container, pd.Series):

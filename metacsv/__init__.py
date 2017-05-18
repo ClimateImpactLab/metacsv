@@ -12,7 +12,7 @@ Tools for documentation-aware data reading, writing, and analysis
 from __future__ import absolute_import, division, print_function, \
     with_statement, unicode_literals
 
-from .__about__ import (
+from metacsv.__about__ import (
     __title__,
     __package_name__,
     __description__,
@@ -20,14 +20,14 @@ from .__about__ import (
     __license__,
     __copyright__)
 
-from .core import *
+from metacsv.core import *
 
-from .io.parsers import (
+from metacsv.io.parsers import (
     read_header,
     read_csv,
     read_pickle)
 
-from .io.converters import (
+from metacsv.io.converters import (
     to_dataset,
     to_dataarray,
     to_xarray,
@@ -35,5 +35,3 @@ from .io.converters import (
     to_pandas,
     to_csv,
     to_header)
-
-from .scripts import *
