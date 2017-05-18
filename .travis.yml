@@ -16,10 +16,6 @@ matrix:
     env:
       - CONDA_ENV=py27-min
       - STATUS=min
-  - python: 3.4
-    env:
-      - CONDA_ENV=py34-min
-      - STATUS=min
   - python: 3.5
     env:
       - CONDA_ENV=py35-min
@@ -31,10 +27,6 @@ matrix:
   - python: 2.7
     env:
       - CONDA_ENV=py27
-      - STATUS=latest
-  - python: 3.4
-    env:
-      - CONDA_ENV=py34
       - STATUS=latest
   - python: 3.5
     env:
@@ -94,6 +86,7 @@ install:
   - python setup.py install
 
 script:
+  - source activate $CONDA_ENV
   - python -m pytest
 
 cache: apt
