@@ -452,7 +452,7 @@ def to_netcdf(container, fp, attrs=None, coords=None, variables=None, *args, **k
             C        (index) float64 0.0001144 0.1863 0.4192
             D        (index) float64 0.3023 0.3456 0.6852
         Attributes:
-            author: my name
+            author:   my name
 
         >>> ds.close()
         >>> import os
@@ -536,8 +536,8 @@ def to_csv(container, fp, attrs=None, coords=None, variables=None, header_file=N
 
     ... code-block:: python
 
-        >>> to_xarray('my-metacsv-data.csv').transpose('alpha', 'beta') \
-        ...   # doctest +NORMALIZE_WHITESPACE +ELLIPSIS
+        >>> to_xarray('my-metacsv-data.csv').transpose(
+        ...     'alpha', 'beta') # doctest: +SKIP
         <xarray.Dataset>
         Dimensions:  (alpha: 2, beta: 2)
         Coordinates: ...
@@ -548,7 +548,7 @@ def to_csv(container, fp, attrs=None, coords=None, variables=None, header_file=N
             C        (alpha, beta) float64 0.0001144 0.1863 0.4192 nan
             D        (alpha, beta) float64 0.3023 0.3456 0.6852 nan
         Attributes:
-            author: my name
+            author:   my name
 
         >>> import os
         >>> os.remove('my-metacsv-data.csv')
