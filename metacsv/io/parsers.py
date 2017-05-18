@@ -239,7 +239,11 @@ def read_csv(fp, header_file=None, parse_vars=False, assertions=None, *args, **k
     Example:
 
         >>> import metacsv, numpy as np
-        >>> import StringIO as io # import io for python 3
+        >>> try:
+        ...   import StringIO as io
+        ... except ImportError:
+        ...   import io
+        ...
         >>> doc = io.StringIO('''
         ... ---
         ... author: A Person
@@ -286,6 +290,11 @@ def read_csv(fp, header_file=None, parse_vars=False, assertions=None, *args, **k
 
     Example:
 
+        >>> try:
+        ...   import StringIO as io
+        ... except ImportError:
+        ...   import io
+        ...
         >>> doc = io.StringIO('''
         ... ---
         ... author: A Person
