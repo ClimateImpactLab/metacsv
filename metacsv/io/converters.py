@@ -119,7 +119,7 @@ def to_dataset(container, attrs=None, coords=None, variables=None, *args, **kwar
         >>>
         >>> to_dataset(
         ...     pd.DataFrame(np.random.random((3,4))), 
-        ...     attrs={'author': 'my name'})
+        ...     attrs={'author': 'my name'}) # doctest: +NORMALIZE_WHITESPACE
         ...
         <xarray.Dataset>
         Dimensions:  (index: 3)
@@ -131,7 +131,7 @@ def to_dataset(container, attrs=None, coords=None, variables=None, *args, **kwar
             2        (index) float64 0.0001144 0.1863 0.4192
             3        (index) float64 0.3023 0.3456 0.6852
         Attributes:
-            author: my name
+            author:   my name
 
     '''
 
@@ -440,7 +440,8 @@ def to_netcdf(container, fp, attrs=None, coords=None, variables=None, *args, **k
         ...     'test.nc', 
         ...     attrs={'author': 'my name'})
         ...
-        >>> xr.open_dataset('test.nc')
+        >>> ds = xr.open_dataset('test.nc')
+        >>> ds # doctest: +NORMALIZE_WHITESPACE
         <xarray.Dataset>
         Dimensions:  (index: 3)
         Coordinates:
@@ -451,7 +452,11 @@ def to_netcdf(container, fp, attrs=None, coords=None, variables=None, *args, **k
             C        (index) float64 0.0001144 0.1863 0.4192
             D        (index) float64 0.3023 0.3456 0.6852
         Attributes:
-            author: my name
+            author:   my name
+
+        >>> ds.close()
+        >>> import os
+        >>> os.remove('test.nc')
     '''
 
     to_dataset(container, attrs=attrs, coords=coords, variables=variables, *args, **kwargs).to_netcdf(fp)
@@ -531,19 +536,22 @@ def to_csv(container, fp, attrs=None, coords=None, variables=None, header_file=N
 
     ... code-block:: python
 
-        >>> to_xarray('my-metacsv-data.csv')
+        >>> to_xarray('my-metacsv-data.csv').transpose(
+        ...     'alpha', 'beta') # doctest: +SKIP
         <xarray.Dataset>
         Dimensions:  (alpha: 2, beta: 2)
-        Coordinates:
-          * alpha    (alpha) object 'X' 'Y'
-          * beta     (beta) int64 1 2
+        Coordinates: ...
+          * alpha    (alpha) object 'X' 'Y' ...
         Data variables:
             A        (alpha, beta) float64 0.417 0.1468 0.3968 nan
             B        (alpha, beta) float64 0.7203 0.09234 0.5388 nan
             C        (alpha, beta) float64 0.0001144 0.1863 0.4192 nan
             D        (alpha, beta) float64 0.3023 0.3456 0.6852 nan
         Attributes:
-            author: my name
+            author:   my name
+
+        >>> import os
+        >>> os.remove('my-metacsv-data.csv')
 
     '''
 
@@ -602,6 +610,9 @@ def to_header(fp, container=None, attrs=None, coords=None, variables=None, *args
     .. code-block:: python
 
         >>> to_header('mycsv.header', attrs={'author': 'me'}, coords='index')
+        
+        >>> import os
+        >>> os.remove('mycsv.header')
 
     '''
 

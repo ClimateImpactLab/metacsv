@@ -7,7 +7,7 @@ from __future__ import (
 )
 
 # from ...metacsv.io.parsers import read_csv
-from . import metacsv
+import metacsv
 import argparse
 import sys
 
