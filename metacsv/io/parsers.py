@@ -41,7 +41,8 @@ def _parse_headered_data(fp):
     while not find_yaml_stop(this_line):
         yaml_text += '\n' + this_line.rstrip('\n')
         this_line = next(fp)
-
+    yaml_text = yaml_text.replace('\t', ' ')
+        
     header = ordered_load(yaml_text)
     
 
