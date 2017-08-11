@@ -104,9 +104,9 @@ def read_header(fp, header_file=None, parse_vars=False, assertions=None, *args, 
         assertions (dict-like): dictionary of values to assert in file header
 
     Returns:
-        args        
-        variables   
+        attrs        
         coords      
+        variables      
 
     Example:
 
