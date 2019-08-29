@@ -1,4 +1,7 @@
 name: py35-min
+channels:
+  - conda-forge
+  - defaults
 dependencies:
   - python=3.5
   - netcdf4
