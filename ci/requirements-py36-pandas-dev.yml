@@ -6,9 +6,9 @@ dependencies:
   - python-dateutil>=2.5.3
   - pytz>=2017.2
   - cython>=0.25.2
+  - pytest>=3.0.7
+  - pyyaml>=3.12
+  - coveralls>=1.1
+  - pytest-cov>=2.5.1
   - pip:
-    - pytest>=3.0.7
-    - pyyaml>=3.12
-    - coveralls>=1.1
-    - pytest-cov>=2.5.1
     - git+https://github.com/pydata/pandas.git
