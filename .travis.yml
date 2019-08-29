@@ -2,12 +2,10 @@
 # Based on https://github.com/pydata/xarray/blob/master/.travis.yml
 
 language: python
+dist: xenial
 
-sudo: false # use container based build
 notifications:
   email: false
-
-dist: trusty
 
 matrix:
   fast_finish: true
@@ -16,9 +14,9 @@ matrix:
     env:
       - CONDA_ENV=py27-min
       - STATUS=min
-  - python: 3.5
+  - python: 3.7
     env:
-      - CONDA_ENV=py35-min
+      - CONDA_ENV=py37-min
       - STATUS=min
   - python: 3.6
     env:

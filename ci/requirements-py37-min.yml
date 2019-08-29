@@ -1,9 +1,9 @@
-name: py35-min
+name: py37-min
 channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.5
+  - python=3.7
   - netcdf4
   - pytest
   - numpy
