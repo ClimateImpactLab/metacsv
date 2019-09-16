@@ -687,7 +687,7 @@ class Container(object):
     def _print_format(self):
         metacsv_str = '<{} {}>'.format(
             type(self).__module__ + '.' + type(self).__name__, self.shape)
-        data_str = self.pandas_parent.__str__(self)
+        data_str = self.pandas_parent.__str__(self.to_pandas())
         postscript = '\n'.join(
             [str(p) for p in [self.coords, self.variables, self.attrs] if p != None])
         return (metacsv_str + '\n' + data_str + ('\n\n' if len(postscript) > 0 else '') + postscript)
