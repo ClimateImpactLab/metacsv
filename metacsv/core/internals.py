@@ -61,7 +61,7 @@ class _BaseProperty(object):
                 return self._data.pop(key)
             else:
                 return self._data.pop(key, default[0])
-                
+
         else:
             if len(default) == 1:
                 return default[0]
@@ -210,16 +210,14 @@ class Coordinates(object):
 
         if container is not None:
             if not isinstance(container, (Container, pd.DataFrame, pd.Series)):
-                if isinstance(container, pd.Panel):
-                    raise NotImplementedError('Coordinates not implemented for panel data')
                 raise TypeError(
                     '__init__ container argument must be a metacsv or pandas DataFrame or Series')
 
         self._container = container
-        
+
         if hasattr(coords, 'copy'):
             coords = coords.copy()
-        
+
         self.__set__(coords)
 
     def __set__(self, coords):
@@ -524,7 +522,7 @@ class Container(object):
     coords : dict
 
         Container coordinates
-    
+
     variables : dict
 
         Variable-specific attributes
@@ -538,8 +536,7 @@ class Container(object):
 
     container : object
 
-        a :py:class:`~metacsv.Series`, :py:class:`~metacsv.DataFrame`, or
-        :py:class:`~metacsv.Panel` object
+        a :py:class:`~metacsv.Series` or :py:class:`~metacsv.DataFrame` object
 
     '''
 
@@ -717,13 +714,13 @@ class Container(object):
         header_file : str_or_buffer
 
             A separate metacsv-formatted header file
-        
+
         *args :
-        
+
             passed to pandas.to_csv
-        
+
         **kwargs :
-        
+
             passed to pandas.to_csv
 
         Example
@@ -736,7 +733,7 @@ class Container(object):
             >>> np.random.seed(1)
             >>>
             >>> DataFrame(
-            ...     pd.DataFrame(np.random.random((3,4))), 
+            ...     pd.DataFrame(np.random.random((3,4))),
             ...     attrs={'author': 'my name'}
             ...     ).to_csv('my-metacsv-data.csv')
 
@@ -769,7 +766,7 @@ class Container(object):
             ...
             >>> df.attrs={'author': 'my name'}
             >>> df.to_header('mycsv.header')
-            
+
             >>> import os
             >>> os.remove('mycsv.header')
         '''
@@ -778,7 +775,7 @@ class Container(object):
 
     def to_pandas(self):
         '''
-        Strip metacsv special attributes and return as a pandas Series, DataFrame, or Panel
+        Strip metacsv special attributes and return pandas Series or DataFrame
 
         Example
         -------
@@ -811,7 +808,7 @@ class Container(object):
               * abc        (abc) object a, b, c
                 xyz        (abc) object X, Y, Z
             Attributes
-                author:     my name
+                author:    my name
 
             >>> df.to_pandas() # doctest: +NORMALIZE_WHITESPACE
                          col0      col1      col2      col3
@@ -858,7 +855,7 @@ class Container(object):
               * abc        (abc) object a, b, c
                 xyz        (abc) object X, Y, Z
             Attributes
-                author:     my name
+                author:    my name
 
             >>> df.to_xarray()  # doctest: +NORMALIZE_WHITESPACE
             <xarray.Dataset>
@@ -872,7 +869,7 @@ class Container(object):
                 col2     (abc) float64 0.0001144 0.1863 0.4192
                 col3     (abc) float64 0.3023 0.3456 0.6852
             Attributes:
-                author:   my name
+                author:  my name
         '''
 
         if len(self.shape) == 1:
@@ -908,14 +905,14 @@ class Container(object):
             ...
             >>> df.to_dataarray() # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
             <xarray.DataArray (ind_0: 3, coldim_0: 4)>
-            array([[ 4.17..., 7.20..., 1.14..., 3.02...],
-                   [ 1.46..., 9.23..., 1.86..., 3.45...],
-                   [ 3.96..., 5.38..., 4.19..., 6.85...]])
+            array([[4.170..., 7.20..., 1.14..., 3.02...],
+                   [1.467..., 9.23..., 1.86..., 3.45...],
+                   [3.967..., 5.38..., 4.19..., 6.85...]])
             Coordinates:
               * ind_0     (ind_0) object 'A' 'B' 'C'
               * coldim_0  (coldim_0) int64 0 1 2 3
             Attributes:
-                author:    my name
+                author:   my name
 
         '''
         if len(self.shape) == 1:
@@ -947,7 +944,7 @@ class Container(object):
             >>> df = DataFrame(
             ...     np.random.random((3,4)),
             ...     attrs={'author': 'my name'})
-            ...     
+            ...
             >>> df.to_dataset() # doctest: +NORMALIZE_WHITESPACE
             <xarray.Dataset>
             Dimensions:  (index: 3)
@@ -959,7 +956,7 @@ class Container(object):
                 2        (index) float64 0.0001144 0.1863 0.4192
                 3        (index) float64 0.3023 0.3456 0.6852
             Attributes:
-                author:   my name
+                author:  my name
 
         '''
         if len(self.shape) == 1:
@@ -977,7 +974,6 @@ class Container(object):
         .. note ::
 
             If a Series is passed, the variable will be named 'data'.
-            ``to_netcdf`` is not yet implemented for Panel data.
 
         Parameters
         ----------
@@ -999,11 +995,11 @@ class Container(object):
             ...     np.random.random((3,4)),
             ...     columns=list(str('ABCD')),
             ...     attrs={'author': 'my name'})
-            ...     
+            ...
             >>> df.to_netcdf('test.nc')
 
         .. code-block:: python
-            
+
             >>> import xarray as xr
             >>> ds = xr.open_dataset('test.nc')
             >>> ds # doctest: +NORMALIZE_WHITESPACE
@@ -1012,17 +1008,17 @@ class Container(object):
             Coordinates:
               * index    (index) int64 0 1 2
             Data variables:
-                A        (index) float64 0.417 0.1468 0.3968
-                B        (index) float64 0.7203 0.09234 0.5388
-                C        (index) float64 0.0001144 0.1863 0.4192
-                D        (index) float64 0.3023 0.3456 0.6852
+                A        (index) float64 ...
+                B        (index) float64 ...
+                C        (index) float64 ...
+                D        (index) float64 ...
             Attributes:
-                author:   my name
+                author:  my name
 
             >>> ds.close()
             >>> import os
             >>> os.remove('test.nc')
-        
+
         '''
 
         self.to_dataset().to_netcdf(fp)

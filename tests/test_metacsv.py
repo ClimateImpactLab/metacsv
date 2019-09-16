@@ -36,7 +36,7 @@ def setup_env():
         os.makedirs(test_tmp_prefix)
 
     yield
-    
+
     if os.path.isdir(test_tmp_prefix):
         shutil.rmtree(test_tmp_prefix)
 
@@ -80,7 +80,7 @@ def test_for_series_attributes(setup_env):
     '''CSV Test 3: Ensure read_csv preserves attrs with squeeze=True conversion to Series
 
     This test is incomplete - a complete test would check that attrs are preserved
-    when index_col is not set and the index is set by coords. Currently, this 
+    when index_col is not set and the index is set by coords. Currently, this
     does not work.
     '''
 
@@ -197,13 +197,6 @@ def test_change_dims(setup_env):
     df2 = metacsv.DataFrame({df.columns[0]: series})
     assert (hasattr(df2, 'coords'))
 
-    # Test DataFrame._constructor_expanddims
-    panel = metacsv.Panel({'df': df})
-    assert (hasattr(panel, 'coords'))
-
-    # Test Panel._constructor_sliced
-    df3 = panel['df']
-    assert (hasattr(df3, 'coords'))
 
 def test_standalone_properties(setup_env):
 
@@ -290,7 +283,7 @@ def test_standalone_properties(setup_env):
 
     assert ('description' in var.parse_string_var('variable name [unit]'))
     assert var.parse_string_var('variable [ name') == 'variable [ name'
-    
+
     with pytest.raises(TypeError):
         df.variables = []
 
@@ -315,10 +308,10 @@ def test_standalone_coords(setup_env):
 
     with pytest.raises(ValueError):
         coords.update()
-    
+
     with pytest.raises(KeyError):
         coords['a']
-        
+
     assert coords.__repr__() == '<Empty Coordinates>'
 
     coords.update({'a': None})
@@ -327,8 +320,8 @@ def test_standalone_coords(setup_env):
 
 def test_parse_vars(setup_env):
     df = metacsv.read_csv(
-        os.path.join(testdata_prefix, 'test8.csv'), 
-        parse_vars=True, 
+        os.path.join(testdata_prefix, 'test8.csv'),
+        parse_vars=True,
         index_col=[0,1,2],
         coords={'ind1':None, 'ind2':None, 'ind3':['ind2']})
 
@@ -391,7 +384,7 @@ def test_converters(setup_env):
     da = metacsv.to_dataarray(df, attrs=attrs, coords={'ind': None})
     ds1 = metacsv.to_xarray(df, attrs=attrs, coords={'ind': None})
     ds2 = metacsv.to_dataset(df, attrs=attrs, coords={'ind': None})
-    
+
     df2 = metacsv.DataFrame(df, attrs=attrs)
     df2.add_coords()
 
@@ -433,8 +426,8 @@ def test_converters(setup_env):
         metacsv.to_xarray(['a','b','c'])
 
     metacsv.to_csv(
-        os.path.join(testdata_prefix, 'test6.csv'), 
-        tmpfile, 
+        os.path.join(testdata_prefix, 'test6.csv'),
+        tmpfile,
         attrs={'author': 'test author'},
         variables={'col1': {'unit': 'digits'}})
 
@@ -454,13 +447,13 @@ def test_converters(setup_env):
 def test_assertions(setup_env):
     fp = os.path.join(testdata_prefix, 'test7.csv')
 
-    df = metacsv.read_csv(fp, parse_vars=True, 
+    df = metacsv.read_csv(fp, parse_vars=True,
         assertions={'attrs': {'version': 'test5.2016-05-01.01'}})
 
-    df = metacsv.read_csv(fp, parse_vars=True, 
+    df = metacsv.read_csv(fp, parse_vars=True,
         assertions={'attrs': {'version': lambda x: x>'test5.2016-05-01.00'}})
 
-    df = metacsv.read_csv(fp, parse_vars=True, 
+    df = metacsv.read_csv(fp, parse_vars=True,
         assertions={'variables': {'col2': {'unit': 'digits'}}})
 
 def test_header_writer(setup_env):
