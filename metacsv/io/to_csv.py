@@ -25,14 +25,14 @@ def _header_to_file_object(fp, attrs=None, coords=None, variables=None):
 
 def _container_to_csv_object(container, fp, *args, **kwargs):
     encoding = kwargs.pop('encoding', 'utf-8')
-    container.pandas_parent.to_csv(container, fp, *args, encoding=encoding, **kwargs)
+    container.pandas_parent.to_csv(container.to_pandas(), fp, *args, encoding=encoding, **kwargs)
 
 def metacsv_to_csv(container, fp, header_file=None, *args, **kwargs):
     separate_header = False
 
     if (header_file is not None) and (header_file != fp):
         separate_header = True
-    
+
     if separate_header:
         metacsv_to_header(header_file, attrs=container.attrs, coords=container.coords, variables=container.variables)
 

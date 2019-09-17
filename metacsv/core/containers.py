@@ -6,19 +6,9 @@ import numpy as np
 import yaml
 import warnings
 from .._compat import string_types
-from collections import OrderedDict
 
 from .internals import Attributes, Container, Coordinates, Variables
-
-with warnings.catch_warnings(record=True) as w:
-
-    import xarray as xr
-
-    if w:
-        msg = 'Unexpected warning: {}'.format(w[-1].message)
-        assert issubclass(w[-1].category, FutureWarning), msg
-        assert 'pandas.tslib' in str(w[-1].message), msg
-
+import xarray as xr
 
 class Series(Container, pd.Series):
     '''
@@ -26,11 +16,11 @@ class Series(Container, pd.Series):
 
     Keyword Arguments:
         attrs     : dict-like
-            Attributes of this container  
+            Attributes of this container
         coords    : list or dict-like
-            Coordinate dependencies  
+            Coordinate dependencies
         variables :  dict-like
-            Variable-specific attributes  
+            Variable-specific attributes
 
     *args, **kwargs are passed to pandas.Series.__init__
     '''
@@ -40,9 +30,9 @@ class Series(Container, pd.Series):
 
     def copy(self):
         return Series(
-            self.pandas_parent.copy(self), 
-            coords=self.coords.copy(), 
-            attrs=self.attrs.copy(), 
+            self.pandas_parent.copy(self),
+            coords=self.coords.copy(),
+            attrs=self.attrs.copy(),
             variables=self.variables.copy())
 
     @property
@@ -66,11 +56,11 @@ class DataFrame(Container, pd.DataFrame):
 
     Keyword Arguments:
         attrs     : dict-like
-            Attributes of this container  
+            Attributes of this container
         coords    : list or dict-like
-            Coordinate dependencies  
+            Coordinate dependencies
         variables :  dict-like
-            Variable-specific attributes   
+            Variable-specific attributes
 
     *args, **kwargs are passed to pandas.DataFrame.__init__
     '''
@@ -80,9 +70,9 @@ class DataFrame(Container, pd.DataFrame):
 
     def copy(self):
         return DataFrame(
-            self.pandas_parent.copy(self), 
-            coords=self.coords.copy(), 
-            attrs=self.attrs.copy(), 
+            self.pandas_parent.copy(self),
+            coords=self.coords.copy(),
+            attrs=self.attrs.copy(),
             variables=self.variables.copy())
 
     @property
@@ -93,55 +83,8 @@ class DataFrame(Container, pd.DataFrame):
     def _constructor_sliced(self):
         return Series
 
-    @property
-    def _constructor_expanddims(self):
-        return Panel
-
     def __init__(self, *args, **kwargs):
         args, kwargs, special = Container.strip_special_attributes(
             args, kwargs)
         pd.DataFrame.__init__(self, *args, **kwargs)
-        Container.__init__(self, **special)
-
-
-class Panel(Container, pd.Panel):
-    '''
-    metacsv.Panel, inherrited from pandas.Panel
-
-    Keyword Arguments:
-        attrs     : dict-like
-            Attributes of this container  
-        coords    : list or dict-like
-            Coordinate dependencies  
-        variables :  dict-like
-            Variable-specific attributes   
-
-    *args, **kwargs are passed to pandas.Panel.__init__
-    
-    Note:
-        metacsv.Panel is not fully implemented
-    '''
-
-    pandas_parent = pd.Panel
-    _metadata = ['_coords', '_attrs', '_variables']
-
-    def copy(self):
-        return Panel(
-            self.pandas_parent.copy(self), 
-            coords=self.coords.copy(), 
-            attrs=self.attrs.copy(), 
-            variables=self.variables.copy())
-
-    @property
-    def _constructor(self):
-        return Panel
-
-    @property
-    def _constructor_sliced(self):
-        return DataFrame
-
-    def __init__(self, *args, **kwargs):
-        args, kwargs, special = Container.strip_special_attributes(
-            args, kwargs)
-        pd.Panel.__init__(self, *args, **kwargs)
         Container.__init__(self, **special)

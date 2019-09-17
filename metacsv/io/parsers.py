@@ -8,7 +8,7 @@ from collections import OrderedDict
 from .yaml_tools import ordered_load
 from .._compat import string_types, has_iteritems, iteritems
 from ..core.internals import Container, Attributes, Variables, Coordinates
-from ..core.containers import Series, DataFrame, Panel
+from ..core.containers import Series, DataFrame
 
 
 def find_yaml_start(line):
@@ -42,9 +42,9 @@ def _parse_headered_data(fp):
         yaml_text += '\n' + this_line.rstrip('\n')
         this_line = next(fp)
     yaml_text = yaml_text.replace('\t', ' ')
-        
+
     header = ordered_load(yaml_text)
-    
+
 
     return header
 
@@ -56,7 +56,7 @@ def _verify_deep_assertion(verify_par, par):
         if hasattr(verify_par, '__call__'):
             assert verify_par(par)
             return
-        
+
         else:
             assert verify_par == par
             return
@@ -74,7 +74,7 @@ def _verify_assertions(assertions=None, attrs=None, coords=None, variables=None)
 
     if not has_iteritems(assertions):
         raise TypeError('assertions must be iterable')
-    
+
     if 'attrs' in assertions:
         _verify_deep_assertion(assertions['attrs'], attrs)
 
@@ -104,9 +104,9 @@ def read_header(fp, header_file=None, parse_vars=False, assertions=None, *args, 
         assertions (dict-like): dictionary of values to assert in file header
 
     Returns:
-        args        
-        variables   
-        coords      
+        args
+        variables
+        coords
 
     Example:
 
@@ -174,7 +174,7 @@ def read_header(fp, header_file=None, parse_vars=False, assertions=None, *args, 
         ... CAN,2010,34.0,1240.0
         ... CAN,2011,34.3,1276.7
         ... ''')
-        
+
         >>> attrs, coords, variables = metacsv.read_header(doc, parse_vars=True)
         >>> variables # doctest: +SKIP
         Variables
@@ -310,7 +310,7 @@ def read_csv(fp, header_file=None, parse_vars=False, assertions=None, *args, **k
         ... CAN,2010,34.0,1240.0
         ... CAN,2011,34.3,1276.7
         ... ''')
-        
+
         >>> metacsv.read_csv(doc, index_col=0, parse_vars=True) # doctest: +SKIP
         <metacsv.core.containers.DataFrame (4, 3)>
                 year    pop      gdp
