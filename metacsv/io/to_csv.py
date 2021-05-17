@@ -9,13 +9,13 @@ def _header_to_file_object(fp, attrs=None, coords=None, variables=None):
     attr_dict = OrderedDict()
 
     if attrs != None:
-        attr_dict.update(attrs._data)
+        attr_dict.update(attrs.data)
 
     if coords != None:
         attr_dict.update({'coords': coords._coords})
 
     if variables != None:
-        attr_dict.update({'variables': variables._data})
+        attr_dict.update({'variables': variables.data})
 
     if len(attr_dict) > 0:
         fp.write(text_to_native(('---\n'), 'utf-8'))

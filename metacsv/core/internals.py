@@ -5,7 +5,7 @@ from __future__ import absolute_import, division, print_function, \
 import pandas as pd
 import numpy as np
 import re
-from collections import OrderedDict
+from collections import OrderedDict, UserDict
 
 try:
     from pandas.core.base import FrozenList
@@ -17,18 +17,18 @@ from .._compat import string_types, has_iterkeys, iterkeys, has_iteritems, iteri
 from ..io import to_xarray, to_csv, to_pandas
 
 
-class _BaseProperty(object):
+class _BaseProperty(UserDict):
     property_type = None  # overload
     repr_order = []
 
     def __init__(self, data=None, container=None):
         if data is None:
-            self._data = None
+            self.data = None
         elif isinstance(data, _BaseProperty):
-            self._data = data._data
+            self.data = data.data
         else:
             if isinstance(data, dict) or isinstance(data, OrderedDict):
-                self._data = data
+                self.data = data
             else:
                 raise TypeError
 
@@ -37,9 +37,9 @@ class _BaseProperty(object):
 
     def __str__(self):
         truncate = lambda s: '\n'.join([l if len(l) < 80 else l[:75] + '...' for l in s.split('\n')])
-        if self._data is not None and len(self._data) > 0:
-            repr_str = '' if len(self._data) == 0 else self.property_type
-            for props, prop_data in self._data.items():
+        if self.data is not None and len(self.data) > 0:
+            repr_str = '' if len(self.data) == 0 else self.property_type
+            for props, prop_data in self.data.items():
                 repr_str += '\n    {: <15} {}'.format(
                     str(props) + ':', prop_data)
             return truncate(repr_str)
@@ -47,20 +47,20 @@ class _BaseProperty(object):
             return '<Empty {}>'.format(self.property_type)
 
     def __iter__(self):
-        if self._data is not None:
-            for k, v in self._data.items():
-                yield k, v
+        if self.data is not None:
+            for k, v in self.data.items():
+                yield k
 
     def pop(self, key, *default):
         if len(default) > 1:
             raise ValueError(
                 'pop() takes exactly 2 arguments ({} given)'.format(len(default) + 1))
 
-        if self._data is not None:
+        if self.data is not None:
             if len(default) == 0:
-                return self._data.pop(key)
+                return self.data.pop(key)
             else:
-                return self._data.pop(key, default[0])
+                return self.data.pop(key, default[0])
 
         else:
             if len(default) == 1:
@@ -75,11 +75,11 @@ class _BaseProperty(object):
             raise ValueError(
                 'get() takes exactly 2 arguments ({} given)'.format(len(default) + 1))
 
-        if self._data is not None:
+        if self.data is not None:
             if len(default) == 0:
-                return self._data.get(key)
+                return self.data.get(key)
             else:
-                return self._data.get(key, default[0])
+                return self.data.get(key, default[0])
 
         else:
             if len(default) == 1:
@@ -90,78 +90,78 @@ class _BaseProperty(object):
                     '{} not yet assigned.'.format(self.property_type))
 
     def update(self, value):
-        if self._data == None:
-            self._data = {}
+        if self.data == None:
+            self.data = {}
 
         if isinstance(value, _BaseProperty):
-            self._data.update(value._data)
+            self.data.update(value.data)
         elif has_iterkeys(value):
             if len(value) > 0:
-                self._data.update(value)
+                self.data.update(value)
         else:
             raise TypeError('Passed value is not iterable')
 
     def __getitem__(self, key):
-        if self._data is None:
+        if self.data is None:
             raise KeyError('{} not yet assigned.'.format(self.property_type))
-        return self._data[key]
+        return self.data[key]
 
     def __setitem__(self, key, value):
-        if self._data is None:
-            self._data = {}
+        if self.data is None:
+            self.data = {}
 
         if isinstance(value, _BaseProperty):
-            self._data[key] = value._data
+            self.data[key] = value.data
         else:
-            self._data[key] = value
+            self.data[key] = value
 
     def __delitem__(self, key):
-        if self._data is None:
+        if self.data is None:
             raise KeyError('{} not yet assigned.'.format(self.property_type))
-        del self._data[key]
+        del self.data[key]
 
     def __getattr__(self, key):
         if key in self.__dict__:
             return self.__dict__[key]
-        if '_data' in self.__dict__:
-            if self.__dict__['_data'] != None:
-                if key in self.__dict__['_data']:
-                    return self.__dict__['_data'][key]
+        if 'data' in self.__dict__:
+            if self.__dict__['data'] != None:
+                if key in self.__dict__['data']:
+                    return self.__dict__['data'][key]
         raise AttributeError("'{}' object has no attribute '{}'".format(self.property_type, key))
 
     def __eq__(self, other):
-        if hasattr(other, '_data'):
-            return dict(self._data) == dict(other._data)
-        if other is None and (self._data is None or len(self._data) == 0):
+        if hasattr(other, 'data'):
+            return dict(self.data) == dict(other.data)
+        if other is None and (self.data is None or len(self.data) == 0):
             return True
         elif has_iteritems(other):
-            return dict(self._data) == dict(other)
+            return dict(self.data) == dict(other)
         return False
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
     def __contains__(self, key):
-        if self._data is None:
+        if self.data is None:
             return False
-        return key in self._data
+        return key in self.data
 
     def __len__(self):
-        if self._data is None:
+        if self.data is None:
             return 0
-        return len(self._data)
+        return len(self.data)
 
     def items(self):
-        if self._data is not None:
-            for k, v in self._data.items():
+        if self.data is not None:
+            for k, v in self.data.items():
                 yield (k, v)
 
     def iteritems(self):
       return self.items()
 
     def copy(self):
-        if self._data is not None:
-            return type(self)(self._data.copy(), container=None)
+        if self.data is not None:
+            return type(self)(self.data.copy(), container=None)
         else:
             return type(self)()
 
@@ -188,9 +188,9 @@ class Variables(_BaseProperty):
 
     def __str__(self):
         truncate = lambda s: '\n'.join([l if len(l) < 80 else l[:75] + '...' for l in s.split('\n')])
-        if self._data is not None and len(self._data) > 0:
-            repr_str = '' if len(self._data) == 0 else self.property_type
-            for props, prop_data in self._data.items():
+        if self.data is not None and len(self.data) > 0:
+            repr_str = '' if len(self.data) == 0 else self.property_type
+            for props, prop_data in self.data.items():
                 item_str = '\n    {: <10} {}'.format(
                     str(props) + ':', (prop_data if not has_iteritems(prop_data) else '\n' + '\n'.join([' '*8 + '{: <15} {}'.format(k, v) for k, v in iteritems(prop_data)])))
                 repr_str += item_str
@@ -651,7 +651,10 @@ class Container(object):
                 data = data.copy()
             parsed = func(data)
             if parsed != None:
-                p_data.update(parsed)
+                if isinstance(parsed, _BaseProperty):
+                    p_data.update(parsed.__dict__)
+                else:
+                    p_data.update(parsed)
 
         def strip_property(prop, func=lambda x: x):
             p_data = {}
@@ -1006,14 +1009,14 @@ class Container(object):
             <xarray.Dataset>
             Dimensions:  (index: 3)
             Coordinates:
-              * index    (index) int64 0 1 2
+              * index    (index) int32 0 1 2
             Data variables:
                 A        (index) float64 ...
                 B        (index) float64 ...
                 C        (index) float64 ...
                 D        (index) float64 ...
             Attributes:
-                author:  my name
+                author:   my name
 
             >>> ds.close()
             >>> import os
