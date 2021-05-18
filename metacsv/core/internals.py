@@ -1009,7 +1009,7 @@ class Container(object):
             <xarray.Dataset>
             Dimensions:  (index: 3)
             Coordinates:
-              * index    (index) int32 0 1 2
+              * index    (index) int... 0 1 2
             Data variables:
                 A        (index) float64 ...
                 B        (index) float64 ...

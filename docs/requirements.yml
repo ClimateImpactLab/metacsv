@@ -3,7 +3,7 @@ dependencies:
   - python=2.7
   - pytest
   - numpy
-  - pandas==0.18.1
+  - pandas>=1.0
   - pyyaml>=3.0
   - pip:
     - coveralls
