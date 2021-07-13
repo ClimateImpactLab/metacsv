@@ -81,7 +81,7 @@ def metacsv_series_to_dataarray(series, attrs=None):
 
     series.index.names = list(map(str, series.index.names))
     da = xr.DataArray.from_series(series)
-    da.attrs = attrs
+    da.attrs = dict(attrs)
 
     return da
 

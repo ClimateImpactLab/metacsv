@@ -440,14 +440,14 @@ def to_netcdf(container, fp, attrs=None, coords=None, variables=None, *args, **k
         <xarray.Dataset>
         Dimensions:  (index: 3)
         Coordinates:
-          * index    (index) int64 0 1 2
+          * index    (index) int... 0 1 2
         Data variables:
             A        (index) float64 ...
             B        (index) float64 ...
             C        (index) float64 ...
             D        (index) float64 ...
         Attributes:
-            author:  my name
+            author:   my name
 
         >>> ds.close()
         >>> import os

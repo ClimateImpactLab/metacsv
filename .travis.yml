@@ -10,10 +10,6 @@ notifications:
 matrix:
   fast_finish: true
   include:
-  - python: 2.7
-    env:
-      - CONDA_ENV=py27-min
-      - STATUS=min
   - python: 3.7
     env:
       - CONDA_ENV=py37-min
@@ -22,47 +18,13 @@ matrix:
     env:
       - CONDA_ENV=py36-min
       - STATUS=min
-  - python: 2.7
-    env:
-      - CONDA_ENV=py27
-      - STATUS=latest
-  - python: 3.5
-    env:
-      - CONDA_ENV=py35
-      - STATUS=latest
   - python: 3.6
     env:
       - CONDA_ENV=py36
       - STATUS=latest
-  - python: 3.6
-    env:
-      - CONDA_ENV=py36-xarray-dev
-      - STATUS=dev
-  - python: 3.6
-    env:
-      - CONDA_ENV=py36-pandas-dev
-      - STATUS=dev
-
-  allow_failures:
-  - python: 3.6
-    env:
-      - CONDA_ENV=py36-pandas-dev
-      - STATUS=dev
-  - python: 3.6
-    env:
-      - CONDA_ENV=py36-xarray-dev
-      - STATUS=dev
-  - python: 3.6
-    env:
-      - CONDA_ENV=py36-min
-      - STATUS=min
 
 before_install:
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
-    else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-    fi
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r

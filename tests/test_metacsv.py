@@ -411,7 +411,6 @@ def test_converters(setup_env):
     df.columns.names = ['cols']
 
     s = df.stack('cols')
-    metacsv.to_csv(s, tmpfile, attrs={'author': 'my name'})
     s = metacsv.Series(s)
     coords.update({'cols': None})
     s.attrs = attrs

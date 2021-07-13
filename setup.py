@@ -14,7 +14,7 @@ with open("metacsv/__about__.py") as fp:
 
 
 install_reqs = [
-    'pandas>=0.17',
+    'pandas>=1.0',
     'numpy>=1.10',
     'pyyaml>=3.0']
 
