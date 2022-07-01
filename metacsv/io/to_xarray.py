@@ -1,6 +1,6 @@
-'''
+"""
 Utilities for converting metacsv Containers to xarray containers
-'''
+"""
 
 import pandas as pd
 import numpy as np
@@ -20,7 +20,11 @@ def _import_xarray():
 def _check_series_unique(series):
     def check_unique(group):
         try:
-            name = group.name if isinstance(group.name, string_types) else ','.join(group.name)
+            name = (
+                group.name
+                if isinstance(group.name, string_types)
+                else ",".join(group.name)
+            )
         except TypeError:
             name = group.name
 
@@ -45,8 +49,7 @@ def _append_coords_to_dataset(ds, container, base_only, attrs=None):
         container.add_coords()
 
     for coord in container.base_coords:
-        ds.coords[str(coord)] = container.index.get_level_values(
-            coord).unique()
+        ds.coords[str(coord)] = container.index.get_level_values(coord).unique()
         ds.coords[str(coord)].attrs = container.variables.get(coord, {})
 
     for coord in container.coords:
@@ -55,10 +58,18 @@ def _append_coords_to_dataset(ds, container, base_only, attrs=None):
 
         data = base_only[coord]
         if len(data.index.names) > len(container.coords._base_dependencies[coord]):
-            data.reset_index([c for c in data.index.names if c not in container.coords._base_dependencies[
-                             coord]], inplace=True, drop=True)
+            data.reset_index(
+                [
+                    c
+                    for c in data.index.names
+                    if c not in container.coords._base_dependencies[coord]
+                ],
+                inplace=True,
+                drop=True,
+            )
         ds.coords[str(coord)] = metacsv_series_to_dataarray(
-            data, attrs=container.variables.get(coord, {}))
+            data, attrs=container.variables.get(coord, {})
+        )
 
 
 def metacsv_series_to_dataarray(series, attrs=None):
@@ -86,7 +97,7 @@ def metacsv_series_to_dataarray(series, attrs=None):
     return da
 
 
-def metacsv_series_to_dataset(series, name='data', attrs=None):
+def metacsv_series_to_dataset(series, name="data", attrs=None):
 
     global xr
     if xr is None:
@@ -120,7 +131,7 @@ def metacsv_series_to_dataset(series, name='data', attrs=None):
     return ds
 
 
-def metacsv_dataframe_to_dataset(dataframe, name='data', attrs=None):
+def metacsv_dataframe_to_dataset(dataframe, name="data", attrs=None):
 
     global xr
     if xr is None:
@@ -169,15 +180,17 @@ def metacsv_dataframe_to_dataarray(dataframe, names=None, attrs=None):
     coords = dataframe.coords.copy()
 
     dataframe.index.names = [
-        str(ind) if not pd.isnull(ind) else 'ind_{}'.format(i)
-            for i, ind in enumerate(dataframe.index.names)]
+        str(ind) if not pd.isnull(ind) else "ind_{}".format(i)
+        for i, ind in enumerate(dataframe.index.names)
+    ]
 
     if dataframe.coords == None:
         coords.update({c: None for c in dataframe.index.names})
 
     dataframe.columns.names = [
-        str(c) if not pd.isnull(c) else 'coldim_{}'.format(i)
-            for i, c in enumerate(dataframe.columns.names)]
+        str(c) if not pd.isnull(c) else "coldim_{}".format(i)
+        for i, c in enumerate(dataframe.columns.names)
+    ]
 
     colnames = dataframe.columns.names
     series = dataframe._constructor_sliced(dataframe.stack(colnames))

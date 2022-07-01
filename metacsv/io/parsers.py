@@ -1,6 +1,10 @@
-
-from __future__ import absolute_import, division, print_function, \
-    with_statement, unicode_literals
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    with_statement,
+    unicode_literals,
+)
 
 import pandas as pd
 import re
@@ -12,11 +16,11 @@ from ..core.containers import Series, DataFrame
 
 
 def find_yaml_start(line):
-    return re.search(r'^\s*-{3,}\s*$', line) is not None
+    return re.search(r"^\s*-{3,}\s*$", line) is not None
 
 
 def find_yaml_stop(line):
-    return re.search(r'^\s*\.{3,}\s*$', line) is not None
+    return re.search(r"^\s*\.{3,}\s*$", line) is not None
 
 
 def _parse_headered_data(fp):
@@ -26,34 +30,34 @@ def _parse_headered_data(fp):
     # normal CSV
     loc = fp.tell()
 
-    nextline = ''
+    nextline = ""
 
-    while re.search(r'^[\s\n\r]*$', nextline):
+    while re.search(r"^[\s\n\r]*$", nextline):
         nextline = next(fp)
 
     if not find_yaml_start(nextline):
         fp.seek(loc)
         return OrderedDict()
 
-    yaml_text = ''
-    this_line = ''
+    yaml_text = ""
+    this_line = ""
 
     while not find_yaml_stop(this_line):
-        yaml_text += '\n' + this_line.rstrip('\n')
+        yaml_text += "\n" + this_line.rstrip("\n")
         this_line = next(fp)
-    yaml_text = yaml_text.replace('\t', ' ')
+    yaml_text = yaml_text.replace("\t", " ")
 
     header = ordered_load(yaml_text)
 
-
     return header
+
 
 def _verify_deep_assertion(verify_par, par):
     if par is None:
-        raise ValueError('Assertions failed')
+        raise ValueError("Assertions failed")
 
     if not has_iteritems(verify_par):
-        if hasattr(verify_par, '__call__'):
+        if hasattr(verify_par, "__call__"):
             assert verify_par(par)
             return
 
@@ -62,7 +66,7 @@ def _verify_deep_assertion(verify_par, par):
             return
 
     if not has_iteritems(par):
-        raise ValueError('Assertions failed')
+        raise ValueError("Assertions failed")
 
     for kw, arg in iteritems(verify_par):
         _verify_deep_assertion(arg, par[kw])
@@ -73,25 +77,26 @@ def _verify_assertions(assertions=None, attrs=None, coords=None, variables=None)
         return
 
     if not has_iteritems(assertions):
-        raise TypeError('assertions must be iterable')
+        raise TypeError("assertions must be iterable")
 
-    if 'attrs' in assertions:
-        _verify_deep_assertion(assertions['attrs'], attrs)
+    if "attrs" in assertions:
+        _verify_deep_assertion(assertions["attrs"], attrs)
 
-    if 'coords' in assertions:
-        _verify_deep_assertion(assertions['coords'], coords)
+    if "coords" in assertions:
+        _verify_deep_assertion(assertions["coords"], coords)
 
-    if 'variables' in assertions:
-        _verify_deep_assertion(assertions['variables'], variables)
+    if "variables" in assertions:
+        _verify_deep_assertion(assertions["variables"], variables)
 
     for kw, arg in iteritems(assertions):
-        if kw in ['attrs','coords','variables']:
+        if kw in ["attrs", "coords", "variables"]:
             continue
         _verify_deep_assertion(arg, attrs[kw])
 
 
-
-def read_header(fp, header_file=None, parse_vars=False, assertions=None, *args, **kwargs):
+def read_header(
+    fp, header_file=None, parse_vars=False, assertions=None, *args, **kwargs
+):
     """
     Read a metacsv-formatted header
 
@@ -191,14 +196,14 @@ def read_header(fp, header_file=None, parse_vars=False, assertions=None, *args, 
     header = OrderedDict()
 
     if isinstance(header_file, string_types):
-        with open(header_file, 'r') as hf:
+        with open(header_file, "r") as hf:
             header = ordered_load(hf.read())
 
     elif header_file is not None:
         header = ordered_load(hf.read())
 
     if isinstance(fp, string_types):
-        with open(fp, 'r') as fp:
+        with open(fp, "r") as fp:
             _header = _parse_headered_data(fp)
 
     else:
@@ -206,17 +211,19 @@ def read_header(fp, header_file=None, parse_vars=False, assertions=None, *args, 
 
     header.update(_header)
 
-    kwargs.update({'attrs': header})
+    kwargs.update({"attrs": header})
     args, kwargs, special = Container.strip_special_attributes(args, kwargs)
 
     if parse_vars:
-        if 'variables' in special:
-            for key, var in special['variables'].items():
-                special['variables'][key] = Variables.parse_string_var(var)
+        if "variables" in special:
+            for key, var in special["variables"].items():
+                special["variables"][key] = Variables.parse_string_var(var)
 
-    attrs = Attributes(None if ('attrs' not in special) else special['attrs'])
-    coords = Coordinates(None if ('coords' not in special) else special['coords'])
-    variables = Variables(None if ('variables' not in special) else special['variables'])
+    attrs = Attributes(None if ("attrs" not in special) else special["attrs"])
+    coords = Coordinates(None if ("coords" not in special) else special["coords"])
+    variables = Variables(
+        None if ("variables" not in special) else special["variables"]
+    )
 
     _verify_assertions(assertions, attrs=attrs, coords=coords, variables=variables)
 
@@ -334,23 +341,23 @@ def read_csv(fp, header_file=None, parse_vars=False, assertions=None, *args, **k
 
     kwargs = dict(kwargs)
 
-    squeeze = kwargs.get('squeeze', False)
+    squeeze = kwargs.get("squeeze", False)
 
     # set defaults
-    engine = kwargs.pop('engine', 'python')
-    kwargs['engine'] = engine
+    engine = kwargs.pop("engine", "python")
+    kwargs["engine"] = engine
 
     header = OrderedDict()
 
     if isinstance(header_file, string_types):
-        with open(header_file, 'r') as hf:
+        with open(header_file, "r") as hf:
             header = ordered_load(hf.read())
 
     elif header_file is not None:
         header = ordered_load(hf.read())
 
     if isinstance(fp, string_types):
-        with open(fp, 'r') as fp:
+        with open(fp, "r") as fp:
             _header = _parse_headered_data(fp)
             data = pd.read_csv(fp, *args, **kwargs)
 
@@ -360,28 +367,34 @@ def read_csv(fp, header_file=None, parse_vars=False, assertions=None, *args, **k
 
     header.update(_header)
 
-    kwargs.update({'attrs': header})
+    kwargs.update({"attrs": header})
     args, kwargs, special = Container.strip_special_attributes(args, kwargs)
 
     if parse_vars:
-        if 'variables' in special:
-            for key, var in special['variables'].items():
-                special['variables'][key] = Variables.parse_string_var(var)
+        if "variables" in special:
+            for key, var in special["variables"].items():
+                special["variables"][key] = Variables.parse_string_var(var)
 
     if squeeze:
         if len(data.shape) == 1:
             s = Series(data, **special)
-            _verify_assertions(assertions, attrs=s.attrs, variables=s.variables, coords=s.coords)
+            _verify_assertions(
+                assertions, attrs=s.attrs, variables=s.variables, coords=s.coords
+            )
             return s
 
     df = DataFrame(data, **special)
 
     if squeeze and df.shape[1] == 1:
         s = Series(df[df.columns[0]], **special)
-        _verify_assertions(assertions, attrs=s.attrs, variables=s.variables, coords=s.coords)
+        _verify_assertions(
+            assertions, attrs=s.attrs, variables=s.variables, coords=s.coords
+        )
         return s
     else:
-        _verify_assertions(assertions, attrs=df.attrs, variables=df.variables, coords=df.coords)
+        _verify_assertions(
+            assertions, attrs=df.attrs, variables=df.variables, coords=df.coords
+        )
         return df
 
 
