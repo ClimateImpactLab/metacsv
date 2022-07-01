@@ -1,5 +1,10 @@
-from __future__ import absolute_import, division, print_function, \
-    with_statement, unicode_literals
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    with_statement,
+    unicode_literals,
+)
 
 import pandas as pd
 import numpy as np
@@ -10,8 +15,9 @@ from .._compat import string_types
 from .internals import Attributes, Container, Coordinates, Variables
 import xarray as xr
 
+
 class Series(Container, pd.Series):
-    '''
+    """
     metacsv.Series, inherrited from pandas.Series
 
     Keyword Arguments:
@@ -23,17 +29,18 @@ class Series(Container, pd.Series):
             Variable-specific attributes
 
     *args, **kwargs are passed to pandas.Series.__init__
-    '''
+    """
 
     pandas_parent = pd.Series
-    _metadata = ['_coords', '_attrs', '_variables']
+    _metadata = ["_coords", "_attrs", "_variables"]
 
     def copy(self):
         return Series(
             self.pandas_parent.copy(self),
             coords=self.coords.copy(),
             attrs=self.attrs.copy(),
-            variables=self.variables.copy())
+            variables=self.variables.copy(),
+        )
 
     @property
     def _constructor(self):
@@ -44,14 +51,13 @@ class Series(Container, pd.Series):
         return DataFrame
 
     def __init__(self, *args, **kwargs):
-        args, kwargs, special = Container.strip_special_attributes(
-            args, kwargs)
+        args, kwargs, special = Container.strip_special_attributes(args, kwargs)
         pd.Series.__init__(self, *args, **kwargs)
         Container.__init__(self, **special)
 
 
 class DataFrame(Container, pd.DataFrame):
-    '''
+    """
     metacsv.DataFrame, inherrited from pandas.DataFrame
 
     Keyword Arguments:
@@ -63,17 +69,18 @@ class DataFrame(Container, pd.DataFrame):
             Variable-specific attributes
 
     *args, **kwargs are passed to pandas.DataFrame.__init__
-    '''
+    """
 
     pandas_parent = pd.DataFrame
-    _metadata = ['_coords', '_attrs', '_variables']
+    _metadata = ["_coords", "_attrs", "_variables"]
 
     def copy(self):
         return DataFrame(
             self.pandas_parent.copy(self),
             coords=self.coords.copy(),
             attrs=self.attrs.copy(),
-            variables=self.variables.copy())
+            variables=self.variables.copy(),
+        )
 
     @property
     def _constructor(self):
@@ -84,7 +91,6 @@ class DataFrame(Container, pd.DataFrame):
         return Series
 
     def __init__(self, *args, **kwargs):
-        args, kwargs, special = Container.strip_special_attributes(
-            args, kwargs)
+        args, kwargs, special = Container.strip_special_attributes(args, kwargs)
         pd.DataFrame.__init__(self, *args, **kwargs)
         Container.__init__(self, **special)

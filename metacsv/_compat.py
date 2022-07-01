@@ -14,8 +14,8 @@ if PY2:
 
     text_to_native = lambda s, enc: s.encode(enc)
 
-    has_iterkeys = lambda d: hasattr(d, 'iterkeys')
-    has_iteritems = lambda d: hasattr(d, 'iteritems')
+    has_iterkeys = lambda d: hasattr(d, "iterkeys")
+    has_iteritems = lambda d: hasattr(d, "iteritems")
     iterkeys = lambda d: d.iterkeys()
     itervalues = lambda d: d.itervalues()
     iteritems = lambda d: d.iteritems()
@@ -28,6 +28,7 @@ if PY2:
     stream_types = (StringIO, InputType)
 
     from itertools import izip, imap
+
     range_type = xrange
 
     cmp = cmp
@@ -37,20 +38,20 @@ if PY2:
     import urlparse
 
     def console_to_str(s):
-        return s.decode('utf_8')
+        return s.decode("utf_8")
 
-    exec('def reraise(tp, value, tb=None):\n raise tp, value, tb')
+    exec("def reraise(tp, value, tb=None):\n raise tp, value, tb")
 
 else:
     unichr = chr
     text_type = str
     string_types = (str,)
-    integer_types = (int, )
+    integer_types = (int,)
 
     text_to_native = lambda s, enc: s
 
-    has_iterkeys = lambda d: hasattr(d, 'keys')
-    has_iteritems = lambda d: hasattr(d, 'items')
+    has_iterkeys = lambda d: hasattr(d, "keys")
+    has_iteritems = lambda d: hasattr(d, "items")
     iterkeys = lambda d: iter(d.keys())
     itervalues = lambda d: iter(d.values())
     iteritems = lambda d: iter(d.items())
@@ -76,15 +77,15 @@ else:
     console_encoding = sys.__stdout__.encoding
 
     def console_to_str(s):
-        """ From pypa/pip project, pip.backwardwardcompat. License MIT. """
+        """From pypa/pip project, pip.backwardwardcompat. License MIT."""
         try:
             return s.decode(console_encoding)
         except UnicodeDecodeError:
-            return s.decode('utf_8')
+            return s.decode("utf_8")
 
     def reraise(tp, value, tb=None):
         if value.__traceback__ is not tb:
-            raise(value.with_traceback(tb))
+            raise (value.with_traceback(tb))
         raise value
 
 

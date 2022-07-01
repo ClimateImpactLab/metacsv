@@ -1,9 +1,14 @@
-'''
+"""
 Utilities for converting between metacsv-compatible data formats
-'''
+"""
 
-from __future__ import absolute_import, division, print_function, \
-    with_statement, unicode_literals
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    with_statement,
+    unicode_literals,
+)
 
 import pandas as pd
 import numpy as np
@@ -14,12 +19,10 @@ from metacsv.io.to_xarray import (
     metacsv_series_to_dataarray,
     metacsv_series_to_dataset,
     metacsv_dataframe_to_dataset,
-    metacsv_dataframe_to_dataarray)
+    metacsv_dataframe_to_dataarray,
+)
 
-from metacsv.io.to_csv import (
-    metacsv_to_csv,
-    metacsv_to_header,
-    _header_to_file_object)
+from metacsv.io.to_csv import metacsv_to_csv, metacsv_to_header, _header_to_file_object
 
 from metacsv.io.parsers import read_csv
 from metacsv.core.containers import Series, DataFrame
@@ -38,10 +41,10 @@ def _coerce_to_metacsv(container, *args, **kwargs):
             container = DataFrame(container)
         elif isinstance(container, (xr.DataArray, xr.Dataset)):
             raise NotImplementedError(
-                'automatic coersion of xarray objects not implemented')
+                "automatic coersion of xarray objects not implemented"
+            )
         else:
-            raise TypeError(
-                'Unknown data type. Must be a Series or DataFrame')
+            raise TypeError("Unknown data type. Must be a Series or DataFrame")
 
     return container
 
@@ -49,27 +52,27 @@ def _coerce_to_metacsv(container, *args, **kwargs):
 def _parse_args(container, attrs, coords, variables):
 
     if attrs is not None:
-        if hasattr(container, 'attrs') and container.attrs == None:
+        if hasattr(container, "attrs") and container.attrs == None:
             container.attrs = attrs
         else:
             container.attrs.update(attrs)
 
     if coords is not None:
-        if hasattr(container, 'coords') and container.coords == None:
+        if hasattr(container, "coords") and container.coords == None:
             container.add_coords()
             container.coords = coords
         else:
             container.coords.update(coords)
 
     if variables is not None:
-        if hasattr(container, 'variables') and container.variables == None:
+        if hasattr(container, "variables") and container.variables == None:
             container.variables = variables
         else:
             container.variables.update(variables)
 
 
 def to_dataset(container, attrs=None, coords=None, variables=None, *args, **kwargs):
-    '''
+    """
     Convert a CSV, Series or DataFrame, DataArray, or Dataset to an
     :py:class:`xarray.Dataset`
 
@@ -131,7 +134,7 @@ def to_dataset(container, attrs=None, coords=None, variables=None, *args, **kwar
         Attributes:
             author:  my name
 
-    '''
+    """
 
     container = _coerce_to_metacsv(container, *args, **kwargs)
     _parse_args(container, attrs, coords, variables)
@@ -141,12 +144,11 @@ def to_dataset(container, attrs=None, coords=None, variables=None, *args, **kwar
     elif len(container.shape) == 2:
         return metacsv_dataframe_to_dataset(container)
     elif len(container.shape) > 2:
-        raise NotImplementedError(
-            'to_dataarray not implemented for Panel data')
+        raise NotImplementedError("to_dataarray not implemented for Panel data")
 
 
 def to_dataarray(container, attrs=None, coords=None, variables=None, *args, **kwargs):
-    '''
+    """
     Convert a CSV, Series, DataFrame, Panel, DataArray, or Dataset to an
     :py:class:`xarray.DataArray`
 
@@ -205,7 +207,7 @@ def to_dataarray(container, attrs=None, coords=None, variables=None, *args, **kw
         Attributes:
             author: my name
 
-    '''
+    """
 
     container = _coerce_to_metacsv(container, *args, **kwargs)
     _parse_args(container, attrs, coords, variables)
@@ -215,12 +217,11 @@ def to_dataarray(container, attrs=None, coords=None, variables=None, *args, **kw
     elif len(container.shape) == 2:
         return metacsv_dataframe_to_dataarray(container)
     elif len(container.shape) > 2:
-        raise NotImplementedError(
-            'to_dataarray not implemented for Panel data')
+        raise NotImplementedError("to_dataarray not implemented for Panel data")
 
 
 def to_xarray(container, attrs=None, coords=None, variables=None, *args, **kwargs):
-    '''
+    """
     Convert a Series to an xarray.DataArray and a CSV or DataFrame to an xArray.Dataset
 
     .. note ::
@@ -301,7 +302,7 @@ def to_xarray(container, attrs=None, coords=None, variables=None, *args, **kwarg
             col3     (abc) float64 0.3023 0.3456 0.6852
         Attributes:
             author:  my name
-    '''
+    """
 
     container = _coerce_to_metacsv(container, *args, **kwargs)
     _parse_args(container, attrs, coords, variables)
@@ -311,12 +312,11 @@ def to_xarray(container, attrs=None, coords=None, variables=None, *args, **kwarg
     elif len(container.shape) == 2:
         return to_dataset(container)
     elif len(container.shape) > 2:
-        raise NotImplementedError(
-            'to_dataarray not implemented for Panel data')
+        raise NotImplementedError("to_dataarray not implemented for Panel data")
 
 
 def to_pandas(container, *args, **kwargs):
-    '''
+    """
     Write a metacsvobject to a pandas :py:class:`~pandas.Series`,
     :py:class:`~pandas.DataFrame`, or :py:class:`~pandas.Panel`
 
@@ -376,16 +376,16 @@ def to_pandas(container, *args, **kwargs):
         a   X    0.328389  0.598790  0.299902  0.265052
         b   Y    0.720712  0.617109  0.331346  0.558522
         c   Z    0.954494  0.143843  0.058968  0.069010
-        '''
+    """
 
-    if not hasattr(container, 'pandas_parent'):
+    if not hasattr(container, "pandas_parent"):
         container = _coerce_to_metacsv(container, *args, **kwargs)
 
     return container.pandas_parent(container)
 
 
 def to_netcdf(container, fp, attrs=None, coords=None, variables=None, *args, **kwargs):
-    '''
+    """
     Convert a CSV, Series, DataFrame, Panel, DataArray, or Dataset to a NetCDF file
 
     .. note ::
@@ -452,13 +452,24 @@ def to_netcdf(container, fp, attrs=None, coords=None, variables=None, *args, **k
         >>> ds.close()
         >>> import os
         >>> os.remove('test.nc')
-    '''
+    """
 
-    to_dataset(container, attrs=attrs, coords=coords, variables=variables, *args, **kwargs).to_netcdf(fp)
+    to_dataset(
+        container, attrs=attrs, coords=coords, variables=variables, *args, **kwargs
+    ).to_netcdf(fp)
 
 
-def to_csv(container, fp, attrs=None, coords=None, variables=None, header_file=None, *args, **kwargs):
-    r'''
+def to_csv(
+    container,
+    fp,
+    attrs=None,
+    coords=None,
+    variables=None,
+    header_file=None,
+    *args,
+    **kwargs
+):
+    r"""
     Write a CSV, Series, DataFrame, Panel, DataArray, or Dataset to a metacsv-formatted csv
 
     .. note ::
@@ -548,15 +559,17 @@ def to_csv(container, fp, attrs=None, coords=None, variables=None, header_file=N
         >>> import os
         >>> os.remove('my-metacsv-data.csv')
 
-    '''
+    """
 
     container = _coerce_to_metacsv(container, header_file=header_file).copy()
     _parse_args(container, attrs, coords, variables)
     metacsv_to_csv(container, fp, *args, **kwargs)
 
 
-def to_header(fp, container=None, attrs=None, coords=None, variables=None, *args, **kwargs):
-    '''
+def to_header(
+    fp, container=None, attrs=None, coords=None, variables=None, *args, **kwargs
+):
+    """
     Write metacsv attributes directly to a metacsv-formatted header file
 
     Parameters
@@ -609,7 +622,7 @@ def to_header(fp, container=None, attrs=None, coords=None, variables=None, *args
         >>> import os
         >>> os.remove('mycsv.header')
 
-    '''
+    """
 
     if container is not None:
         container = _coerce_to_metacsv(container, *args, **kwargs).copy()

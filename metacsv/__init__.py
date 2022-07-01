@@ -9,8 +9,13 @@ Tools for documentation-aware data reading, writing, and analysis
 
 """
 
-from __future__ import absolute_import, division, print_function, \
-    with_statement, unicode_literals
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    with_statement,
+    unicode_literals,
+)
 
 from metacsv.__about__ import (
     __title__,
@@ -18,14 +23,12 @@ from metacsv.__about__ import (
     __description__,
     __version__,
     __license__,
-    __copyright__)
+    __copyright__,
+)
 
 from metacsv.core import *
 
-from metacsv.io.parsers import (
-    read_header,
-    read_csv,
-    read_pickle)
+from metacsv.io.parsers import read_header, read_csv, read_pickle
 
 from metacsv.io.converters import (
     to_dataset,
@@ -34,4 +37,5 @@ from metacsv.io.converters import (
     to_netcdf,
     to_pandas,
     to_csv,
-    to_header)
+    to_header,
+)
