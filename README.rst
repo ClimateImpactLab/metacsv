@@ -2,9 +2,8 @@
 MetaCSV
 =======
 
-
-.. image:: https://img.shields.io/travis/ClimateImpactLab/metacsv/master.svg?style=flat-square
-    :target: https://travis-ci.org/ClimateImpactLab/metacsv
+.. image:: https://github.com/ClimateImpactLab/metacsv/actions/workflows/pythonpackage.yaml/badge.svg
+    :target: https://github.com/ClimateImpactLab/metacsv/actions/workflows/pythonpackage.yaml
 
 .. image:: https://img.shields.io/pypi/v/metacsv.svg?style=flat-square
     :target: https://pypi.python.org/pypi/MetaCSV
