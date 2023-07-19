@@ -1,7 +1,7 @@
 numpy
 xarray
 pandas
-cftime==1.6.1
+cftime==1.6.2
 netCDF4==1.6.4
 wheel==0.40.0
 flake8==3.7.8
