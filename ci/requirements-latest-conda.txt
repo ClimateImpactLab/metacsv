@@ -1,6 +1,0 @@
-pytest
-netcdf4
-numpy
-pandas
-xarray
-pyyaml
